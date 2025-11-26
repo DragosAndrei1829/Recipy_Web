@@ -42,8 +42,8 @@ class Report < ApplicationRecord
   after_update :notify_if_resolved, if: :saved_change_to_status?
 
   # Thresholds
-  QUARANTINE_THRESHOLD = 3  # Reports needed to quarantine a recipe
-  USER_WARNING_THRESHOLD = 5  # Reports needed to flag a user for review
+  QUARANTINE_THRESHOLD = 5  # Reports needed to quarantine a recipe
+  USER_WARNING_THRESHOLD = 10  # Reports needed to flag a user for review
 
   def reason_label
     REASONS[reason.to_sym] || reason

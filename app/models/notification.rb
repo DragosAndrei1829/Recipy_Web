@@ -7,7 +7,7 @@ class Notification < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :by_type, ->(type) { where(notification_type: type) }
 
-  NOTIFICATION_TYPES = %w[comment like follow message recipe_shared].freeze
+  NOTIFICATION_TYPES = %w[comment like follow message recipe_shared recipe_quarantined recipe_released recipe_removed user_blocked user_unblocked].freeze
 
   validates :notification_type, inclusion: { in: NOTIFICATION_TYPES }
 
@@ -27,6 +27,16 @@ class Notification < ApplicationRecord
       "✉️"
     when "recipe_shared"
       "📤"
+    when "recipe_quarantined"
+      "⚠️"
+    when "recipe_released"
+      "✅"
+    when "recipe_removed"
+      "🗑️"
+    when "user_blocked"
+      "🚫"
+    when "user_unblocked"
+      "✅"
     else
       "🔔"
     end

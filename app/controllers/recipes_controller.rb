@@ -17,8 +17,8 @@ class RecipesController < ApplicationController
     end
     @filters = filters
 
-    # Base query
-    base_recipes = Recipe.includes(:user, :category, :cuisine, :food_type)
+    # Base query - exclude quarantined recipes from feed
+    base_recipes = Recipe.visible.includes(:user, :category, :cuisine, :food_type)
 
     # If user is signed in, show followed users' posts + own posts, then recommended
     if user_signed_in?

@@ -6,7 +6,7 @@ module Api
 
       # GET /api/v1/recipes
       def index
-        recipes = Recipe.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
+        recipes = Recipe.visible.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
                         .order(created_at: :desc)
 
         # Apply filters
@@ -25,15 +25,15 @@ module Api
         followed_user_ids = current_api_user.following.pluck(:id)
         followed_user_ids << current_api_user.id
 
-        recipes = Recipe.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
+        recipes = Recipe.visible.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
                         .where(user_id: followed_user_ids)
                         .order(created_at: :desc)
 
         # If fewer than 10 recipes, add recommended
         if recipes.count < 10
-          recommended_ids = Recipe.top_of_month(20).pluck(:id)
+          recommended_ids = Recipe.visible.top_of_month(20).pluck(:id)
           all_ids = recipes.pluck(:id) + (recommended_ids - recipes.pluck(:id))
-          recipes = Recipe.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
+          recipes = Recipe.visible.includes(:user, :category, :cuisine, :food_type, photos_attachments: :blob)
                           .where(id: all_ids)
                           .order(created_at: :desc)
         end
