@@ -1,4 +1,4 @@
-<div class="space-y-6 animate-fade-in">
+<div class="space-y-6 animate-fade-in max-w-full overflow-hidden">
   <!-- Header -->
   <div class="bg-card rounded-3xl shadow-2xl border-2 border-default overflow-hidden">
     <div class="bg-gradient-primary px-6 py-5 relative overflow-hidden">
@@ -15,9 +15,9 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 gap-4 max-w-full">
     <!-- Filters Sidebar -->
-    <div class="lg:col-span-1">
+    <div class="xl:col-span-1 lg:col-span-1">
       <div class="bg-card rounded-3xl shadow-xl border-2 border-default p-5 sticky top-20">
         <h2 class="text-lg font-bold text-primary-content mb-4 flex items-center gap-2">
           <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Recipes Grid -->
-    <div class="lg:col-span-3">
+    <div class="xl:col-span-3 lg:col-span-2">
       <% if @recipes.any? %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <% @recipes.each_with_index do |recipe, index| %>

@@ -307,6 +307,8 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* === Feed / discovery cards (app/views/recipes/index.html.erb) === */
