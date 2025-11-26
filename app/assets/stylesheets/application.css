@@ -130,10 +130,10 @@ body::before {
   }
 }
 
-/* Small desktop - narrower sidebars */
+/* Small desktop - wider sidebars */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .app-grid {
-    grid-template-columns: minmax(180px, 18%) minmax(0, 1fr) minmax(180px, 20%);
+    grid-template-columns: minmax(220px, 24%) minmax(0, 1fr) minmax(220px, 24%);
     gap: 1rem;
   }
 }
@@ -141,7 +141,7 @@ body::before {
 /* Medium desktop */
 @media (min-width: 1280px) and (max-width: 1535px) {
   .app-grid {
-    grid-template-columns: minmax(200px, 20%) minmax(0, 1fr) minmax(200px, 22%);
+    grid-template-columns: minmax(260px, 26%) minmax(0, 1fr) minmax(260px, 26%);
     gap: 1.25rem;
   }
 }
@@ -149,7 +149,7 @@ body::before {
 /* Large desktop */
 @media (min-width: 1536px) {
   .app-grid {
-    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(260px, 300px);
+    grid-template-columns: minmax(300px, 320px) minmax(0, 1fr) minmax(300px, 340px);
     gap: 1.5rem;
   }
 }
