@@ -39,7 +39,9 @@ Rails.application.routes.draw do
       resources :users, only: [ :show ] do
         collection do
           get :search
+          get :profile, to: "users#profile"
           put :profile, to: "users#update_profile"
+          patch :profile, to: "users#update_profile"
           post :avatar, to: "users#update_avatar"
           delete :avatar, to: "users#delete_avatar"
         end

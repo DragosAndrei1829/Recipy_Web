@@ -93,7 +93,12 @@ module Api
         end
       end
 
-      # PUT /api/v1/users/profile
+      # GET /api/v1/users/profile
+      def profile
+        render_success({ user: user_json(current_api_user, full: true) })
+      end
+
+      # PUT/PATCH /api/v1/users/profile
       def update_profile
         if current_api_user.update(profile_params)
           render_success({ user: user_json(current_api_user.reload, full: true) })
