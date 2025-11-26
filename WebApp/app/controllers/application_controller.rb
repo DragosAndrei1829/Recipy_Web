@@ -16,10 +16,10 @@ class ApplicationController < ActionController::Base
 
   def available_quick_filters
     [
-      { slug: 'under20', icon: 'clock', label: I18n.t('filters.quick_under_20'), params: { max_time: 20 } },
-      { slug: 'hi9', icon: 'star', label: I18n.t('filters.quick_high_rating'), params: { min_rating: 9 } },
-      { slug: 'easy', icon: 'sparkles', label: I18n.t('filters.quick_easy'), params: { min_difficulty: 1, max_time: 30 } },
-      { slug: 'light', icon: 'leaf', label: I18n.t('filters.quick_low_cal'), params: { max_calories: 400 } }
+      { slug: "under20", icon: "clock", label: I18n.t("filters.quick_under_20"), params: { max_time: 20 } },
+      { slug: "hi9", icon: "star", label: I18n.t("filters.quick_high_rating"), params: { min_rating: 9 } },
+      { slug: "easy", icon: "sparkles", label: I18n.t("filters.quick_easy"), params: { min_difficulty: 1, max_time: 30 } },
+      { slug: "light", icon: "leaf", label: I18n.t("filters.quick_low_cal"), params: { max_calories: 400 } }
     ]
   end
 
@@ -29,11 +29,11 @@ class ApplicationController < ActionController::Base
   end
 
   def admin_route?
-    request.path.start_with?('/admin') || request.path.start_with?('/adminDashboard')
+    request.path.start_with?("/admin") || request.path.start_with?("/adminDashboard")
   end
 
   def default_url_options(_options = {})
-    if request && (request.path.start_with?('/admin') || request.path.start_with?('/adminDashboard'))
+    if request && (request.path.start_with?("/admin") || request.path.start_with?("/adminDashboard"))
       {}
     else
       { locale: I18n.locale }
@@ -48,7 +48,7 @@ class ApplicationController < ActionController::Base
       referer = request.referer || root_path
       uri = URI.parse(referer)
       path = uri.path
-      path = path.gsub(/^\/(ro|en)/, '')
+      path = path.gsub(/^\/(ro|en)/, "")
       new_path = "/#{locale}#{path}"
       new_path = "/#{locale}" if new_path == "/#{locale}/"
       redirect_to new_path
@@ -73,19 +73,19 @@ class ApplicationController < ActionController::Base
   end
 
   def handle_not_found(error)
-    render_error(:not_found, 'errors/not_found', error, I18n.t('errors.not_found'))
+    render_error(:not_found, "errors/not_found", error, I18n.t("errors.not_found"))
   end
 
   def handle_bad_request(error)
-    render_error(:bad_request, 'errors/not_found', error, I18n.t('errors.bad_request'))
+    render_error(:bad_request, "errors/not_found", error, I18n.t("errors.bad_request"))
   end
 
   def handle_unprocessable_entity(error)
-    render_error(:unprocessable_entity, 'errors/not_found', error, error.record&.errors&.full_messages&.to_sentence || I18n.t('errors.unprocessable'))
+    render_error(:unprocessable_entity, "errors/not_found", error, error.record&.errors&.full_messages&.to_sentence || I18n.t("errors.unprocessable"))
   end
 
   def handle_internal_error(error)
-    render_error(:internal_server_error, 'errors/internal_server_error', error, I18n.t('errors.internal'))
+    render_error(:internal_server_error, "errors/internal_server_error", error, I18n.t("errors.internal"))
   end
 
   def render_error(status, template, error, message)
@@ -94,7 +94,7 @@ class ApplicationController < ActionController::Base
 
     respond_to do |format|
       format.html { render template, status:, locals: { error_id:, message: } }
-      format.turbo_stream { render template, formats: [:html], status:, locals: { error_id:, message: } }
+      format.turbo_stream { render template, formats: [ :html ], status:, locals: { error_id:, message: } }
       format.json { render json: { error: message, error_id: error_id }, status: }
     end
   end

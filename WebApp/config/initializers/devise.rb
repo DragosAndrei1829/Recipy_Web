@@ -24,7 +24,7 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = ENV['GMAIL_USERNAME'] || 'recipy_support@gmail.com'
+  config.mailer_sender = ENV["GMAIL_USERNAME"] || "recipy_support@gmail.com"
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'
@@ -36,7 +36,7 @@ Devise.setup do |config|
   # Load and configure the ORM. Supports :active_record (default) and
   # :mongoid (bson_ext recommended) by default. Other ORMs may be
   # available as additional gems.
-  require 'devise/orm/active_record'
+  require "devise/orm/active_record"
 
   # ==> Configuration for any authentication mechanism
   # Configure which keys are used when authenticating a user. The default is
@@ -47,7 +47,7 @@ Devise.setup do |config|
   # You can also supply a hash where the value is a boolean determining whether
   # or not authentication should be aborted when the value is not present.
   # We use :login for authentication (which can be email or username)
-  config.authentication_keys = [:login]
+  config.authentication_keys = [ :login ]
 
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
@@ -59,12 +59,12 @@ Devise.setup do |config|
   # Configure which authentication keys should be case-insensitive.
   # These keys will be downcased upon creating or modifying a user and when used
   # to authenticate or find a user. Default is :email.
-  config.case_insensitive_keys = [:email]
+  config.case_insensitive_keys = [ :email ]
 
   # Configure which authentication keys should have whitespace stripped.
   # These keys will have whitespace before and after removed upon creating or
   # modifying a user and when used to authenticate or find a user. Default is :email.
-  config.strip_whitespace_keys = [:email]
+  config.strip_whitespace_keys = [ :email ]
 
   # Tell if authentication through request.params is enabled. True by default.
   # It can be set to an array that will enable params authentication only for the
@@ -98,7 +98,7 @@ Devise.setup do |config|
   # Notice that if you are skipping storage for all authentication paths, you
   # may want to disable generating routes to Devise's sessions controller by
   # passing skip: :sessions to `devise_for` in your config/routes.rb
-  config.skip_session_storage = [:http_auth]
+  config.skip_session_storage = [ :http_auth ]
 
   # By default, Devise cleans up the CSRF token on authentication to
   # avoid CSRF token fixation attacks. This means that, when using AJAX
@@ -195,27 +195,27 @@ Devise.setup do |config|
   # Defines which strategy will be used to lock an account.
   # :failed_attempts = Locks an account after a number of failed attempts to sign in.
   # :none            = No lock strategy. You should handle locking by yourself.
-  # config.lock_strategy = :failed_attempts
+  config.lock_strategy = :failed_attempts
 
   # Defines which key will be used when locking and unlocking an account
-  # config.unlock_keys = [:email]
+  config.unlock_keys = [ :email ]
 
   # Defines which strategy will be used to unlock an account.
   # :email = Sends an unlock link to the user email
   # :time  = Re-enables login after a certain amount of time (see :unlock_in below)
   # :both  = Enables both strategies
   # :none  = No unlock strategy. You should handle unlocking by yourself.
-  # config.unlock_strategy = :both
+  config.unlock_strategy = :both
 
   # Number of authentication tries before locking an account if lock_strategy
   # is failed attempts.
-  # config.maximum_attempts = 20
+  config.maximum_attempts = 5
 
   # Time interval to unlock the account if :time is enabled as unlock_strategy.
-  # config.unlock_in = 1.hour
+  config.unlock_in = 30.minutes
 
   # Warn on the last attempt before the account is locked.
-  # config.last_attempt_warning = true
+  config.last_attempt_warning = true
 
   # ==> Configuration for :recoverable
   #
@@ -273,32 +273,32 @@ Devise.setup do |config|
   # Add a new OmniAuth provider. Check the wiki for more information on setting
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
-  
+
   # OAuth Configuration (only if credentials are provided)
   # Google OAuth - Set these in your environment variables
-  if ENV['GOOGLE_CLIENT_ID'].present? && ENV['GOOGLE_CLIENT_SECRET'].present?
-    config.omniauth :google_oauth2, 
-      ENV['GOOGLE_CLIENT_ID'], 
-      ENV['GOOGLE_CLIENT_SECRET'],
-      scope: 'email,profile',
-      prompt: 'select_account',
-      image_aspect_ratio: 'square',
+  if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
+    config.omniauth :google_oauth2,
+      ENV["GOOGLE_CLIENT_ID"],
+      ENV["GOOGLE_CLIENT_SECRET"],
+      scope: "email,profile",
+      prompt: "select_account",
+      image_aspect_ratio: "square",
       image_size: 50
   end
-  
+
   # Apple OAuth - Set these in your environment variables
-  if ENV['APPLE_CLIENT_ID'].present? && 
-     ENV['APPLE_CLIENT_SECRET'].present? && 
-     ENV['APPLE_TEAM_ID'].present? && 
-     ENV['APPLE_KEY_ID'].present? && 
-     ENV['APPLE_PRIVATE_KEY'].present?
+  if ENV["APPLE_CLIENT_ID"].present? &&
+     ENV["APPLE_CLIENT_SECRET"].present? &&
+     ENV["APPLE_TEAM_ID"].present? &&
+     ENV["APPLE_KEY_ID"].present? &&
+     ENV["APPLE_PRIVATE_KEY"].present?
     config.omniauth :apple,
-      ENV['APPLE_CLIENT_ID'],
-      ENV['APPLE_CLIENT_SECRET'],
-      scope: 'email name',
-      team_id: ENV['APPLE_TEAM_ID'],
-      key_id: ENV['APPLE_KEY_ID'],
-      pem: ENV['APPLE_PRIVATE_KEY']
+      ENV["APPLE_CLIENT_ID"],
+      ENV["APPLE_CLIENT_SECRET"],
+      scope: "email name",
+      team_id: ENV["APPLE_TEAM_ID"],
+      key_id: ENV["APPLE_KEY_ID"],
+      pem: ENV["APPLE_PRIVATE_KEY"]
   end
 
   # ==> Warden configuration

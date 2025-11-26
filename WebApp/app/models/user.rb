@@ -4,7 +4,8 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true, unless: :oauth_user?
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :timeoutable, :omniauthable, omniauth_providers: [ :google_oauth2, :apple ]
+         :timeoutable, :lockable, :omniauthable, omniauth_providers: [ :google_oauth2, :apple ]
+  # :lockable - locks account after X failed attempts (configured in devise.rb)
 
   # Prevent Devise from trying to assign :login attribute
   def login=(value)
@@ -189,6 +190,6 @@ class User < ApplicationRecord
     complexity_regex = /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[[:^alnum:]]).{8,}\z/
     return if password.match?(complexity_regex)
 
-    errors.add(:password, I18n.t('activerecord.errors.models.user.attributes.password.complexity'))
+    errors.add(:password, I18n.t("activerecord.errors.models.user.attributes.password.complexity"))
   end
 end

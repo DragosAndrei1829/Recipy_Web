@@ -1,6 +1,6 @@
 class Users::RegistrationsController < Devise::RegistrationsController
-  before_action :configure_sign_up_params, only: [:create]
-  before_action :configure_account_update_params, only: [:update]
+  before_action :configure_sign_up_params, only: [ :create ]
+  before_action :configure_account_update_params, only: [ :update ]
 
   def create
     build_resource(sign_up_params)
@@ -16,7 +16,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
         # Generate and send confirmation code for new users
         code = resource.generate_confirmation_code!
         ConfirmationMailer.send_confirmation_code(resource, code).deliver_now
-        
+
         # Redirect to confirmation page
         set_flash_message! :notice, :signed_up_but_unconfirmed if is_flashing_format?
         redirect_to confirmation_path(user_id: resource.id, locale: I18n.locale)
@@ -43,10 +43,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
   protected
 
   def configure_sign_up_params
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :email])
+    devise_parameter_sanitizer.permit(:sign_up, keys: [ :username, :email ])
   end
 
   def configure_account_update_params
-    devise_parameter_sanitizer.permit(:account_update, keys: [:avatar, :phone, :username])
+    devise_parameter_sanitizer.permit(:account_update, keys: [ :avatar, :phone, :username ])
   end
 end

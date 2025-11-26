@@ -60,25 +60,25 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   # Update this with your actual domain
-  config.action_mailer.default_url_options = { 
-    host: ENV['APP_HOST'] || 'your-domain.com',
-    protocol: 'https'
+  config.action_mailer.default_url_options = {
+    host: ENV["APP_HOST"] || "your-domain.com",
+    protocol: "https"
   }
 
   # Gmail SMTP configuration
-  if ENV['GMAIL_USERNAME'].present? && ENV['GMAIL_APP_PASSWORD'].present?
+  if ENV["GMAIL_USERNAME"].present? && ENV["GMAIL_APP_PASSWORD"].present?
     config.action_mailer.delivery_method = :smtp
     config.action_mailer.perform_deliveries = true
-    
+
     config.action_mailer.smtp_settings = {
-      address: 'smtp.gmail.com',
+      address: "smtp.gmail.com",
       port: 587,
-      domain: 'gmail.com',
-      user_name: ENV['GMAIL_USERNAME'],
-      password: ENV['GMAIL_APP_PASSWORD']&.gsub(/[\s-]/, ''), # Remove spaces and hyphens from App Password
-      authentication: 'plain',
+      domain: "gmail.com",
+      user_name: ENV["GMAIL_USERNAME"],
+      password: ENV["GMAIL_APP_PASSWORD"]&.gsub(/[\s-]/, ""), # Remove spaces and hyphens from App Password
+      authentication: "plain",
       enable_starttls_auto: true,
-      openssl_verify_mode: 'peer', # Use peer verification for production
+      openssl_verify_mode: "peer", # Use peer verification for production
       open_timeout: 5,
       read_timeout: 5
     }

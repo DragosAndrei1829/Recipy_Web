@@ -1,6 +1,6 @@
 class FavoritesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_recipe, only: [:create, :destroy]
+  before_action :set_recipe, only: [ :create, :destroy ]
 
   def index
     @favorites = current_user.favorite_recipes.includes(:user, :category, :cuisine, :food_type)
@@ -9,26 +9,26 @@ class FavoritesController < ApplicationController
 
   def create
     @favorite = current_user.favorites.find_or_initialize_by(recipe: @recipe)
-    
+
     respond_to do |format|
       if @favorite.save
         format.turbo_stream
-        format.html { redirect_to @recipe, notice: t('favorites.added') }
+        format.html { redirect_to @recipe, notice: t("favorites.added") }
       else
-        format.html { redirect_to @recipe, alert: t('favorites.error') }
+        format.html { redirect_to @recipe, alert: t("favorites.error") }
       end
     end
   end
 
   def destroy
     @favorite = current_user.favorites.find_by(recipe: @recipe)
-    
+
     respond_to do |format|
       if @favorite&.destroy
         format.turbo_stream
-        format.html { redirect_to @recipe, notice: t('favorites.removed') }
+        format.html { redirect_to @recipe, notice: t("favorites.removed") }
       else
-        format.html { redirect_to @recipe, alert: t('favorites.error') }
+        format.html { redirect_to @recipe, alert: t("favorites.error") }
       end
     end
   end
@@ -39,4 +39,3 @@ class FavoritesController < ApplicationController
     @recipe = Recipe.find(params[:recipe_id])
   end
 end
-

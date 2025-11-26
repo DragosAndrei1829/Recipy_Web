@@ -9,8 +9,8 @@ class CreateSharedRecipes < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    
-    add_index :shared_recipes, [:recipient_id, :read, :created_at]
+
+    add_index :shared_recipes, [ :recipient_id, :read, :created_at ]
     add_index :shared_recipes, :created_at
   end
 end

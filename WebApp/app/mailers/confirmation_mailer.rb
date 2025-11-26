@@ -3,10 +3,10 @@ class ConfirmationMailer < ApplicationMailer
     @user = user
     @code = code
     @expires_in = 15 # minutes
-    
+
     mail(
       to: @user.email,
-      subject: t('confirmation.email.subject', code: @code)
+      subject: t("confirmation.email.subject", code: @code)
     )
   end
 end

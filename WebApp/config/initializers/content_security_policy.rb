@@ -4,26 +4,47 @@
 # See the Securing Rails Applications Guide for more information:
 # https://guides.rubyonrails.org/security.html#content-security-policy-header
 
-# Rails.application.configure do
-#   config.content_security_policy do |policy|
-#     policy.default_src :self, :https
-#     policy.font_src    :self, :https, :data
-#     policy.img_src     :self, :https, :data
-#     policy.object_src  :none
-#     policy.script_src  :self, :https
-#     policy.style_src   :self, :https
-#     # Specify URI for violation reports
-#     # policy.report_uri "/csp-violation-report-endpoint"
-#   end
-#
-#   # Generate session nonces for permitted importmap, inline scripts, and inline styles.
-#   config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-#   config.content_security_policy_nonce_directives = %w(script-src style-src)
-#
-#   # Automatically add `nonce` to `javascript_tag`, `javascript_include_tag`, and `stylesheet_link_tag`
-#   # if the corresponding directives are specified in `content_security_policy_nonce_directives`.
-#   # config.content_security_policy_nonce_auto = true
-#
-#   # Report violations without enforcing the policy.
-#   # config.content_security_policy_report_only = true
-# end
+Rails.application.configure do
+  config.content_security_policy do |policy|
+    policy.default_src :self, :https
+    policy.font_src    :self, :https, :data, "https://fonts.gstatic.com", "https://fonts.googleapis.com"
+    policy.img_src     :self, :https, :data, :blob,
+                       "https://*.blob.core.windows.net",  # Azure Storage
+                       "https://*.amazonaws.com",          # AWS S3
+                       "https://lh3.googleusercontent.com", # Google profile images
+                       "https://avatars.githubusercontent.com"
+    policy.object_src  :none
+    policy.script_src  :self, :https, :unsafe_inline, :unsafe_eval  # Required for Turbo/Stimulus
+    policy.style_src   :self, :https, :unsafe_inline, "https://fonts.googleapis.com"
+    policy.connect_src :self, :https,
+                       "wss://#{Rails.application.config.action_cable.url || 'localhost:3000'}",  # ActionCable WebSocket
+                       "https://*.blob.core.windows.net",
+                       "https://*.amazonaws.com"
+    policy.frame_ancestors :self
+    policy.base_uri    :self
+    policy.form_action :self, :https,
+                       "https://accounts.google.com",  # OAuth
+                       "https://appleid.apple.com"
+
+    # Specify URI for violation reports (optional - uncomment to enable)
+    # policy.report_uri "/csp-violation-report-endpoint"
+  end
+
+  # Generate session nonces for permitted importmap, inline scripts, and inline styles.
+  # Note: This requires changes to how scripts/styles are included
+  # config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+  # config.content_security_policy_nonce_directives = %w(script-src style-src)
+
+  # Report violations without enforcing the policy (good for testing).
+  # Set to false in production after testing
+  config.content_security_policy_report_only = Rails.env.development?
+end
+
+# Additional security headers (set in application.rb or via middleware)
+# These are commonly set but Rails handles some automatically:
+# - X-Frame-Options: SAMEORIGIN (Rails default)
+# - X-XSS-Protection: 0 (deprecated, CSP is better)
+# - X-Content-Type-Options: nosniff (Rails default)
+# - X-Download-Options: noopen (Rails default)
+# - X-Permitted-Cross-Domain-Policies: none (Rails default)
+# - Referrer-Policy: strict-origin-when-cross-origin (Rails default)

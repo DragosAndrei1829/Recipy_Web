@@ -6,4 +6,3 @@ class Users::PasswordsController < Devise::PasswordsController
     new_user_session_path(locale: I18n.locale)
   end
 end
-

@@ -3,4 +3,3 @@ class ContactController < ApplicationController
     @site_setting = SiteSetting.instance
   end
 end
-

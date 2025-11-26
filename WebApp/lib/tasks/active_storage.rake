@@ -13,4 +13,3 @@ namespace :active_storage do
     end
   end
 end
-

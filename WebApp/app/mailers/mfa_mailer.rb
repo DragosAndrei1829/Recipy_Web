@@ -4,11 +4,10 @@ class MfaMailer < ApplicationMailer
     @user = user
     @code = code
     @expires_in = 10 # minutes
-    
+
     mail(
       to: @user.email,
-      subject: t('mfa.email.subject', code: @code)
+      subject: t("mfa.email.subject", code: @code)
     )
   end
 end
-

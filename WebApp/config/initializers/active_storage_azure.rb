@@ -98,7 +98,7 @@ class ActiveStorage::Service::AzureStorageService < ActiveStorage::Service
     # Simplified signature generation - in production, use proper Azure SAS token generation
     require "openssl"
     require "base64"
-    
+
     canonicalized_resource = "/#{@client.storage_account_name}/#{@container}/#{key}"
     string_to_sign = [
       "r", # read permission
@@ -113,7 +113,7 @@ class ActiveStorage::Service::AzureStorageService < ActiveStorage::Service
     signature = Base64.strict_encode64(
       OpenSSL::HMAC.digest("sha256", Base64.strict_decode64(@client.storage_access_key), string_to_sign)
     )
-    
+
     signature
   end
 end
@@ -133,7 +133,7 @@ module ActiveStorage
         end
       end
     end
-    
+
     class << self
       prepend AzureStorageResolver
     end

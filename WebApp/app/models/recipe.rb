@@ -7,7 +7,7 @@ class Recipe < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :favorites, dependent: :destroy
-  has_one_attached :video 
+  has_one_attached :video
   has_many_attached :photos
 
   validates :title, presence: true, length: { minimum: 3, maximum: 200 }

@@ -1,12 +1,12 @@
 # Fixed Categories - Cannot be modified by users
-fixed_categories = ["Mic dejun", "Pranz", "Gustare", "Cina", "Shake", "Desert"]
+fixed_categories = [ "Mic dejun", "Pranz", "Gustare", "Cina", "Shake", "Desert" ]
 fixed_categories.each do |name|
   Category.find_or_create_by!(name: name)
 end
 
 # Fixed Cuisines (Regiuni) - Cannot be modified by users
 fixed_cuisines = [
-  "Mediteranean", "Traditional", "Japoneza", "Asiatica", "Italiana", 
+  "Mediteranean", "Traditional", "Japoneza", "Asiatica", "Italiana",
   "Franceza", "Mexicana", "Indiana", "Chineza", "Thailandeza",
   "Greceasca", "Spaniola", "Turceasca", "Araba", "Americana",
   "Brazileana", "Germana", "Britanica", "Scandinava", "Orientala"

@@ -1,6 +1,6 @@
 class SiteSetting < ApplicationRecord
   belongs_to :theme, optional: true
-  
+
   # Singleton pattern - only one record should exist
   def self.instance
     # Always fetch fresh from database, no caching
