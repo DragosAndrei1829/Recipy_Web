@@ -72,3 +72,18 @@ npm-debug.log
 # Ignore local secret files
 /tmp/local_secret.txt
 
+# Ignore any secret/private files
+*.pem
+*.key
+*.p12
+*.pfx
+/config/secrets.yml
+/config/secrets.yml.enc
+
+# Ignore database dumps
+*.sql
+*.dump
+
+# Ignore log files completely
+*.log
+
