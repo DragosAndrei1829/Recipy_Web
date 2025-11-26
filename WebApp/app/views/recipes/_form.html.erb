@@ -1,0 +1,15 @@
+<%= form_with(model: recipe, local: true) do |form| %>
+  <!-- ... alte câmpuri ... -->
+
+  <div class="field">
+    <%= form.label :photos, "Imagini pentru rețetă" %>
+    <%= form.file_field :photos, multiple: true, direct_upload: true %>
+  </div>
+  
+  <div class="field">
+    <%= form.label :video, "Video preparare (opțional)" %>
+    <%= form.file_field :video, direct_upload: true %>
+  </div>
+  
+  <!-- ... -->
+<% end %>

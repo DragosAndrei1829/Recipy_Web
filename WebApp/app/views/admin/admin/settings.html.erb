@@ -1,0 +1,277 @@
+<div class="min-h-screen bg-page py-8 px-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-black bg-clip-text-primary text-transparent mb-2">
+        <%= t('admin.settings.title') %>
+      </h1>
+      <p class="text-secondary-content"><%= t('admin.settings.subtitle') %></p>
+    </div>
+
+    <%= form_with model: @site_setting, url: admin_settings_path, method: :patch, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
+      <!-- Contact Details -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4"><%= t('admin.settings.contact_details') %></h2>
+        
+        <div class="space-y-4">
+          <div>
+            <%= f.label :contact_email, t('admin.settings.email'), class: "block text-sm font-semibold text-primary-content mb-2" %>
+            <%= f.email_field :contact_email, class: "w-full px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+          </div>
+
+          <div>
+            <%= f.label :contact_phone, t('admin.settings.phone'), class: "block text-sm font-semibold text-primary-content mb-2" %>
+            <%= f.text_field :contact_phone, class: "w-full px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+          </div>
+
+          <div>
+            <%= f.label :contact_address, t('admin.settings.address'), class: "block text-sm font-semibold text-primary-content mb-2" %>
+            <%= f.text_area :contact_address, rows: 3, class: "w-full px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Brand Colors -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4"><%= t('admin.settings.main_colors') %></h2>
+        <p class="text-sm text-secondary-content mb-4"><%= t('admin.settings.main_colors_description') %></p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <%= f.label :primary_color, t('admin.settings.primary_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.primary_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :primary_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :primary_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :secondary_color, t('admin.settings.secondary_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.secondary_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :secondary_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :secondary_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :accent_color, t('admin.settings.accent_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.accent_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :accent_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :accent_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UI Component Colors -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4"><%= t('admin.settings.ui_colors') %></h2>
+        <p class="text-sm text-secondary-content mb-4"><%= t('admin.settings.ui_colors_description') %></p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <%= f.label :navbar_color, t('admin.settings.navbar_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.navbar_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :navbar_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :navbar_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :button_color, t('admin.settings.button_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.button_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :button_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :button_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :link_color, t('admin.settings.link_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.link_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :link_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :link_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :background_color, t('admin.settings.background_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.background_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :background_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :background_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :card_background, t('admin.settings.card_background'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.card_background_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :card_background, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :card_background, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :border_color, t('admin.settings.border_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.border_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :border_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :border_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Colors -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4"><%= t('admin.settings.text_colors') %></h2>
+        <p class="text-sm text-secondary-content mb-4"><%= t('admin.settings.text_colors_description') %></p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <%= f.label :text_primary, t('admin.settings.text_primary'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.text_primary_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :text_primary, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :text_primary, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :text_secondary, t('admin.settings.text_secondary'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.text_secondary_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :text_secondary, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :text_secondary, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Colors -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4"><%= t('admin.settings.status_colors') %></h2>
+        <p class="text-sm text-secondary-content mb-4"><%= t('admin.settings.status_colors_description') %></p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <%= f.label :success_color, t('admin.settings.success_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.success_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :success_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :success_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :warning_color, t('admin.settings.warning_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.warning_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :warning_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :warning_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :error_color, t('admin.settings.error_color'), class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2"><%= t('admin.settings.error_color_description') %></p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :error_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :error_color, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Colors -->
+      <div class="bg-card rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-black text-primary-content mb-4">Footer Colors</h2>
+        <p class="text-sm text-secondary-content mb-4">Customize footer appearance. Ensure good contrast between text and background.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <%= f.label :footer_background, "Footer Background", class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2">Background color for the footer section</p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :footer_background, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :footer_background, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :footer_text, "Footer Text Color", class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2">Text color for all footer content</p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :footer_text, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :footer_text, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :footer_link, "Footer Link Color", class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2">Default color for footer links</p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :footer_link, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :footer_link, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <%= f.label :footer_link_hover, "Footer Link Hover", class: "block text-sm font-semibold text-primary-content" %>
+            <p class="text-xs text-secondary-content mb-2">Color when hovering over footer links</p>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :footer_link_hover, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :footer_link_hover, class: "flex-1 px-4 py-2 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <%= f.submit t('admin.settings.save'), class: "px-6 py-3 bg-gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all hover:scale-105" %>
+        <%= link_to admin_dashboard_path, class: "px-6 py-3 bg-card border border-default text-primary-content font-bold rounded-lg hover:bg-opacity-80 transition-all" do %>
+          <%= t('admin.settings.cancel') %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Sync color picker with text input for all color fields
+  document.addEventListener('DOMContentLoaded', function() {
+    const colorFields = [
+      'primary_color', 'secondary_color', 'accent_color',
+      'navbar_color', 'button_color', 'link_color', 'background_color',
+      'card_background', 'text_primary', 'text_secondary', 'border_color',
+      'success_color', 'warning_color', 'error_color',
+      'footer_background', 'footer_text', 'footer_link', 'footer_link_hover'
+    ];
+    
+    colorFields.forEach(function(fieldName) {
+      const colorPicker = document.querySelector(`input[type="color"][name="site_setting[${fieldName}]"]`);
+      const textInput = document.querySelector(`input[type="text"][name="site_setting[${fieldName}]"]`);
+      
+      if (colorPicker && textInput) {
+        // Sync color picker to text input
+        colorPicker.addEventListener('input', function() {
+          textInput.value = this.value;
+        });
+        
+        // Sync text input to color picker
+        textInput.addEventListener('input', function() {
+          if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+            colorPicker.value = this.value;
+          }
+        });
+      }
+    });
+  });
+</script>

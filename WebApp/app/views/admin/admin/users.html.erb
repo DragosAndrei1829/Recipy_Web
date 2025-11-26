@@ -1,0 +1,98 @@
+<div class="min-h-screen bg-page py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-4xl font-black bg-clip-text-primary text-transparent mb-2">
+          <%= t('admin.users.title') %>
+        </h1>
+        <p class="text-secondary-content"><%= t('admin.users.subtitle') %></p>
+      </div>
+      <%= link_to admin_dashboard_path, class: "px-4 py-2 bg-card border border-default text-primary-content font-semibold rounded-lg hover:bg-opacity-80 transition-all" do %>
+        ← <%= t('admin.common.back') %>
+      <% end %>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-6 bg-card rounded-xl shadow-lg p-4">
+      <%= form_with url: admin_users_path, method: :get, local: true, class: "flex items-center gap-4" do |f| %>
+        <div class="flex-1 relative">
+          <%= f.text_field :q, value: @query, placeholder: t('admin.users.search_placeholder'), class: "w-full px-4 py-2 pl-10 border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg class="h-5 w-5 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+        <%= f.submit t('admin.users.search'), class: "px-6 py-2 bg-gradient-primary text-white font-bold rounded-lg hover:shadow-lg transition-all" %>
+        <% if @query.present? %>
+          <%= link_to admin_users_path, class: "px-4 py-2 bg-card border border-default text-primary-content font-semibold rounded-lg hover:bg-opacity-80 transition-all" do %>
+            <%= t('admin.users.clear_search') %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-card rounded-xl shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-primary text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.id') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.username') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.email') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.recipes_count') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.followers') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.created_at') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.users.actions') %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-default">
+            <% @users.each do |user| %>
+              <tr class="hover:bg-primary hover:bg-opacity-5 transition-colors">
+                <td class="px-6 py-4 text-sm font-semibold text-primary-content">#<%= user.id %></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <% if user.avatar&.attached? %>
+                      <%= image_tag url_for(user.avatar.variant(resize_to_fill: [40, 40])), class: "w-10 h-10 rounded-full object-cover" %>
+                    <% else %>
+                      <div class="w-10 h-10 rounded-full bg-card border border-default flex items-center justify-center">
+                        <svg class="w-6 h-6 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-width="2" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                      </div>
+                    <% end %>
+                    <span class="font-semibold text-primary-content"><%= user.username %></span>
+                    <% if user.admin? %>
+                      <span class="px-2 py-1 text-xs font-bold bg-error bg-opacity-20 text-error rounded-full"><%= t('admin.users.admin') %></span>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= user.email %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= user.recipes.count %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= user.followers.count %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= user.created_at.strftime("%Y-%m-%d") %></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <%= link_to admin_edit_user_path(user), class: "px-3 py-1 text-xs font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition-all" do %>
+                      <%= t('admin.users.edit') %>
+                    <% end %>
+                    <%= form_with url: admin_reset_user_password_path(user), method: :post, local: true, class: "inline" do |f| %>
+                      <%= f.submit t('admin.users.reset_password'), class: "px-3 py-1 text-xs font-semibold bg-warning text-white rounded-lg hover:opacity-90 transition-all", data: { confirm: t('admin.users.confirm_reset') } %>
+                    <% end %>
+                    <%= form_with url: admin_change_user_email_path(user), method: :post, local: true, class: "inline" do |f| %>
+                      <%= f.email_field :new_email, placeholder: t('admin.users.new_email_placeholder'), class: "px-2 py-1 text-xs border border-default rounded-lg bg-card text-primary-content" %>
+                      <%= f.submit t('admin.users.change_email'), class: "px-3 py-1 text-xs font-semibold bg-accent text-white rounded-lg hover:opacity-90 transition-all", data: { confirm: t('admin.users.confirm_email_change') } %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

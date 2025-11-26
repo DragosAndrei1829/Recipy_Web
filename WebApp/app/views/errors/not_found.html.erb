@@ -1,0 +1,13 @@
+<section class="min-h-[60vh] flex items-center justify-center px-4">
+  <div class="max-w-2xl text-center space-y-5 bg-white/80 dark:bg-gray-900/80 p-10 rounded-3xl shadow-2xl border border-emerald-100">
+    <p class="text-sm tracking-[0.4em] uppercase text-emerald-500 font-semibold">Recipy</p>
+    <h1 class="text-4xl font-black text-gray-900 dark:text-white">Pagina nu a fost găsită</h1>
+    <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed"><%= message %></p>
+    <p class="text-xs text-gray-400">ID eroare: <%= error_id %></p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <%= link_to t('navigation.explore'), root_path, class: "inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition" %>
+      <%= link_to t('footer.links.contact'), contact_path, class: "inline-flex items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition" %>
+    </div>
+  </div>
+</section>
+

@@ -1,0 +1,27 @@
+<% if user_signed_in? && current_user != user %>
+  <% is_following = current_user.follows.exists?(user: user) %>
+  <% if is_following %>
+    <%= form_with url: follow_user_path(user, format: :turbo_stream), method: :delete, data: { turbo: true }, class: "inline" do %>
+      <button type="submit" 
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold bg-card bg-opacity-20 backdrop-blur-sm border border-default rounded-xl hover:bg-opacity-30 transition-smooth text-primary-content"
+              data-disable-with="<%= t('follows.unfollowing') %>">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+        <span><%= t('follows.unfollow') %></span>
+      </button>
+    <% end %>
+  <% else %>
+    <%= form_with url: follow_user_path(user, format: :turbo_stream), method: :post, data: { turbo: true }, class: "inline" do %>
+      <button type="submit" 
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold bg-card bg-opacity-20 backdrop-blur-sm border border-default rounded-xl hover:bg-opacity-30 transition-smooth text-primary-content"
+              data-disable-with="<%= t('follows.following') %>">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+        <span><%= t('follows.follow') %></span>
+      </button>
+    <% end %>
+  <% end %>
+<% end %>
+

@@ -1,0 +1,8 @@
+<%= turbo_stream.update dom_id(@recipe, :inner),
+      partial: "recipes/card_inner",
+      locals: { recipe: @recipe } %>
+
+<%= turbo_stream.update dom_id(@recipe, :actions),
+      partial: "recipes/show_actions",
+      locals: { recipe: @recipe } %>
+

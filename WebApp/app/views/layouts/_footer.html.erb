@@ -1,0 +1,145 @@
+<footer class="site-footer mt-20 pt-16">
+  <div class="mx-auto max-w-[1400px] px-5 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <!-- About Section -->
+      <div class="space-y-5">
+        <h3 class="text-lg font-black text-primary-content flex items-center gap-2">
+          <span class="bg-clip-text-primary text-transparent">
+            <%= t('footer.about.title') %>
+          </span>
+        </h3>
+        <p class="text-sm text-secondary-content leading-relaxed">
+          <%= t('footer.about.description') %>
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-black text-primary-content">
+          <span class="bg-clip-text-primary text-transparent">
+            <%= t('footer.links.title') %>
+          </span>
+        </h3>
+        <ul class="space-y-2">
+          <li>
+            <%= link_to recipes_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= t('footer.links.recipes') %>
+            <% end %>
+          </li>
+          <li>
+            <%= link_to contact_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= t('footer.links.contact') %>
+            <% end %>
+          </li>
+          <% unless user_signed_in? %>
+            <li>
+              <%= link_to new_user_session_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <%= t('footer.links.login') %>
+              <% end %>
+            </li>
+            <li>
+              <%= link_to new_user_registration_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+                <%= t('footer.links.signup') %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-black text-primary-content">
+          <span class="bg-clip-text-primary text-transparent">
+            <%= t('footer.contact.title') %>
+          </span>
+        </h3>
+        <div class="grid gap-4">
+          <div class="rounded-2xl bg-card p-4 border border-default/60">
+            <p class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.email_label') %></p>
+            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_email %></p>
+          </div>
+          <div class="rounded-2xl bg-card p-4 border border-default/60">
+            <p a class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.phone_label') %></p>
+            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_phone %></p>
+          </div>
+          <div class="rounded-2xl bg-card p-4 border border-default/60">
+            <p class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.address_label') %></p>
+            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_address %></p>
+          </div>
+        </div>
+        <div class="pt-2">
+          <%= link_to contact_path, class: "inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-primary transition-colors duration-300" do %>
+            <%= t('footer.contact.view_full') %>
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Social & Legal -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-black text-primary-content">
+          <span class="bg-clip-text-primary text-transparent">
+            <%= t('footer.legal.title') %>
+          </span>
+        </h3>
+        <ul class="space-y-2">
+          <li>
+            <%= link_to privacy_policy_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= t('footer.legal.privacy') %>
+            <% end %>
+          </li>
+          <li>
+            <%= link_to terms_conditions_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= t('footer.legal.terms') %>
+            <% end %>
+          </li>
+          <li>
+            <%= link_to cookie_policy_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= t('footer.legal.cookies') %>
+            <% end %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="relative mt-12 pt-8 border-t border-default/60">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-secondary-content">
+          <span class="font-black text-primary">Recipy</span>
+          <span>© <%= Time.current.year %></span>
+          <span>•</span>
+          <span><%= t('footer.copyright.rights') %></span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-secondary-content">
+          <span><%= t('footer.copyright.crafted') %></span>
+          <span class="text-accent text-lg">♥</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+

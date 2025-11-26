@@ -1,0 +1,62 @@
+<div class="flex <%= shared_recipe.sender == current_user ? 'justify-end' : 'justify-start' %>">
+  <div class="max-w-[70%]">
+    <div class="flex items-start gap-2 <%= shared_recipe.sender == current_user ? 'flex-row-reverse' : 'flex-row' %>">
+      <!-- Avatar -->
+      <% unless shared_recipe.sender == current_user %>
+        <% if shared_recipe.sender.avatar&.attached? %>
+          <%= image_tag url_for(shared_recipe.sender.avatar.variant(resize_to_fill: [32, 32])), class: "w-8 h-8 rounded-full object-cover flex-shrink-0" %>
+        <% else %>
+          <div class="w-8 h-8 rounded-full bg-primary bg-opacity-20 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+            <%= shared_recipe.sender.username&.first&.upcase || 'U' %>
+          </div>
+        <% end %>
+      <% end %>
+      
+      <!-- Shared Recipe Card -->
+      <div class="<%= shared_recipe.sender == current_user ? 'bg-gradient-primary text-white' : 'bg-card border border-default text-primary-content' %> rounded-2xl p-4 shadow-md max-w-md">
+        <div class="flex items-center gap-2 mb-2">
+          <svg class="h-4 w-4 <%= shared_recipe.sender == current_user ? 'text-white' : 'text-primary' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+          </svg>
+          <span class="text-xs font-semibold <%= shared_recipe.sender == current_user ? 'text-white/90' : 'text-secondary-content' %>">
+            <%= t('shared_recipes.shared_recipe') %>
+          </span>
+        </div>
+        
+        <% if shared_recipe.message.present? %>
+          <p class="text-sm mb-3 <%= shared_recipe.sender == current_user ? 'text-white' : 'text-primary-content' %> leading-relaxed">
+            <%= shared_recipe.message %>
+          </p>
+        <% end %>
+        
+        <%= link_to recipe_path(shared_recipe.recipe), data: { turbo_frame: "_top" }, 
+            class: "block p-3 rounded-lg #{shared_recipe.sender == current_user ? 'bg-white/20 hover:bg-white/30' : 'bg-card border border-default hover:border-primary'} transition-all" do %>
+          <div class="flex items-center gap-3">
+            <% if shared_recipe.recipe.photos.attached? && shared_recipe.recipe.photos.first.present? %>
+              <%= image_tag url_for(shared_recipe.recipe.photos.first.variant(resize_to_fill: [60, 60])), class: "w-15 h-15 rounded-lg object-cover flex-shrink-0" %>
+            <% else %>
+              <div class="w-15 h-15 rounded-lg <%= shared_recipe.sender == current_user ? 'bg-white/20' : 'bg-primary bg-opacity-10' %> flex items-center justify-center flex-shrink-0">
+                <svg class="h-8 w-8 <%= shared_recipe.sender == current_user ? 'text-white' : 'text-primary' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+              </div>
+            <% end %>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-bold <%= shared_recipe.sender == current_user ? 'text-white' : 'text-primary-content' %> truncate">
+                <%= shared_recipe.recipe.title %>
+              </h4>
+              <p class="text-xs <%= shared_recipe.sender == current_user ? 'text-white/80' : 'text-secondary-content' %> line-clamp-2 mt-1">
+                <%= truncate(shared_recipe.recipe.description.presence || 'N/A', length: 50) %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+        
+        <p class="text-xs mt-2 <%= shared_recipe.sender == current_user ? 'text-white/70' : 'text-secondary-content' %>">
+          <%= shared_recipe.created_at.strftime("%H:%M") %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

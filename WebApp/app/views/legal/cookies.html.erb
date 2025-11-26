@@ -1,0 +1,100 @@
+<section id="top" class="max-w-5xl mx-auto px-4 py-12 space-y-8">
+  <% if @content.present? %>
+    <!-- Database content -->
+    <header class="space-y-3">
+      <p class="text-sm uppercase tracking-widest text-<%= @page_color %>-500 font-semibold">
+        <%= t('legal.updated_at', date: l(Date.current, format: :long)) %>
+      </p>
+    </header>
+    <article class="prose prose-lg dark:prose-invert max-w-none">
+      <%= render_legal_content(@content) %>
+    </article>
+  <% else %>
+    <!-- Fallback: Static content from translations -->
+    <header class="space-y-3">
+      <p class="text-sm uppercase tracking-widest text-amber-500 font-semibold"><%= t('legal.updated_at', date: l(Date.current, format: :long)) %></p>
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white"><%= t('legal.cookies.title') %></h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        <%= t('legal.cookies.intro') %>
+      </p>
+    </header>
+
+    <article class="space-y-6 text-gray-700 dark:text-gray-200 leading-relaxed">
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.what_are.title') %></h2>
+        <p><%= t('legal.cookies.what_are.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.types.title') %></h2>
+        <div class="space-y-3">
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white"><%= t('legal.cookies.types.essential.title') %></h3>
+            <p><%= t('legal.cookies.types.essential.content') %></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white"><%= t('legal.cookies.types.preferences.title') %></h3>
+            <p><%= t('legal.cookies.types.preferences.content') %></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white"><%= t('legal.cookies.types.analytics.title') %></h3>
+            <p><%= t('legal.cookies.types.analytics.content') %></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 dark:text-white"><%= t('legal.cookies.types.advertising.title') %></h3>
+            <p><%= t('legal.cookies.types.advertising.content') %></p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.duration.title') %></h2>
+        <div class="space-y-3 text-justify">
+          <p><%= t('legal.cookies.duration.p1') %></p>
+          <p><%= t('legal.cookies.duration.p2') %></p>
+          <p><%= t('legal.cookies.duration.p3') %></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.consent.title') %></h2>
+        <p><%= t('legal.cookies.consent.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.third_party.title') %></h2>
+        <div class="space-y-3 text-justify">
+          <p><%= t('legal.cookies.third_party.p1') %></p>
+          <p><%= t('legal.cookies.third_party.p2') %></p>
+          <p><%= t('legal.cookies.third_party.p3') %></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.rights.title') %></h2>
+        <p><%= t('legal.cookies.rights.content').gsub('privacy@recipy.app', '<a href="mailto:privacy@recipy.app" class="text-amber-500 font-semibold">privacy@recipy.app</a>').html_safe %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.updates.title') %></h2>
+        <p><%= t('legal.cookies.updates.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold mb-2"><%= t('legal.cookies.preferences.title') %></h2>
+        <p><%= t('legal.cookies.preferences.content') %></p>
+        <div class="mt-4 flex flex-col sm:flex-row gap-3">
+          <button type="button" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition" onclick="window.dispatchEvent(new CustomEvent('cookie-consent:open'))">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <%= t('legal.cookies.preferences.open_panel') %>
+          </button>
+          <a href="#top" class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition">
+            <%= t('legal.cookies.preferences.back_top') %>
+          </a>
+        </div>
+      </section>
+    </article>
+  <% end %>
+</section>

@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-page py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-4xl font-black bg-clip-text-primary text-transparent mb-2">
+          <%= t('admin.categories.title') %>
+        </h1>
+        <p class="text-secondary-content"><%= t('admin.categories.subtitle') %></p>
+      </div>
+      <%= link_to admin_dashboard_path, class: "px-4 py-2 bg-card border border-default text-primary-content font-semibold rounded-lg hover:bg-opacity-80 transition-all" do %>
+        ← <%= t('admin.common.back') %>
+      <% end %>
+    </div>
+
+    <div class="bg-card rounded-xl shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-primary text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.categories.id') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.categories.name') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.categories.created_at') %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-default">
+            <% @categories.each do |category| %>
+              <tr class="hover:bg-primary hover:bg-opacity-5 transition-colors">
+                <td class="px-6 py-4 text-sm font-semibold text-primary-content">#<%= category.id %></td>
+                <td class="px-6 py-4 text-sm font-semibold text-primary-content"><%= category.display_name %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= category.created_at.strftime("%Y-%m-%d") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

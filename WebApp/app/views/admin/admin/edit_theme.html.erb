@@ -1,0 +1,213 @@
+<div class="admin-dashboard min-h-screen bg-page py-8 px-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-2">
+        Edit Theme: <%= @theme.name %>
+      </h1>
+      <p class="text-secondary-content">Modify theme colors and settings</p>
+    </div>
+
+    <%= form_with model: @theme, url: admin_update_theme_path(@theme), method: :patch, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
+      <% if @theme.errors.any? %>
+        <div class="admin-alert admin-alert--danger">
+          <ul class="list-disc pl-5">
+            <% @theme.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Basic Info -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">Basic Information</h2>
+        <div class="space-y-4">
+          <div>
+            <%= f.label :name, "Theme Name", class: "block text-sm font-semibold text-primary-content mb-2" %>
+            <%= f.text_field :name, class: "admin-input" %>
+          </div>
+          <div class="flex items-center gap-3">
+            <%= f.check_box :is_default, class: "w-5 h-5 rounded border-default text-primary focus:ring-primary" %>
+            <%= f.label :is_default, "Set as default theme", class: "text-sm font-semibold text-primary-content" %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Colors -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">Main Brand Colors</h2>
+        <p class="text-sm text-secondary-content mb-4">These colors define your site's primary identity</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <%= f.label :primary_color, "Primary Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :primary_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :primary_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :secondary_color, "Secondary Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :secondary_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :secondary_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :accent_color, "Accent Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :accent_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :accent_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UI Component Colors -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">UI Component Colors</h2>
+        <p class="text-sm text-secondary-content mb-4">Colors for navigation, buttons, and links</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <%= f.label :navbar_color, "Navbar Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :navbar_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :navbar_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :button_color, "Button Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :button_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :button_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :link_color, "Link Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :link_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :link_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Background Colors -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">Background Colors</h2>
+        <p class="text-sm text-secondary-content mb-4">Page and card background colors</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <%= f.label :background_color, "Page Background", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :background_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :background_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :card_background, "Card Background", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :card_background, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :card_background, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Colors -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">Text Colors</h2>
+        <p class="text-sm text-secondary-content mb-4">Ensure good contrast for readability</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <%= f.label :text_primary, "Primary Text", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :text_primary, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :text_primary, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :text_secondary, "Secondary Text", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :text_secondary, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :text_secondary, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Border & Status Colors -->
+      <div class="admin-card">
+        <h2 class="text-xl font-black text-primary-content mb-4">Border & Status Colors</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="space-y-2">
+            <%= f.label :border_color, "Border Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :border_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :border_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :success_color, "Success Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :success_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :success_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :warning_color, "Warning Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :warning_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :warning_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :error_color, "Error Color", class: "block text-sm font-semibold text-primary-content" %>
+            <div class="flex items-center gap-2">
+              <%= f.color_field :error_color, class: "w-16 h-12 border-2 border-default rounded-lg cursor-pointer" %>
+              <%= f.text_field :error_color, class: "flex-1 admin-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-4">
+        <%= f.submit "Update Theme", class: "btn-primary" %>
+        <%= link_to admin_themes_path, class: "btn-outline" do %>
+          Cancel
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Sync color picker with text input
+  document.addEventListener('DOMContentLoaded', function() {
+    const colorFields = [
+      'primary_color', 'secondary_color', 'accent_color',
+      'navbar_color', 'button_color', 'link_color', 'background_color',
+      'card_background', 'text_primary', 'text_secondary', 'border_color',
+      'success_color', 'warning_color', 'error_color'
+    ];
+    
+    colorFields.forEach(function(fieldName) {
+      const colorPicker = document.querySelector(`input[type="color"][name="theme[${fieldName}]"]`);
+      const textInput = document.querySelector(`input[type="text"][name="theme[${fieldName}]"]`);
+      
+      if (colorPicker && textInput) {
+        colorPicker.addEventListener('input', function() {
+          textInput.value = this.value;
+        });
+        
+        textInput.addEventListener('input', function() {
+          if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+            colorPicker.value = this.value;
+          }
+        });
+      }
+    });
+  });
+</script>
+

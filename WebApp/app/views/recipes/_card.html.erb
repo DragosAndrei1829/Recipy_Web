@@ -1,0 +1,5 @@
+<turbo-frame id="<%= dom_id(recipe) %>">
+  <div id="<%= dom_id(recipe, :inner) %>">
+    <%= render "recipes/card_inner", recipe: recipe %>
+  </div>
+</turbo-frame>

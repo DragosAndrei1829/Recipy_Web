@@ -1,0 +1,15 @@
+<section class="min-h-[60vh] flex items-center justify-center px-4">
+  <div class="max-w-2xl text-center space-y-5 bg-white/85 dark:bg-gray-900/85 p-10 rounded-3xl shadow-2xl border border-red-100">
+    <p class="text-sm tracking-[0.4em] uppercase text-red-500 font-semibold">Recipy</p>
+    <h1 class="text-4xl font-black text-gray-900 dark:text-white">Ups, ceva nu a mers bine</h1>
+    <p class="text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+      <%= message %> Între timp, poți reveni la pagina principală sau ne poți contacta dacă problema persistă.
+    </p>
+    <p class="text-xs text-gray-400">ID eroare: <%= error_id %></p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <%= link_to t('navigation.explore'), root_path, class: "inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition" %>
+      <%= link_to t('footer.links.contact'), contact_path, class: "inline-flex items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition" %>
+    </div>
+  </div>
+</section>
+

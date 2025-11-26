@@ -1,0 +1,153 @@
+<% filters = @filters || {} %>
+<div class="filters-card animate-slide-in-right">
+  <div class="filters-card__head">
+    <div>
+      <p class="filters-card__eyebrow"><%= t('filters.title') %></p>
+      <h3><%= t('filters.quick_title') %></h3>
+    </div>
+    <div class="flex items-center gap-2">
+      <% if filters.except(:search).any? { |_k, v| v.present? } || @active_quick_filter.present? %>
+        <%= link_to t('filters.clear'), recipes_path, class: "filters-card__link" %>
+      <% end %>
+      <button type="button" class="filters-card__toggle" id="advanced-filter-toggle" aria-expanded="false">
+        <span>Advanced</span>
+        <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <% if @active_quick_filter.present? %>
+    <div class="filters-card__badge">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span><%= @active_quick_filter[:label] %></span>
+    </div>
+  <% end %>
+
+  <%= form_with url: recipes_path, method: :get, local: true, id: "filter-form", class: "space-y-5" do |f| %>
+    <%= hidden_field_tag :preset, @active_quick_filter[:slug] if @active_quick_filter.present? %>
+    <% if params[:search].present? && !params[:search].to_s.start_with?('#') %>
+      <%= hidden_field_tag :search, params[:search] %>
+    <% end %>
+
+    <div class="filters-card__grid">
+      <div>
+        <label class="filters-card__label"><%= t('filters.rating') %></label>
+        <%= number_field_tag :min_rating, filters[:min_rating],
+            min: 0, max: 10, step: 0.5,
+            placeholder: "8.5",
+            class: "filters-card__input" %>
+      </div>
+      <div>
+        <label class="filters-card__label"><%= t('filters.time') %></label>
+        <div class="filters-card__split">
+          <%= number_field_tag :min_time, filters[:min_time],
+              placeholder: t('filters.min_time'),
+              min: 0,
+              class: "filters-card__input" %>
+          <%= number_field_tag :max_time, filters[:max_time],
+              placeholder: t('filters.max_time'),
+              min: 0,
+              class: "filters-card__input" %>
+        </div>
+      </div>
+      <div>
+        <label class="filters-card__label"><%= t('filters.difficulty') %></label>
+        <%= select_tag :min_difficulty,
+            options_for_select([["—", ""], ["1 ★", 1], ["2 ★", 2], ["3 ★", 3], ["4 ★", 4], ["5 ★", 5]], filters[:min_difficulty]),
+            class: "filters-card__input" %>
+      </div>
+      <div>
+        <label class="filters-card__label"><%= t('filters.healthiness') %></label>
+        <%= select_tag :min_healthiness,
+            options_for_select([["—", ""], ["1 ★", 1], ["2 ★", 2], ["3 ★", 3], ["4 ★", 4], ["5 ★", 5]], filters[:min_healthiness]),
+            class: "filters-card__input" %>
+      </div>
+      <div>
+        <label class="filters-card__label"><%= t('recipes.form.cuisine') %></label>
+        <%= select_tag :cuisine_id,
+            options_from_collection_for_select(@cuisines, :id, :display_name, filters[:cuisine_id]),
+            { include_blank: t('filters.all_cuisines'),
+              class: "filters-card__input" } %>
+      </div>
+      <div>
+        <label class="filters-card__label"><%= t('recipes.form.food_type') %></label>
+        <%= select_tag :food_type_id,
+            options_from_collection_for_select(@food_types, :id, :display_name, filters[:food_type_id]),
+            { include_blank: t('filters.all_food_types'),
+              class: "filters-card__input" } %>
+      </div>
+    </div>
+
+    <div class="filters-card__advanced hidden" id="advanced-filter-section">
+      <div>
+        <label class="filters-card__label"><%= t('recipes.form.calories') %> (<%= t('filters.max') %>)</label>
+        <%= number_field_tag :max_calories, filters[:max_calories],
+            min: 0,
+            placeholder: "500",
+            class: "filters-card__input" %>
+      </div>
+
+      <div class="filters-card__grid">
+        <div>
+          <label class="filters-card__label"><%= t('recipes.form.protein') %></label>
+          <%= number_field_tag :max_protein, filters[:max_protein],
+              step: 0.1, min: 0,
+              class: "filters-card__input" %>
+        </div>
+        <div>
+          <label class="filters-card__label"><%= t('recipes.form.fat') %></label>
+          <%= number_field_tag :max_fat, filters[:max_fat],
+              step: 0.1, min: 0,
+              class: "filters-card__input" %>
+        </div>
+        <div>
+          <label class="filters-card__label"><%= t('recipes.form.carbs') %></label>
+          <%= number_field_tag :max_carbs, filters[:max_carbs],
+              step: 0.1, min: 0,
+              class: "filters-card__input" %>
+        </div>
+        <div>
+          <label class="filters-card__label"><%= t('recipes.form.sugar') %></label>
+          <%= number_field_tag :max_sugar, filters[:max_sugar],
+              step: 0.1, min: 0,
+              class: "filters-card__input" %>
+        </div>
+      </div>
+    </div>
+
+    <%= submit_tag t('filters.apply'), class: "btn-primary w-full justify-center" %>
+  <% end %>
+</div>
+
+<script>
+  (function() {
+    function initAdvancedToggle() {
+      const toggle = document.getElementById('advanced-filter-toggle');
+      const section = document.getElementById('advanced-filter-section');
+      if (!toggle || !section) return;
+      
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        section.classList.toggle('hidden');
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', (!expanded).toString());
+        const svg = toggle.querySelector('svg');
+        if (svg) {
+          svg.style.transform = expanded ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      });
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAdvancedToggle);
+    } else {
+      initAdvancedToggle();
+    }
+    document.addEventListener('turbo:load', initAdvancedToggle);
+  })();
+</script>
+

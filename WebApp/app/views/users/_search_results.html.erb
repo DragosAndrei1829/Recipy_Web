@@ -1,0 +1,24 @@
+<% if users.any? %>
+  <div class="py-2">
+    <% users.each do |user| %>
+      <%= link_to user_path(user), class: "flex items-center gap-3 px-4 py-2 hover:bg-card transition-colors" do %>
+        <% if user.avatar.attached? %>
+          <%= image_tag url_for(user.avatar.variant(resize_to_fill: [40,40])), class: "h-10 w-10 rounded-full object-cover" %>
+        <% else %>
+          <div class="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">
+            <%= user.username&.first&.upcase || 'U' %>
+          </div>
+        <% end %>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-sm text-primary-content truncate"><%= user.username %></div>
+          <div class="text-xs text-secondary-content truncate"><%= user.email %></div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% elsif query.present? %>
+  <div class="px-4 py-8 text-center text-sm text-secondary-content">
+    <%= t('users.search.no_results', query: query) %>
+  </div>
+<% end %>
+

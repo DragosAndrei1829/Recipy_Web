@@ -1,0 +1,128 @@
+<div class="admin-dashboard space-y-6">
+  <header class="flex items-center gap-4">
+    <%= link_to admin_legal_contents_path, class: "p-2 rounded-xl border-2 border-default hover:border-primary transition-colors" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-black text-primary-content">Edit <%= @page_title %></h1>
+      <p class="text-secondary-content mt-1">Write content like in Word - it will be displayed on the website</p>
+    </div>
+  </header>
+
+  <%= form_with url: admin_update_legal_page_path(page_type: @page_type), method: :patch, local: true, class: "space-y-6" do |f| %>
+    
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Romanian -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-bold text-sm">RO</span>
+          <div class="flex-1">
+            <h3 class="font-bold text-primary-content">Română</h3>
+            <p class="text-xs text-secondary-content">Primary language</p>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content</label>
+          <textarea name="legal_page[full_content_ro]" 
+                    class="admin-input w-full font-mono text-sm" 
+                    style="min-height: 500px; line-height: 1.6;"
+                    placeholder="Write your content here...
+
+# Main Title
+
+Introduction paragraph goes here.
+
+## Section 1
+Content for section 1...
+
+## Section 2  
+Content for section 2..."><%= @legal_page.full_content_ro %></textarea>
+          <p class="text-xs text-secondary-content mt-2">
+            💡 Use <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded"># Title</code> for main heading, 
+            <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">## Section</code> for sections
+          </p>
+        </div>
+      </div>
+
+      <!-- English -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-bold text-sm">EN</span>
+          <div class="flex-1">
+            <h3 class="font-bold text-primary-content">English</h3>
+            <p class="text-xs text-secondary-content">Translation</p>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content</label>
+          <textarea name="legal_page[full_content_en]" 
+                    class="admin-input w-full font-mono text-sm" 
+                    style="min-height: 500px; line-height: 1.6;"
+                    placeholder="Write your English content here..."><%= @legal_page.full_content_en %></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between gap-4 pt-4 border-t border-default">
+      <div class="flex items-center gap-3">
+        <button type="submit" class="btn-primary">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Save Changes
+        </button>
+        <%= link_to "Cancel", admin_legal_contents_path, class: "btn-outline" %>
+      </div>
+      
+      <% 
+        live_path = case @page_type
+                    when 'privacy' then privacy_policy_path(locale: I18n.locale)
+                    when 'terms' then terms_conditions_path(locale: I18n.locale)
+                    when 'cookies' then cookie_policy_path(locale: I18n.locale)
+                    end
+      %>
+      <%= link_to live_path, target: "_blank", class: "btn-outline inline-flex items-center gap-2" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+        Preview Live
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Formatting Guide -->
+  <div class="admin-card bg-gray-50 dark:bg-gray-800/50">
+    <h3 class="font-bold text-primary-content mb-4">📝 Formatting Guide</h3>
+    <div class="grid md:grid-cols-2 gap-6 text-sm">
+      <div>
+        <p class="font-semibold text-primary-content mb-2">What you write:</p>
+        <pre class="bg-white dark:bg-gray-900 p-3 rounded-lg text-xs overflow-x-auto"><code># Privacy Policy
+
+This is the introduction.
+
+## 1. Data Collection
+We collect the following data...
+
+## 2. How We Use Data
+Your data is used for...</code></pre>
+      </div>
+      <div>
+        <p class="font-semibold text-primary-content mb-2">How it appears:</p>
+        <div class="bg-white dark:bg-gray-900 p-3 rounded-lg space-y-2">
+          <h1 class="text-xl font-bold">Privacy Policy</h1>
+          <p class="text-gray-600">This is the introduction.</p>
+          <h2 class="text-lg font-bold mt-3">1. Data Collection</h2>
+          <p class="text-gray-600">We collect the following data...</p>
+          <h2 class="text-lg font-bold mt-3">2. How We Use Data</h2>
+          <p class="text-gray-600">Your data is used for...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

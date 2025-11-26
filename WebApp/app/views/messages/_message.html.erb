@@ -1,0 +1,110 @@
+<div class="message-wrapper flex <%= message.user == current_user ? 'justify-end' : 'justify-start' %> animate-message-in" data-message-id="<%= message.id %>">
+  <div class="max-w-[75%] md:max-w-[60%]">
+    <div class="flex items-end gap-2 <%= message.user == current_user ? 'flex-row-reverse' : 'flex-row' %>">
+      <!-- Avatar -->
+      <% unless message.user == current_user %>
+        <% if message.user.avatar&.attached? %>
+          <%= image_tag url_for(message.user.avatar.variant(resize_to_fill: [40, 40])), class: "w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-primary shadow-md" %>
+        <% else %>
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-md">
+            <%= message.user.username&.first&.upcase || 'U' %>
+          </div>
+        <% end %>
+      <% end %>
+      
+      <!-- Message Bubble -->
+      <div class="message-bubble <%= message.user == current_user ? 'bg-gradient-primary text-white rounded-2xl rounded-tr-sm' : 'bg-card border-2 border-default text-primary-content rounded-2xl rounded-tl-sm' %> px-4 py-3 shadow-lg relative group">
+        
+        <!-- Recipe Card (if shared) -->
+        <% if message.recipe_id.present? && message.recipe %>
+          <div class="recipe-share-card mb-3 p-3 bg-white/10 rounded-xl border border-white/20">
+            <div class="flex items-center gap-3">
+              <% if message.recipe.photos.attached? %>
+                <%= image_tag url_for(message.recipe.photos.first.variant(resize_to_fill: [80, 80])), class: "w-20 h-20 rounded-lg object-cover" %>
+              <% else %>
+                <div class="w-20 h-20 rounded-lg bg-white/10 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                </div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-sm truncate"><%= message.recipe.title %></h4>
+                <p class="text-xs opacity-80 mt-1"><%= message.recipe.user.username %></p>
+                <%= link_to recipe_path(message.recipe), class: "inline-flex items-center gap-1 text-xs mt-2 opacity-90 hover:opacity-100 transition-opacity", data: { turbo_frame: "_top" } do %>
+                  <span>Vezi rețeta</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Images (if attached) -->
+        <% if message.images.attached? %>
+          <div class="message-images mb-3 grid gap-2 <%= message.images.count == 1 ? 'grid-cols-1' : 'grid-cols-2' %>">
+            <% message.images.each do |image| %>
+              <div class="relative group">
+                <%= image_tag url_for(image.variant(resize_to_limit: [400, 400])), 
+                    class: "w-full h-auto rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity",
+                    onclick: "openImageModal('#{url_for(image)}')" %>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors"></div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Message Text -->
+        <% if message.body.present? %>
+          <p class="text-sm leading-relaxed whitespace-pre-wrap break-words"><%= message.body %></p>
+        <% end %>
+
+        <!-- Timestamp and Read Status -->
+        <div class="flex items-center justify-end gap-1 mt-2">
+          <p class="text-xs <%= message.user == current_user ? 'text-white/70' : 'text-secondary-content' %>">
+            <%= message.created_at.strftime("%H:%M") %>
+          </p>
+          <% if message.user == current_user && message.read? %>
+            <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          <% elsif message.user == current_user %>
+            <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div id="image-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageModal()">
+  <div class="max-w-5xl max-h-[90vh] relative">
+    <img id="modal-image" src="" alt="" class="max-w-full max-h-[90vh] object-contain rounded-lg">
+    <button onclick="closeImageModal()" class="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  function openImageModal(imageUrl) {
+    const modal = document.getElementById('image-modal');
+    const img = document.getElementById('modal-image');
+    img.src = imageUrl;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+</script>

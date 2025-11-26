@@ -1,0 +1,46 @@
+<div class="oauth-modal fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm px-4" data-oauth-modal>
+  <div class="bg-card border border-default rounded-3xl p-6 max-w-md w-full mx-auto my-auto shadow-2xl space-y-3">
+    <h3 class="text-xl font-bold text-primary-content"><%= t('devise.oauth.implementing') %></h3>
+    <p class="text-sm text-secondary-content">
+      Integrarea
+      <span class="font-semibold" data-oauth-provider>OAuth</span>
+      este în curs de activare. Echipa va expune curând fluxul complet, iar mesajul a fost logat în server pentru urmărire.
+    </p>
+    <button type="button" class="btn-primary w-full justify-center" data-oauth-close>
+      <%= t('devise.oauth.understood') %>
+    </button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function initOAuthModal() {
+      const modal = document.querySelector('[data-oauth-modal]');
+      if (!modal || modal.dataset.ready === 'true') return;
+      modal.dataset.ready = 'true';
+
+      const providerSpan = modal.querySelector('[data-oauth-provider]');
+      const closeBtn = modal.querySelector('[data-oauth-close]');
+
+      const hideModal = () => modal.classList.add('hidden');
+
+      document.querySelectorAll('[data-oauth-trigger]').forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          const provider = button.dataset.oauthTrigger || 'OAuth';
+          if (providerSpan) providerSpan.textContent = provider;
+          modal.classList.remove('hidden');
+        });
+      });
+
+      closeBtn?.addEventListener('click', hideModal);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) hideModal();
+      });
+    }
+
+    document.addEventListener('turbo:load', initOAuthModal);
+    document.addEventListener('DOMContentLoaded', initOAuthModal);
+  })();
+</script>
+

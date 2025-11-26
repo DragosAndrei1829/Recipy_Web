@@ -1,0 +1,48 @@
+<div class="max-w-4xl mx-auto mb-20 animate-scale-in">
+  <div class="bg-card rounded-3xl shadow-2xl overflow-hidden border-2 border-default">
+    <div class="px-6 py-5 border-b border-default bg-card">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-black text-primary-content flex items-center gap-2">
+          <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <%= t('follows.followers') %> (<%= @followers.count %>)
+        </h2>
+        <%= link_to user_path(@user), data: { turbo_frame: "_top" }, class: "text-link hover:text-primary font-semibold" do %>
+          ← <%= t('common.back') %>
+        <% end %>
+      </div>
+    </div>
+    <div class="p-6">
+      <% if @followers.any? %>
+        <div class="space-y-4">
+          <% @followers.each do |follower| %>
+            <div class="flex items-center gap-4 p-4 rounded-xl border-2 border-default hover:border-primary transition-smooth">
+              <%= link_to user_path(follower), data: { turbo_frame: "_top" }, class: "flex items-center gap-4 flex-1 hover:opacity-80 transition-opacity" do %>
+                <% if follower.avatar.attached? %>
+                  <%= image_tag url_for(follower.avatar.variant(resize_to_fill: [50,50])), class: "h-12 w-12 rounded-full object-cover ring-2 ring-primary" %>
+                <% else %>
+                  <div class="h-12 w-12 flex items-center justify-center rounded-full bg-card border border-default">
+                    <span class="text-secondary-content font-bold text-lg"><%= follower.username&.first&.upcase || 'U' %></span>
+                  </div>
+                <% end %>
+                <div>
+                  <span class="font-bold text-primary-content"><%= follower.username %></span>
+                  <p class="text-sm text-secondary-content"><%= follower.recipes.count %> <%= t('users.recipes_count') %></p>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-16">
+          <svg class="h-16 w-16 mx-auto text-secondary-content mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <p class="text-lg font-semibold text-primary-content mb-2"><%= t('follows.no_followers') %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+

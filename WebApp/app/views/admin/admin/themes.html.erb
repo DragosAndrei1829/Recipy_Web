@@ -1,0 +1,91 @@
+<div class="admin-dashboard min-h-screen bg-page py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-2">
+          Theme Management
+        </h1>
+        <p class="text-secondary-content">Create, edit, and manage visual themes for your site</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <%= link_to admin_dashboard_path, class: "btn-outline flex items-center gap-2" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          <span>Back to Dashboard</span>
+        <% end %>
+        <%= link_to admin_new_theme_path, class: "btn-primary flex items-center gap-2" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>New Theme</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Themes Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @themes.each do |theme| %>
+        <div class="admin-card theme-preview-card <%= 'theme-default' if theme.is_default %>">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-black text-primary-content flex items-center gap-2">
+                <%= theme.name %>
+                <% if theme.is_default %>
+                  <span class="text-xs font-semibold px-2 py-1 rounded-full bg-primary bg-opacity-20 text-primary">Default</span>
+                <% end %>
+              </h3>
+              <p class="text-sm text-secondary-content mt-1">Created <%= time_ago_in_words(theme.created_at) %> ago</p>
+            </div>
+          </div>
+
+          <!-- Color Preview -->
+          <div class="theme-preview mb-4">
+            <div class="flex gap-2 mb-2">
+              <div class="flex-1 h-12 rounded-lg" style="background: <%= theme.primary_color %>"></div>
+              <div class="flex-1 h-12 rounded-lg" style="background: <%= theme.secondary_color %>"></div>
+              <div class="flex-1 h-12 rounded-lg" style="background: <%= theme.accent_color %>"></div>
+            </div>
+            <div class="flex gap-2">
+              <div class="flex-1 h-8 rounded" style="background: <%= theme.background_color %>"></div>
+              <div class="flex-1 h-8 rounded" style="background: <%= theme.card_background %>"></div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2 pt-4 border-t border-default">
+            <%= link_to admin_edit_theme_path(theme), class: "flex-1 btn-outline text-center text-sm" do %>
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit
+            <% end %>
+            <% unless theme.is_default %>
+              <%= form_with url: admin_set_default_theme_path(theme), method: :post, local: true, class: "flex-1" do |f| %>
+                <%= f.submit "Set Default", class: "w-full btn-outline text-center text-sm" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @themes.empty? %>
+      <div class="admin-card text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-secondary-content opacity-50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+        </svg>
+        <p class="text-lg font-semibold text-primary-content mb-2">No themes yet</p>
+        <p class="text-secondary-content mb-4">Create your first theme to get started</p>
+        <%= link_to admin_new_theme_path, class: "btn-primary inline-flex items-center gap-2" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>Create Theme</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

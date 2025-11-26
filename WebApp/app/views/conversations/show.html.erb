@@ -1,0 +1,287 @@
+
+<% emoji_palette = ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔','🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦','😧','😮','😲','🥱','😴','🤤','😪','😵','🤐','🥴','🤢','🤮','🤧','😷','🤒','🤕','🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀','☠️','👽','👾','🤖','🎃','😺','😸','😹','😻','😼','😽','🙀','😿','😾'] %>
+
+<div class="chat-fullheight animate-fade-in">
+  <div class="chat-grid">
+    <aside class="chat-panel chat-panel--emoji">
+      <div class="chat-panel__section">
+        <p class="chat-panel__label"><%= t('messages.emoji_palette', default: 'Emoji flux') %></p>
+        <div class="emoji-wall custom-scrollbar">
+          <% emoji_palette.each do |emoji| %>
+            <button type="button" class="emoji-cell" onclick="insertEmoji('<%= emoji %>')"><%= emoji %></button>
+          <% end %>
+        </div>
+      </div>
+      <div class="chat-panel__section space-y-3">
+        <div class="chat-panel__label"><%= t('conversations.shortcuts', default: 'Scurtături') %></div>
+        <div class="chat-shortcuts">
+          <button type="button" onclick="document.getElementById('message_images').click()">GIF</button>
+          <button type="button" onclick="document.getElementById('message_images').click()">📷</button>
+          <button type="button" onclick="shareRecipe(<%= @conversation.shared_recipes.last&.recipe_id || @conversation.recipe_id rescue 0 %>)"><%= t('messages.share', default: 'Share card') %></button>
+        </div>
+        <button type="button" onclick="document.getElementById('message_images').click()" class="chat-panel__action">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span><%= t('messages.add_images', default: 'Adaugă imagini') %></span>
+        </button>
+      </div>
+      <div class="chat-panel__section">
+        <p class="chat-panel__label"><%= t('conversations.guidelines', default: 'Ghid rapid') %></p>
+        <div class="context-card space-y-2 text-sm text-secondary-content">
+          <p>• <%= t('conversations.tip_safe', default: 'Răspunde politicos și raportează conținutul nepotrivit.') %></p>
+          <p>• <%= t('conversations.tip_share', default: 'Folosește share de rețetă pentru a atașa detalii complete.') %></p>
+          <p>• <%= t('conversations.tip_media', default: 'Imaginile mari sunt optimizate automat pentru mobil.') %></p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="chat-pane bg-card border-2 border-default rounded-3xl shadow-2xl">
+      <header class="chat-pane__header">
+        <div class="flex items-center gap-4">
+          <%= link_to conversations_path, class: "chat-pane__back" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <% end %>
+          <div class="flex items-center gap-3">
+            <% if @other_user.avatar&.attached? %>
+              <%= image_tag url_for(@other_user.avatar.variant(resize_to_fill: [58, 58])), class: "w-14 h-14 rounded-2xl object-cover ring-2 ring-primary/30" %>
+            <% else %>
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xl">
+                <%= @other_user.username&.first&.upcase || 'U' %>
+              </div>
+            <% end %>
+            <div>
+              <p class="text-xs uppercase tracking-[0.4em] text-secondary-content mb-1"><%= t('conversations.chatting_with', default: 'Conversație') %></p>
+              <div class="flex items-center gap-2">
+                <h2 class="text-2xl font-black text-primary-content"><%= @other_user.username %></h2>
+                <span class="chat-status-dot"></span>
+                <span class="text-xs font-semibold text-secondary-content uppercase tracking-[0.3em]"><%= t('conversations.active_now', default: 'Online') %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div id="messages_<%= @conversation.id %>" class="chat-pane__body custom-scrollbar">
+        <% @conversation_items.each do |item| %>
+          <% if item[:type] == :message %>
+            <%= render 'messages/message', message: item[:item], current_user: current_user %>
+          <% else %>
+            <%= render 'shared_recipes/shared_recipe_message', shared_recipe: item[:item], current_user: current_user %>
+          <% end %>
+        <% end %>
+        <div id="messages-end"></div>
+      </div>
+
+      <footer class="chat-pane__composer">
+        <%= form_with model: [@conversation, Message.new], url: conversation_messages_path(@conversation), data: { turbo: true }, multipart: true, class: "chat-form w-full" do |f| %>
+          <%= f.hidden_field :recipe_id, id: "message_recipe_id" %>
+          <%= f.file_field :images, multiple: true, accept: "image/*", id: "message_images", class: "hidden" %>
+
+          <div id="image-preview-container" class="hidden mb-3 p-3 bg-card border-2 border-dashed border-default rounded-xl">
+            <div class="flex items-center gap-2 flex-wrap" id="image-preview-list"></div>
+          </div>
+
+          <div class="chat-composer__row">
+            <button type="button"
+                    class="chat-composer__media"
+                    onclick="document.getElementById('message_images').click()"
+                    aria-label="<%= t('messages.add_images', default: 'Adaugă imagini') %>">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </button>
+            <%= f.text_area :body, placeholder: t('messages.placeholder'), rows: 1, id: "message_body_#{@conversation.id}", class: "chat-input flex-1 rounded-2xl border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary/20 bg-card text-primary-content resize-none px-4 py-3", required: false %>
+            <%= f.submit t('messages.send'), class: "chat-send-btn", data: { disable_with: t('messages.sending') }, id: "send-btn" %>
+          </div>
+        <% end %>
+      </footer>
+    </section>
+
+    <aside class="chat-panel chat-panel--context">
+      <div class="chat-panel__section">
+        <p class="chat-panel__label"><%= t('conversations.user_overview', default: 'Profil rapid') %></p>
+        <div class="context-card">
+          <p class="text-lg font-bold text-primary-content"><%= @other_user.username %></p>
+          <p class="text-sm text-secondary-content mb-3"><%= @other_user.email %></p>
+          <div class="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-secondary-content">
+            <span><%= t('conversations.joined', default: 'Membru din') %></span>
+            <span class="text-primary font-bold"><%= l(@other_user.created_at.to_date) rescue @other_user.created_at.strftime('%Y-%m-%d') %></span>
+          </div>
+        </div>
+      </div>
+      <div class="chat-panel__section">
+        <p class="chat-panel__label"><%= t('conversations.activity', default: 'Activitate') %></p>
+        <div class="context-card space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-secondary-content"><%= t('conversations.last_message', default: 'Ultimul mesaj') %></span>
+            <span class="font-semibold text-primary-content"><%= time_ago_in_words(@conversation.updated_at) %> <%= t('time.ago') %></span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-secondary-content"><%= t('conversations.total_messages', default: 'Total mesaje') %></span>
+            <span class="font-semibold text-primary-content"><%= @conversation.messages.count %></span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-secondary-content"><%= t('conversations.shared_recipes', default: 'Rețete partajate') %></span>
+            <span class="font-semibold text-primary-content"><%= @conversation.shared_recipes.count %></span>
+          </div>
+        </div>
+      </div>
+      <% recent_shares = @conversation.shared_recipes.includes(:recipe).order(created_at: :desc).limit(3) %>
+      <% if recent_shares.any? %>
+        <div class="chat-panel__section">
+          <p class="chat-panel__label"><%= t('conversations.recent_shares', default: 'Partajate recent') %></p>
+          <div class="space-y-3">
+            <% recent_shares.each do |share| %>
+              <%= link_to recipe_path(share.recipe), class: "context-share", data: { turbo_frame: "_top" } do %>
+                <div>
+                  <p class="font-semibold text-primary-content truncate"><%= share.recipe&.title || t('recipes.show.title') %></p>
+                  <p class="text-xs text-secondary-content"><%= l(share.created_at, format: :short) rescue share.created_at.strftime('%d %b %H:%M') %></p>
+                </div>
+                <svg class="w-4 h-4 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </aside>
+  </div>
+</div>
+
+<div id="recipe-share-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('recipe-share-modal').classList.add('hidden')"></div>
+    <div class="relative bg-card rounded-3xl shadow-2xl border-2 border-default p-6 max-w-md w-full z-10 animate-scale-in">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-2xl font-black text-primary-content"><%= t('messages.share_recipe') %></h3>
+        <button onclick="document.getElementById('recipe-share-modal').classList.add('hidden')" class="text-secondary-content hover:text-primary transition-colors p-1 rounded-lg hover:bg-card">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
+        <% Recipe.includes(:user).order(created_at: :desc).limit(20).each do |recipe| %>
+          <button onclick="shareRecipe(<%= recipe.id %>)" class="w-full text-left p-4 rounded-xl border-2 border-default hover:border-primary hover:bg-primary/5 transition-all group">
+            <div class="flex items-center gap-3">
+              <% if recipe.photos.attached? %>
+                <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [60, 60])), class: "w-15 h-15 rounded-lg object-cover" %>
+              <% else %>
+                <div class="w-15 h-15 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-primary-content truncate group-hover:text-primary transition-colors"><%= recipe.title %></h4>
+                <p class="text-sm text-secondary-content"><%= recipe.user.username %></p>
+              </div>
+            </div>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-scroll to bottom
+  function scrollToBottom() {
+    const messagesEnd = document.getElementById('messages-end');
+    if (messagesEnd) {
+      messagesEnd.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }
+
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', scrollToBottom);
+  document.addEventListener('turbo:load', scrollToBottom);
+
+  // Scroll after turbo stream updates
+  document.addEventListener('turbo:frame-load', () => {
+    setTimeout(scrollToBottom, 100);
+  });
+
+  function insertEmoji(emoji) {
+    const textarea = document.getElementById('message_body_<%= @conversation.id %>');
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      textarea.value = text.substring(0, start) + emoji + text.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+      textarea.focus();
+    }
+  }
+
+  // Image Preview
+  document.getElementById('message_images')?.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    const container = document.getElementById('image-preview-container');
+    const list = document.getElementById('image-preview-list');
+    
+    if (files.length > 0) {
+      container?.classList.remove('hidden');
+      list.innerHTML = '';
+      
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.className = 'relative group';
+          div.innerHTML = `
+            <img src="${e.target.result}" class="w-20 h-20 object-cover rounded-lg border-2 border-default">
+            <button type="button" onclick="removeImage(${index})" class="absolute -top-2 -right-2 w-6 h-6 bg-error text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          `;
+          list.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      container?.classList.add('hidden');
+    }
+  });
+
+  function removeImage(index) {
+    const input = document.getElementById('message_images');
+    const dt = new DataTransfer();
+    const files = Array.from(input.files);
+    files.splice(index, 1);
+    files.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  }
+
+  // Recipe Share
+  document.getElementById('recipe-share-btn')?.addEventListener('click', () => {
+    document.getElementById('recipe-share-modal')?.classList.remove('hidden');
+  });
+
+  function shareRecipe(recipeId) {
+    document.getElementById('message_recipe_id').value = recipeId;
+    document.getElementById('recipe-share-modal')?.classList.add('hidden');
+    document.getElementById('message_body_<%= @conversation.id %>')?.focus();
+  }
+
+  // Form submission
+  document.querySelector('.chat-form')?.addEventListener('submit', (e) => {
+    const form = e.target;
+    form.addEventListener('turbo:submit-end', () => {
+      // Clear inputs
+      document.getElementById('message_body_<%= @conversation.id %>').value = '';
+      document.getElementById('message_recipe_id').value = '';
+      document.getElementById('message_images').value = '';
+      document.getElementById('image-preview-container')?.classList.add('hidden');
+      document.getElementById('image-preview-list').innerHTML = '';
+      scrollToBottom();
+    }, { once: true });
+  });
+
+  // Auto-resize textarea
+  const textarea = document.getElementById('message_body_<%= @conversation.id %>');
+  if (textarea) {
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  }
+</script>

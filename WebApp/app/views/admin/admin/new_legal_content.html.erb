@@ -1,0 +1,104 @@
+<div class="admin-dashboard space-y-8">
+  <header class="flex items-center gap-4">
+    <%= link_to admin_legal_contents_path, class: "p-2 rounded-xl border-2 border-default hover:border-primary transition-colors" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-black text-primary-content">Add Legal Section</h1>
+      <p class="text-secondary-content mt-1">Create a new section for legal pages</p>
+    </div>
+  </header>
+
+  <%= form_with model: @legal_content, url: admin_create_legal_content_path, local: true, class: "space-y-6" do |f| %>
+    <% if @legal_content.errors.any? %>
+      <div class="admin-alert admin-alert--danger">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span><%= @legal_content.errors.full_messages.join(', ') %></span>
+      </div>
+    <% end %>
+
+    <!-- Key and Order -->
+    <div class="admin-card">
+      <h3 class="font-bold text-primary-content mb-4">Section Info</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-primary-content mb-2">Key (unique identifier)</label>
+          <%= f.text_field :key, class: "admin-input", placeholder: "e.g: privacy_intro, terms_account, cookies_types" %>
+          <p class="text-xs text-secondary-content mt-2">
+            Format: <code class="bg-gray-100 px-1 rounded">page_section</code> 
+            (privacy_, terms_, cookies_)
+          </p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Display Order</label>
+          <%= f.number_field :section_order, class: "admin-input", value: @legal_content.section_order || 1, min: 1 %>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Romanian -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-bold text-sm">RO</span>
+          <div>
+            <h3 class="font-bold text-primary-content">Română</h3>
+            <p class="text-xs text-secondary-content">Primary language (required)</p>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Title *</label>
+          <%= f.text_field :title_ro, class: "admin-input", placeholder: "e.g: 1. Principii de prelucrare", required: true %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content *</label>
+          <%= f.text_area :content_ro, class: "admin-input min-h-[250px] font-normal", placeholder: "Write your content here...", style: "line-height: 1.8;", required: true %>
+        </div>
+      </div>
+
+      <!-- English -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-bold text-sm">EN</span>
+          <div>
+            <h3 class="font-bold text-primary-content">English</h3>
+            <p class="text-xs text-secondary-content">Translation (optional, add later)</p>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Title</label>
+          <%= f.text_field :title_en, class: "admin-input", placeholder: "e.g: 1. Processing Principles" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content</label>
+          <%= f.text_area :content_en, class: "admin-input min-h-[250px] font-normal", placeholder: "Translate later...", style: "line-height: 1.8;" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active -->
+    <div class="admin-card">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <%= f.check_box :active, class: "w-5 h-5 rounded border-2 border-primary text-primary focus:ring-primary", checked: true %>
+        <div>
+          <span class="font-semibold text-primary-content">Active</span>
+          <p class="text-sm text-secondary-content">Show this section on the website</p>
+        </div>
+      </label>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-4 pt-4">
+      <%= f.submit "Create Section", class: "btn-primary cursor-pointer" %>
+      <%= link_to "Cancel", admin_legal_contents_path, class: "btn-outline" %>
+    </div>
+  <% end %>
+</div>

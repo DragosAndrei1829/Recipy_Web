@@ -1,0 +1,122 @@
+<div class="conversations-page animate-fade-in space-y-10">
+  <!-- Hero -->
+  <section class="conversations-hero">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.4em] text-white/70 mb-3"><%= t('conversations.title') %></p>
+      <h1 class="text-4xl md:text-5xl font-black text-white mb-3 leading-tight"><%= t('conversations.subtitle') %></h1>
+      <p class="text-white/80 max-w-2xl text-lg mb-6"><%= t('conversations.tagline', default: 'Chat rapid cu alți utilizatori Recipy – trimite mesaje, imagini și rețete într-o clipă.') %></p>
+      <div class="flex flex-wrap items-center gap-3">
+        <%= link_to recipes_path, class: "hero-pill bg-white text-primary-content" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span><%= t('common.back') %></span>
+        <% end %>
+        <%= link_to shared_recipes_path, class: "hero-pill bg-white/10 text-white border border-white/30 hover:bg-white/20" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          <span><%= t('shared_recipes.title') %></span>
+        <% end %>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <p class="stat-label"><%= t('conversations.total', default: 'Conversații') %></p>
+        <p class="stat-value"><%= @conversations.count %></p>
+      </div>
+      <div>
+        <p class="stat-label"><%= t('conversations.unread', default: 'Necitite') %></p>
+        <p class="stat-value"><%= @conversations.sum { |c| c.unread_messages_count_for(current_user) } %></p>
+      </div>
+      <div>
+        <p class="stat-label"><%= t('conversations.this_week', default: 'Ultimele 7 zile') %></p>
+        <p class="stat-value"><%= @conversations.select { |c| c.updated_at >= 1.week.ago }.count %></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Conversations Wrapper -->
+  <section class="conversations-board">
+    <div class="board-header">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.4em] text-secondary-content mb-1"><%= t('conversations.inbox', default: 'Inbox') %></p>
+        <h2 class="text-3xl font-black text-primary-content"><%= t('conversations.latest', default: 'Cele mai recente mesaje') %></h2>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-secondary-content">
+        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-card border border-default text-primary-content">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span><%= t('conversations.tip', default: 'Trimite imagini, emoții și rețete direct din chat') %></span>
+        </span>
+      </div>
+    </div>
+
+    <% if @conversations.any? %>
+      <div class="conversation-cards">
+        <% @conversations.each do |conversation| %>
+          <% other_user = conversation.other_user(current_user) %>
+          <% unread_count = conversation.unread_messages_count_for(current_user) %>
+          <% last_message = conversation.messages.order(created_at: :desc).first %>
+
+          <%= link_to conversation_path(conversation), data: { turbo_frame: "_top" }, class: "conversation-card hover-lift" do %>
+            <div class="conversation-card__avatar">
+              <% if other_user.avatar&.attached? %>
+                <%= image_tag url_for(other_user.avatar.variant(resize_to_fill: [70, 70])), class: "w-16 h-16 rounded-2xl object-cover" %>
+              <% else %>
+                <div class="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary font-bold text-2xl">
+                  <%= other_user.username&.first&.upcase || 'U' %>
+                </div>
+              <% end %>
+              <% if unread_count > 0 %>
+                <span class="conversation-card__badge"><%= unread_count %></span>
+              <% end %>
+            </div>
+            <div class="conversation-card__body">
+              <div class="flex items-center justify-between gap-4 mb-2">
+                <h3 class="text-xl font-bold text-primary-content truncate">
+                  <%= other_user.username %>
+                </h3>
+                <% if last_message %>
+                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary-content flex-shrink-0">
+                    <%= time_ago_in_words(last_message.created_at) %> <%= t('time.ago') %>
+                  </span>
+                <% end %>
+              </div>
+              <% if last_message %>
+                <p class="text-sm text-secondary-content line-clamp-2 <%= 'text-primary-content font-semibold' if unread_count > 0 %>">
+                  <%= last_message.body.presence || t('messages.attachments_only', default: 'Media trimisă') %>
+                </p>
+              <% else %>
+                <p class="text-sm text-secondary-content italic"><%= t('conversations.no_messages') %></p>
+              <% end %>
+
+              <div class="conversation-card__tags">
+                <% if unread_count > 0 %>
+                  <span class="tag chip-attention"><%= t('conversations.unread_label', default: 'Necitite') %></span>
+                <% end %>
+                <% if last_message&.images&.attached? %>
+                  <span class="chip-muted">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Media
+                  </span>
+                <% end %>
+                <% if last_message&.recipe_id.present? %>
+                  <span class="chip-muted">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    Share
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <div class="icon">
+          <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+        </div>
+        <h3><%= t('conversations.empty') %></h3>
+        <p><%= t('conversations.empty_description') %></p>
+      </div>
+    <% end %>
+  </section>
+</div>

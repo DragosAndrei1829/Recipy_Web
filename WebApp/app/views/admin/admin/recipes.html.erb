@@ -1,0 +1,64 @@
+<div class="min-h-screen bg-page py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-4xl font-black bg-clip-text-primary text-transparent mb-2">
+          <%= t('admin.recipes.title') %>
+        </h1>
+        <p class="text-secondary-content"><%= t('admin.recipes.subtitle') %></p>
+      </div>
+      <%= link_to admin_dashboard_path, class: "px-4 py-2 bg-card border border-default text-primary-content font-semibold rounded-lg hover:bg-opacity-80 transition-all" do %>
+        ← <%= t('admin.common.back') %>
+      <% end %>
+    </div>
+
+    <!-- Recipes Table -->
+    <div class="bg-card rounded-xl shadow-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-primary text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.id') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.title') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.user') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.category') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.likes') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.comments') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.created_at') %></th>
+              <th class="px-6 py-4 text-left text-sm font-black uppercase"><%= t('admin.recipes.actions') %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-default">
+            <% @recipes.each do |recipe| %>
+              <tr class="hover:bg-primary hover:bg-opacity-5 transition-colors">
+                <td class="px-6 py-4 text-sm font-semibold text-primary-content">#<%= recipe.id %></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <% if recipe.photos.attached? && recipe.photos.first.present? %>
+                      <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [50, 50])), class: "w-12 h-12 rounded-lg object-cover" %>
+                    <% end %>
+                    <span class="font-semibold text-primary-content"><%= recipe.title %></span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= recipe.user&.username || 'N/A' %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= recipe.category&.display_name || 'N/A' %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= recipe.likes_count || 0 %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= recipe.comments_count || 0 %></td>
+                <td class="px-6 py-4 text-sm text-primary-content"><%= recipe.created_at.strftime("%Y-%m-%d") %></td>
+                <td class="px-6 py-4">
+                  <%= button_to admin_destroy_recipe_path(recipe), method: :delete, 
+                      class: "px-3 py-1 text-xs font-semibold bg-error text-white rounded-lg hover:opacity-90 transition-all",
+                      data: { confirm: t('admin.recipes.confirm_delete') } do %>
+                    <%= t('admin.recipes.delete') %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+

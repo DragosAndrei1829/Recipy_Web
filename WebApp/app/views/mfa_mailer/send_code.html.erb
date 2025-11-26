@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <h2 style="color: #333;"><%= t('mfa.email.greeting', username: @user.username) %></h2>
+      
+      <p><%= t('mfa.email.intro') %></p>
+      
+      <div style="background-color: #f0f0f0; border: 2px solid #333; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+        <h1 style="color: #333; font-size: 32px; letter-spacing: 5px; margin: 0;">
+          <%= @code %>
+        </h1>
+      </div>
+      
+      <p style="color: #666; font-size: 14px;">
+        <%= t('mfa.email.expires_in', minutes: @expires_in) %>
+      </p>
+      
+      <p style="color: #999; font-size: 12px; margin-top: 30px;">
+        <%= t('mfa.email.security_notice') %>
+      </p>
+      
+      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+      
+      <p style="color: #999; font-size: 12px;">
+        <%= t('mfa.email.footer') %>
+      </p>
+    </div>
+  </body>
+</html>
+

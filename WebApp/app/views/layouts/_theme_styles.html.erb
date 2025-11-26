@@ -1,0 +1,66 @@
+<style>
+  /* Additional theme-aware styles for all form elements */
+  input[type="text"]:not([class*="bg-"]):not([class*="text-"]),
+  input[type="email"]:not([class*="bg-"]):not([class*="text-"]),
+  input[type="number"]:not([class*="bg-"]):not([class*="text-"]),
+  input[type="password"]:not([class*="bg-"]):not([class*="text-"]),
+  textarea:not([class*="bg-"]):not([class*="text-"]),
+  select:not([class*="bg-"]):not([class*="text-"]) {
+    background-color: var(--card-background) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+  }
+  
+  input[type="text"]:focus:not([class*="border-"]),
+  input[type="email"]:focus:not([class*="border-"]),
+  input[type="number"]:focus:not([class*="border-"]),
+  input[type="password"]:focus:not([class*="border-"]),
+  textarea:focus:not([class*="border-"]),
+  select:focus:not([class*="border-"]) {
+    border-color: var(--primary-color) !important;
+    outline: none !important;
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+  }
+  
+  /* Ensure all cards use theme colors */
+  .bg-white:not(.bg-card) {
+    background-color: var(--card-background) !important;
+  }
+  
+  /* Update text colors globally */
+  .text-gray-900:not(.text-primary-content),
+  .text-gray-800:not(.text-primary-content),
+  .text-gray-700:not(.text-primary-content) {
+    color: var(--text-primary) !important;
+  }
+  
+  .text-gray-600:not(.text-secondary-content),
+  .text-gray-500:not(.text-secondary-content) {
+    color: var(--text-secondary) !important;
+  }
+  
+  /* Update border colors */
+  .border-gray-200:not(.border-default),
+  .border-gray-300:not(.border-default) {
+    border-color: var(--border-color) !important;
+  }
+  
+  /* Update background colors for empty states */
+  .bg-gray-50:not(.bg-card):not(.bg-page) {
+    background-color: var(--card-background) !important;
+  }
+  
+  .bg-gray-100:not(.bg-card):not(.bg-page) {
+    background-color: var(--card-background) !important;
+  }
+  
+  .bg-gray-200:not(.bg-card):not(.bg-page) {
+    background-color: var(--border-color) !important;
+  }
+</style>
+

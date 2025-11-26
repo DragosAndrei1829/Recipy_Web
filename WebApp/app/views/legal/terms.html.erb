@@ -1,0 +1,96 @@
+<section class="max-w-5xl mx-auto px-4 py-12 space-y-8">
+  <% if @content.present? %>
+    <!-- Database content -->
+    <header class="space-y-3">
+      <p class="text-sm uppercase tracking-widest text-<%= @page_color %>-500 font-semibold">
+        <%= t('legal.updated_at', date: l(Date.current, format: :long)) %>
+      </p>
+    </header>
+    <article class="prose prose-lg dark:prose-invert max-w-none">
+      <%= render_legal_content(@content) %>
+    </article>
+  <% else %>
+    <!-- Fallback: Static content from translations -->
+    <header class="space-y-3">
+      <p class="text-sm uppercase tracking-widest text-blue-500 font-semibold"><%= t('legal.updated_at', date: l(Date.current, format: :long)) %></p>
+      <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white"><%= t('legal.terms.title') %></h1>
+      <p class="text-lg text-gray-600 dark:text-gray-300">
+        <%= t('legal.terms.intro') %>
+      </p>
+    </header>
+
+    <article class="space-y-6 text-gray-700 dark:text-gray-200 leading-relaxed">
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.definitions.title') %></h2>
+        <p><%= t('legal.terms.definitions.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.acceptance.title') %></h2>
+        <p><%= t('legal.terms.acceptance.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.account.title') %></h2>
+        <div class="space-y-3 text-justify">
+          <p><%= t('legal.terms.account.p1') %></p>
+          <p><%= t('legal.terms.account.p2') %></p>
+          <p><%= t('legal.terms.account.p3') %></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.rights_obligations.title') %></h2>
+        <div class="space-y-3 text-justify">
+          <p><%= t('legal.terms.rights_obligations.p1') %></p>
+          <p><%= t('legal.terms.rights_obligations.p2') %></p>
+          <p><%= t('legal.terms.rights_obligations.p3') %></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.intellectual_property.title') %></h2>
+        <p><%= t('legal.terms.intellectual_property.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.third_party.title') %></h2>
+        <p><%= t('legal.terms.third_party.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.liability.title') %></h2>
+        <div class="space-y-3 text-justify">
+          <p><%= t('legal.terms.liability.p1') %></p>
+          <p><%= t('legal.terms.liability.p2') %></p>
+          <p><%= t('legal.terms.liability.p3') %></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.suspension.title') %></h2>
+        <p><%= t('legal.terms.suspension.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.indemnification.title') %></h2>
+        <p><%= t('legal.terms.indemnification.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.governing_law.title') %></h2>
+        <p><%= t('legal.terms.governing_law.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.modifications.title') %></h2>
+        <p><%= t('legal.terms.modifications.content') %></p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2"><%= t('legal.terms.contact.title') %></h2>
+        <p><%= t('legal.terms.contact.content').gsub('legal@recipy.app', '<a href="mailto:legal@recipy.app" class="text-blue-500 font-semibold">legal@recipy.app</a>').html_safe %></p>
+      </section>
+    </article>
+  <% end %>
+</section>

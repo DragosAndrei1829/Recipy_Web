@@ -1,0 +1,11 @@
+<%= t('confirmation.email.greeting') %>
+
+<%= t('confirmation.email.intro', username: @user.username) %>
+
+<%= t('confirmation.email.code_label') %>: <%= @code %>
+
+<%= t('confirmation.email.expires_in', minutes: @expires_in) %>
+
+<%= t('confirmation.email.security_notice') %>
+
+<%= t('confirmation.email.footer') %>

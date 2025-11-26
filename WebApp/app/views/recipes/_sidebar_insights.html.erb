@@ -1,0 +1,52 @@
+<% stats = @feed_stats || {} %>
+<div class="space-y-6">
+  <div>
+    <h3 class="text-lg font-black text-primary-content mb-1">Creator spotlight</h3>
+    <p class="text-sm text-secondary-content mb-3">Chefs whose recipes are buzzing this week.</p>
+    <ul class="space-y-3">
+      <% Array(@top_week).first(3).each do |top_recipe| %>
+        <li class="flex items-center gap-3">
+          <% if top_recipe.user&.avatar&.attached? %>
+            <%= image_tag url_for(top_recipe.user.avatar.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
+          <% else %>
+            <div class="h-8 w-8 rounded-full bg-card border border-default grid place-items-center text-xs font-bold text-secondary-content">
+              <%= (top_recipe.user&.username&.first || 'R').upcase %>
+            </div>
+          <% end %>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-primary-content truncate"><%= top_recipe.user&.username || 'Anonim' %></p>
+            <p class="text-xs text-secondary-content"><%= top_recipe.title %></p>
+          </div>
+          <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
+            <%= (top_recipe.likes_count if top_recipe.respond_to?(:likes_count)) || top_recipe.likes.count %> ❤
+          </span>
+        </li>
+      <% end %>
+      <% if Array(@top_week).empty? %>
+        <li class="text-sm text-secondary-content">Încă nu există suficiente date pentru topul săptămânii.</li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="gradient-divider"></div>
+
+  <div>
+    <h3 class="text-lg font-black text-primary-content mb-1">Library pulse</h3>
+    <p class="text-sm text-secondary-content mb-4">Live stats from the entire Recipy universe.</p>
+    <div class="grid grid-cols-1 gap-3">
+      <div class="stat-card">
+        <p class="text-2xl font-black text-primary-content"><%= number_with_delimiter(stats[:total_recipes] || Recipe.count) %></p>
+        <p class="text-xs uppercase tracking-wide text-secondary-content">total recipes</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-2xl font-black text-primary-content"><%= stats[:avg_time].present? ? "#{stats[:avg_time]} min" : "—" %></p>
+        <p class="text-xs uppercase tracking-wide text-secondary-content">average prep time</p>
+      </div>
+      <div class="stat-card">
+        <p class="text-2xl font-black text-primary-content"><%= stats[:avg_rating].present? ? stats[:avg_rating] : "—" %></p>
+        <p class="text-xs uppercase tracking-wide text-secondary-content">community rating</p>
+      </div>
+    </div>
+  </div>
+</div>
+

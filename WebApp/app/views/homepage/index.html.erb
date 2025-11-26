@@ -1,0 +1,18 @@
+<!-- Simple Homepage - Just Recipy -->
+<div class="min-h-screen flex items-center justify-center animate-fade-in">
+  <div class="text-center">
+    <h1 class="text-6xl md:text-8xl font-black bg-clip-text-primary text-transparent mb-4 tracking-tight">
+      Recipy
+    </h1>
+    <p class="text-xl text-secondary-content mb-8">Healthy Recipes for a Better Life</p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <%= link_to recipes_path, class: 'px-8 py-3 rounded-xl bg-gradient-primary text-white font-bold shadow-lg hover:shadow-xl transition-all hover-lift' do %>
+        <%= t('navigation.explore') %>
+      <% end %>
+      <% unless user_signed_in? %>
+        <%= link_to t('navigation.login'), new_user_session_path, class: 'px-8 py-3 rounded-xl border-2 border-default text-primary font-semibold hover:bg-card transition-all' %>
+        <%= link_to t('navigation.signup'), new_user_registration_path, class: 'px-8 py-3 rounded-xl bg-gradient-primary text-white font-bold shadow-lg hover:shadow-xl transition-all hover-lift' %>
+      <% end %>
+    </div>
+  </div>
+</div>

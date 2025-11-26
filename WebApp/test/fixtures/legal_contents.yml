@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  key: MyString
+  title_ro: MyString
+  title_en: MyString
+  content_ro: MyText
+  content_en: MyText
+  section_order: 1
+  active: false
+
+two:
+  key: MyString
+  title_ro: MyString
+  title_en: MyString
+  content_ro: MyText
+  content_en: MyText
+  section_order: 1
+  active: false

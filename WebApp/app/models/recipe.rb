@@ -1,0 +1,50 @@
+class Recipe < ApplicationRecord
+  has_many :notifications, dependent: :destroy
+  belongs_to :user
+  belongs_to :category, optional: true
+  belongs_to :cuisine, optional: true
+  belongs_to :food_type, optional: true
+  has_many :comments, dependent: :destroy
+  has_many :likes, dependent: :destroy
+  has_many :favorites, dependent: :destroy
+  has_one_attached :video 
+  has_many_attached :photos
+
+  validates :title, presence: true, length: { minimum: 3, maximum: 200 }
+  validates :ingredients, presence: true, length: { minimum: 10 }
+  validates :preparation, presence: true, length: { minimum: 10 }
+
+  def ordered_photos
+    return photos if photos_order.blank?
+    ids = photos.map(&:id).map(&:to_i)
+    ordered = Array(photos_order).map(&:to_i) & ids
+    photos.sort_by { |p| ordered.index(p.id) || photos.size }
+  end
+  def cover_photo
+    return photos.find { |p| p.id == cover_photo_id } if cover_photo_id.present?
+    ordered_photos.first
+  end
+
+  # Top recipes scopes
+  scope :top_by_likes, -> { order(likes_count: :desc) }
+  scope :created_today, -> { where(created_at: Time.current.beginning_of_day..Time.current.end_of_day) }
+  scope :created_this_week, -> { where(created_at: Time.current.beginning_of_week..Time.current.end_of_week) }
+  scope :created_this_month, -> { where(created_at: Time.current.beginning_of_month..Time.current.end_of_month) }
+  scope :created_this_year, -> { where(created_at: Time.current.beginning_of_year..Time.current.end_of_year) }
+
+  def self.top_of_day(limit = 10)
+    created_today.top_by_likes.limit(limit)
+  end
+
+  def self.top_of_week(limit = 10)
+    created_this_week.top_by_likes.limit(limit)
+  end
+
+  def self.top_of_month(limit = 10)
+    created_this_month.top_by_likes.limit(limit)
+  end
+
+  def self.top_of_year(limit = 10)
+    created_this_year.top_by_likes.limit(limit)
+  end
+end

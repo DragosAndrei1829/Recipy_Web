@@ -1,0 +1,13 @@
+<%= t('mfa.email.greeting', username: @user.username) %>
+
+<%= t('mfa.email.intro') %>
+
+Your MFA code is: <%= @code %>
+
+<%= t('mfa.email.expires_in', minutes: @expires_in) %>
+
+<%= t('mfa.email.security_notice') %>
+
+---
+<%= t('mfa.email.footer') %>
+

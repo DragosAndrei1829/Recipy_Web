@@ -1,0 +1,75 @@
+<div class="flex items-center justify-between mb-4">
+  <h3 class="text-xl font-bold text-primary-content"><%= t('recipes.show.comments') %></h3>
+  <% if recipe.comments.where("rating > 0").any? %>
+    <% avg_rating = recipe.comments.where("rating > 0").average(:rating).to_f.round(1) %>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-semibold text-primary-content"><%= t('recipes.show.average_rating') %>:</span>
+      <span class="text-lg font-black text-primary"><%= avg_rating %>/10</span>
+    </div>
+  <% end %>
+</div>
+
+<% if user_signed_in? %>
+  <%= form_with model: [:recipe, Comment.new],
+                url: recipe_comments_path(recipe, format: :turbo_stream),
+                method: :post, data: { turbo: true }, class: "mb-4 space-y-3" do |f| %>
+    <div>
+      <label class="block mb-2 text-sm font-bold text-primary-content"><%= t('recipes.show.rating') %></label>
+      <div class="flex items-center gap-2">
+        <%= f.number_field :rating, 
+            in: 0..10, 
+            step: 1,
+            placeholder: "0",
+            class: "w-20 px-3 py-2 rounded-lg border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 bg-card text-primary-content" %>
+        <span class="text-sm text-secondary-content">/ 10</span>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <%= f.text_field :body, placeholder: t('recipes.show.write_comment'), class: "flex-1 rounded-lg border-2 border-default px-4 py-2 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 bg-card text-primary-content" %>
+      <%= f.submit t('recipes.show.send'), data: { disable_with: false }, class: "rounded-lg bg-gradient-primary px-6 py-2 text-white font-semibold hover:opacity-90 transition-all" %>
+    </div>
+  <% end %>
+<% end %>
+
+<ul class="space-y-4">
+  <% recipe.comments.includes(:user).order(created_at: :desc).each do |comment| %>
+    <li class="border-b pb-4 last:border-0">
+      <div class="flex items-start gap-3">
+        <% if comment.user&.avatar&.attached? %>
+          <%= image_tag url_for(comment.user.avatar.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover" %>
+        <% else %>
+          <div class="h-8 w-8 rounded-full bg-card border border-default flex items-center justify-center">
+            <svg class="h-4 w-4 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+        <% end %>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <strong class="text-sm font-bold text-primary-content"><%= comment.user&.username || comment.user&.email || "Anonim" %></strong>
+            <span class="text-xs text-secondary-content"><%= time_ago_in_words(comment.created_at) %> <%= t('time.ago') %></span>
+            <% if comment.rating && comment.rating > 0 %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary bg-opacity-20 text-primary text-xs font-bold">
+                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <%= comment.rating %>/10
+              </span>
+            <% end %>
+          </div>
+          <p class="text-primary-content">
+            <%= comment.body.present? ? comment.body : t('comments.rating_only') %>
+          </p>
+          <% if user_signed_in? && comment.user == current_user %>
+            <%= form_with url: recipe_comment_path(recipe, comment, format: :turbo_stream),
+                          method: :delete, data: { turbo: true, confirm: "Ești sigur că vrei să ștergi acest comentariu?" }, class: "inline mt-2" do %>
+              <button type="submit" class="text-xs text-error hover:opacity-80">Șterge</button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </li>
+  <% end %>
+  <% if recipe.comments.empty? %>
+      <li class="text-secondary-content text-center py-8"><%= t('recipes.show.no_comments') %></li>
+  <% end %>
+</ul>
+

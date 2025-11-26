@@ -1,0 +1,118 @@
+<div class="admin-dashboard space-y-8">
+  <header class="flex items-center gap-4">
+    <%= link_to admin_legal_contents_path, class: "p-2 rounded-xl border-2 border-default hover:border-primary transition-colors" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-black text-primary-content">Edit Section</h1>
+      <p class="text-secondary-content mt-1"><code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded"><%= @legal_content.key %></code></p>
+    </div>
+  </header>
+
+  <%= form_with model: @legal_content, url: admin_update_legal_content_path(@legal_content), method: :patch, local: true, class: "space-y-6" do |f| %>
+    <% if @legal_content.errors.any? %>
+      <div class="admin-alert admin-alert--danger">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span><%= @legal_content.errors.full_messages.join(', ') %></span>
+      </div>
+    <% end %>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Romanian -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-bold text-sm">RO</span>
+          <div>
+            <h3 class="font-bold text-primary-content">Română</h3>
+            <p class="text-xs text-secondary-content">Primary language</p>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Title</label>
+          <%= f.text_field :title_ro, class: "admin-input", placeholder: "e.g: 1. Principii de prelucrare" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content</label>
+          <%= f.text_area :content_ro, class: "admin-input min-h-[300px] font-normal", placeholder: "Write your content here...", style: "line-height: 1.8;" %>
+          <p class="text-xs text-secondary-content mt-2">💡 Use empty lines to separate paragraphs</p>
+        </div>
+      </div>
+
+      <!-- English -->
+      <div class="admin-card space-y-4">
+        <div class="flex items-center gap-3 pb-4 border-b border-default">
+          <span class="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center font-bold text-sm">EN</span>
+          <div>
+            <h3 class="font-bold text-primary-content">English</h3>
+            <p class="text-xs text-secondary-content">Translation</p>
+          </div>
+          <% if @legal_content.title_en.blank? || @legal_content.content_en.blank? %>
+            <span class="ml-auto inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-warning/20 text-warning">
+              ⚠ Needs translation
+            </span>
+          <% end %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Title</label>
+          <%= f.text_field :title_en, class: "admin-input", placeholder: "e.g: 1. Processing Principles" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Content</label>
+          <%= f.text_area :content_en, class: "admin-input min-h-[300px] font-normal", placeholder: "Translate the Romanian content here...", style: "line-height: 1.8;" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="admin-card">
+      <h3 class="font-bold text-primary-content mb-4">Settings</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Key (identifier)</label>
+          <%= f.text_field :key, class: "admin-input bg-gray-50", readonly: true %>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-primary-content mb-2">Display Order</label>
+          <%= f.number_field :section_order, class: "admin-input", min: 1 %>
+        </div>
+        <div class="flex items-end">
+          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl border-2 border-default hover:border-primary transition-colors w-full">
+            <%= f.check_box :active, class: "w-5 h-5 rounded border-2 border-primary text-primary focus:ring-primary" %>
+            <div>
+              <span class="font-semibold text-primary-content">Active</span>
+              <p class="text-xs text-secondary-content">Show on website</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-between gap-4 pt-4">
+      <div class="flex items-center gap-3">
+        <%= f.submit "Save Changes", class: "btn-primary cursor-pointer" %>
+        <%= link_to "Cancel", admin_legal_contents_path, class: "btn-outline" %>
+      </div>
+      <%= button_to admin_destroy_legal_content_path(@legal_content), method: :delete, class: "btn-danger", data: { confirm: 'Delete this section permanently?' } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+        Delete
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @legal_content.updated_at.present? %>
+    <p class="text-sm text-secondary-content">
+      Last updated: <%= l(@legal_content.updated_at, format: :long) %>
+    </p>
+  <% end %>
+</div>

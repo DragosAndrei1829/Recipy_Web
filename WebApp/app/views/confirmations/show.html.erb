@@ -1,0 +1,81 @@
+<div class="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 animate-fade-in relative overflow-hidden">
+  <!-- Animated Background Elements -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+    <div class="absolute top-40 right-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-1/2 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+  </div>
+
+  <div class="w-full max-w-md sm:max-w-lg md:max-w-xl bg-card backdrop-blur-md rounded-3xl shadow-2xl px-10 py-12 sm:px-12 sm:py-14 flex flex-col items-center border-2 border-default animate-scale-in relative z-10">
+    <!-- Icon & Title -->
+    <div class="mb-8 flex flex-col items-center w-full">
+      <div class="relative mb-4">
+        <div class="w-20 h-20 mx-auto">
+          <svg class="w-full h-full text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+      </div>
+      <span class="font-black text-4xl md:text-5xl bg-clip-text-primary text-transparent tracking-tight mb-2"><%= t('confirmation.title') %></span>
+      <span class="text-secondary-content text-lg md:text-xl font-light text-center"><%= t('confirmation.subtitle') %></span>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if notice %>
+      <div class="w-full mb-6 p-4 bg-emerald-100 border border-emerald-400 text-emerald-700 rounded-xl">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="w-full mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <!-- Confirmation Form -->
+    <%= form_with url: verify_confirmation_path(user_id: @user.id, locale: I18n.locale), method: :post, local: true, class: "w-full" do |form| %>
+      <div class="space-y-5 w-full">
+        <div>
+          <%= form.label :code, t('confirmation.code_label'), class: "block text-sm text-primary-content font-semibold mb-2" %>
+          <%= form.text_field :code, 
+                autofocus: true, 
+                required: true,
+                maxlength: 6,
+                pattern: "[0-9]{6}",
+                inputmode: "numeric",
+                class: "w-full px-5 py-3.5 rounded-xl text-base border-2 border-default focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all duration-300 bg-card text-primary-content text-center text-2xl tracking-widest",
+                id: "confirmation_code",
+                placeholder: "000000" %>
+          <p class="mt-2 text-sm text-secondary-content"><%= t('confirmation.code_hint') %></p>
+        </div>
+        
+        <div>
+          <%= form.submit t('confirmation.verify_button'), 
+                class: "w-full py-3.5 rounded-xl bg-gradient-primary hover:opacity-90 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover-lift" %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-secondary-content"><%= t('confirmation.resend_info') %></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-format code input (6 digits only)
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('confirmation_code');
+    if (codeInput) {
+      codeInput.addEventListener('input', function(e) {
+        // Only allow numbers
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        // Limit to 6 digits
+        if (e.target.value.length > 6) {
+          e.target.value = e.target.value.slice(0, 6);
+        }
+      });
+    }
+  });
+</script>
