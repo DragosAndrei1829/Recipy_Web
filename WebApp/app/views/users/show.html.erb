@@ -48,6 +48,8 @@
               </svg>
               <%= t('conversations.message') %>
             <% end %>
+            <!-- Report Button -->
+            <%= render 'reports/report_button', reportable: @user %>
           </div>
         <% end %>
       </div>

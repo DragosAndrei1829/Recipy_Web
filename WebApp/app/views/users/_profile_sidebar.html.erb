@@ -82,6 +82,10 @@
           </svg>
           <%= t('conversations.message') %>
         <% end %>
+        <!-- Report Button -->
+        <div class="pt-1">
+          <%= render 'reports/report_button', reportable: user %>
+        </div>
       </div>
     <% else %>
       <%= link_to new_user_session_path, 
