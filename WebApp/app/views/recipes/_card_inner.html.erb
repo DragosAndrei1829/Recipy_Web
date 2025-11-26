@@ -139,15 +139,16 @@
             </button>
           <% end %>
 
-          <%# Comments - Icon + Count (link to recipe) %>
-          <%= link_to recipe_path(recipe, anchor: 'comments'), 
-                      class: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all",
-                      title: "Comentarii" do %>
+          <%# Comments - Icon + Count (toggle inline comments) %>
+          <button type="button"
+                  onclick="toggleInlineComments('<%= recipe.id %>')"
+                  class="flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all"
+                  title="Comentarii">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
             <span class="text-xs font-bold"><%= defined?(recipe.comments_count) ? recipe.comments_count : recipe.comments.count %></span>
-          <% end %>
+          </button>
 
           <%# Save/Favorite Button - Icon only %>
           <%= form_with url: recipe_favorite_path(recipe, format: :turbo_stream),
@@ -186,5 +187,84 @@
         <span><%= t('card.view_recipe', default: 'Vezi') %></span>
       <% end %>
     </div>
+
+    <%# Inline Comments Section (hidden by default) %>
+    <div id="inline-comments-<%= recipe.id %>" class="hidden mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+      <%# Recent comments preview %>
+      <% recent_comments = recipe.comments.includes(:user).order(created_at: :desc).limit(2) %>
+      <% if recent_comments.any? %>
+        <div class="space-y-2 mb-3">
+          <% recent_comments.each do |comment| %>
+            <div class="flex items-start gap-2">
+              <% if comment.user&.avatar&.attached? %>
+                <%= image_tag url_for(comment.user.avatar.variant(resize_to_fill: [24,24])), class: "w-6 h-6 rounded-full flex-shrink-0" %>
+              <% else %>
+                <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                  <span class="text-[10px] font-bold text-gray-500"><%= comment.user&.username&.first&.upcase || 'U' %></span>
+                </div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs">
+                  <span class="font-semibold text-gray-900 dark:text-white"><%= comment.user&.username || 'Anonim' %></span>
+                  <span class="text-gray-600 dark:text-gray-400 ml-1"><%= truncate(comment.content, length: 80) %></span>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <% if recipe.comments.count > 2 %>
+          <%= link_to recipe_path(recipe, anchor: 'comments'), 
+                      class: "text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mb-2 block",
+                      data: { turbo_frame: "_top" } do %>
+            Vezi toate cele <%= recipe.comments.count %> comentarii →
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <%# Quick comment form %>
+      <% if user_signed_in? %>
+        <%= form_with url: recipe_comments_path(recipe), method: :post, 
+                      data: { turbo_frame: "inline-comments-#{recipe.id}" },
+                      class: "flex items-center gap-2" do |f| %>
+          <% if current_user.avatar&.attached? %>
+            <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [28,28])), class: "w-7 h-7 rounded-full flex-shrink-0" %>
+          <% else %>
+            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0">
+              <span class="text-xs font-bold text-white"><%= current_user.username&.first&.upcase || 'U' %></span>
+            </div>
+          <% end %>
+          <%= f.text_field :content, 
+                           placeholder: "Scrie un comentariu...",
+                           class: "flex-1 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700 transition-all",
+                           autocomplete: "off" %>
+          <button type="submit" class="p-2 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-full transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+          </button>
+        <% end %>
+      <% else %>
+        <%= link_to new_user_session_path, class: "flex items-center gap-2 text-sm text-gray-500 hover:text-emerald-500" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+          Conectează-te pentru a comenta
+        <% end %>
+      <% end %>
+    </div>
   </div>
 </article>
+
+<script>
+function toggleInlineComments(recipeId) {
+  const section = document.getElementById('inline-comments-' + recipeId);
+  if (section) {
+    section.classList.toggle('hidden');
+    // Focus on input if opened
+    if (!section.classList.contains('hidden')) {
+      const input = section.querySelector('input[name="content"]');
+      if (input) input.focus();
+    }
+  }
+}
+</script>

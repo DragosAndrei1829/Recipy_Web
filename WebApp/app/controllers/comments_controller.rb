@@ -3,8 +3,14 @@ class CommentsController < ApplicationController
 
   def create
     @recipe = Recipe.find(params[:recipe_id])
-    @recipe.comments.create!(comment_params.merge(user: current_user))
+    # Support both :body (from show page) and :content (from feed inline)
+    content = params.dig(:comment, :body) || params.dig(:comment, :content) || params[:content]
+    @comment = @recipe.comments.create!(content: content, user: current_user)
     @recipe.reload # important pentru comments_count
+    
+    # Check if this is from inline feed or show page
+    @from_feed = request.referer&.include?('/recipes') && !request.referer&.include?("/recipes/#{@recipe.id}")
+    
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_back fallback_location: recipe_path(@recipe) }
@@ -24,6 +30,6 @@ class CommentsController < ApplicationController
 
   private
   def comment_params
-    params.require(:comment).permit(:body, :rating)
+    params.require(:comment).permit(:body, :content, :rating)
   end
 end
