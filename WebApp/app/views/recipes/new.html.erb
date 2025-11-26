@@ -473,33 +473,37 @@ function initRecipeWizard() {
     }
   }
 
-  // Star ratings
-  document.querySelectorAll('.star-rating').forEach(container => {
+  // Star ratings - using event delegation on document for reliability
+  document.addEventListener('click', function(e) {
+    const starBtn = e.target.closest('.star-btn');
+    if (!starBtn) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const container = starBtn.closest('.star-rating');
+    if (!container) return;
+    
     const field = container.dataset.field;
     const hiddenField = document.getElementById(`recipe_${field}`);
-    const stars = container.querySelectorAll('.star-btn');
-    let value = 0;
-
-    stars.forEach((star, index) => {
-      star.addEventListener('click', (e) => {
-        e.preventDefault();
-        value = index + 1;
-        hiddenField.value = value;
-        updateStars();
-      });
+    if (!hiddenField) return;
+    
+    const stars = Array.from(container.querySelectorAll('.star-btn'));
+    const clickedIndex = stars.indexOf(starBtn);
+    const newValue = clickedIndex + 1;
+    
+    hiddenField.value = newValue;
+    
+    // Update visual state
+    stars.forEach((s, i) => {
+      if (i < newValue) {
+        s.classList.remove('text-gray-300');
+        s.classList.add(field === 'healthiness' ? 'text-green-500' : 'text-amber-500');
+      } else {
+        s.classList.add('text-gray-300');
+        s.classList.remove('text-green-500', 'text-amber-500');
+      }
     });
-
-    function updateStars() {
-      stars.forEach((s, i) => {
-        if (i < value) {
-          s.classList.remove('text-gray-300');
-          s.classList.add(field === 'healthiness' ? 'text-green-500' : 'text-amber-500');
-        } else {
-          s.classList.add('text-gray-300');
-          s.classList.remove('text-green-500', 'text-amber-500');
-        }
-      });
-    }
   });
 
   function updateStep(step) {
