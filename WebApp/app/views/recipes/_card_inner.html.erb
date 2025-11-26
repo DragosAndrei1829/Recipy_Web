@@ -206,7 +206,7 @@
               <div class="flex-1 min-w-0">
                 <p class="text-xs">
                   <span class="font-semibold text-gray-900 dark:text-white"><%= comment.user&.username || 'Anonim' %></span>
-                  <span class="text-gray-600 dark:text-gray-400 ml-1"><%= truncate(comment.content, length: 80) %></span>
+                  <span class="text-gray-600 dark:text-gray-400 ml-1"><%= truncate(comment.body.presence || 'Evaluare fără comentariu', length: 80) %></span>
                 </p>
               </div>
             </div>
@@ -233,7 +233,7 @@
               <span class="text-xs font-bold text-white"><%= current_user.username&.first&.upcase || 'U' %></span>
             </div>
           <% end %>
-          <%= f.text_field :content, 
+          <%= f.text_field :body, 
                            placeholder: "Scrie un comentariu...",
                            class: "flex-1 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700 transition-all",
                            autocomplete: "off" %>
