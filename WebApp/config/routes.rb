@@ -1,6 +1,82 @@
 Rails.application.routes.draw do
   get "confirmations/show"
   get "confirmations/verify"
+
+  # API v1 routes
+  namespace :api do
+    namespace :v1 do
+      # Authentication
+      post "auth/login", to: "auth#login"
+      post "auth/register", to: "auth#register"
+      post "auth/logout", to: "auth#logout"
+      post "auth/refresh_token", to: "auth#refresh_token"
+      post "auth/forgot_password", to: "auth#forgot_password"
+      post "auth/change_password", to: "auth#change_password"
+      post "auth/verify_email", to: "auth#verify_email"
+      post "auth/resend_confirmation", to: "auth#resend_confirmation"
+      get "auth/me", to: "auth#me"
+
+      # Recipes
+      resources :recipes, only: [ :index, :show, :create, :update, :destroy ] do
+        collection do
+          get :feed
+          get :top
+          get :search
+        end
+        member do
+          post :like, to: "likes#create"
+          delete :like, to: "likes#destroy"
+          post :favorite, to: "favorites#create"
+          delete :favorite, to: "favorites#destroy"
+        end
+        resources :comments, only: [ :index, :create, :destroy ]
+      end
+
+      # Favorites
+      resources :favorites, only: [ :index ]
+
+      # Users
+      resources :users, only: [ :show ] do
+        collection do
+          get :search
+          put :profile, to: "users#update_profile"
+          post :avatar, to: "users#update_avatar"
+          delete :avatar, to: "users#delete_avatar"
+        end
+        member do
+          get :recipes
+          get :followers
+          get :following
+          post :follow
+          delete :follow, to: "users#unfollow"
+        end
+      end
+
+      # Notifications
+      resources :notifications, only: [ :index, :destroy ] do
+        member do
+          patch :read, to: "notifications#mark_read"
+        end
+        collection do
+          post :mark_all_read
+          get :unread_count
+        end
+      end
+
+      # Conversations & Messages
+      resources :conversations, only: [ :index, :show, :create ] do
+        member do
+          get :messages
+          post :messages, to: "conversations#create_message"
+        end
+      end
+
+      # Categories, Cuisines, Food Types
+      get "categories", to: "categories#index"
+      get "cuisines", to: "categories#cuisines"
+      get "food_types", to: "categories#food_types"
+    end
+  end
   # Language switching route (outside locale scope)
   get "/switch_locale/:locale", to: "application#switch_locale", as: :switch_locale
 

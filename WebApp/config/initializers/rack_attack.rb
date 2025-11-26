@@ -92,3 +92,4 @@ if Rails.env.development?
     Rails.logger.warn "[Rack::Attack] Throttled #{req.ip} - #{req.path}"
   end
 end
+

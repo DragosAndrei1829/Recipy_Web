@@ -494,6 +494,7 @@ DEPENDENCIES
   image_processing (~> 1.12)
   importmap-rails
   jbuilder
+  jwt
   kamal
   omniauth
   omniauth-apple
