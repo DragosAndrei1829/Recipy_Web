@@ -375,7 +375,9 @@
             <!-- Left Sidebar -->
             <aside class="hidden lg:block">
               <div class="sidebar-stack">
-                <% if defined?(@top_day) %>
+                <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
+                  <%= render 'users/profile_sidebar', user: @user %>
+                <% elsif defined?(@top_day) %>
                   <div class="sidebar-card">
                     <%= render 'recipes/top_recipes_sidebar' %>
                   </div>
@@ -394,7 +396,9 @@
             <!-- Right Sidebar -->
             <aside class="hidden lg:block">
               <div class="sidebar-stack">
-                <% if controller_name == 'recipes' && action_name == 'index' %>
+                <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
+                  <%= render 'users/stats_sidebar', user: @user %>
+                <% elsif controller_name == 'recipes' && action_name == 'index' %>
                   <%= render 'recipes/filters_sidebar' %>
                   <div class="sidebar-card">
                     <%= render 'recipes/sidebar_quick_filters' %>

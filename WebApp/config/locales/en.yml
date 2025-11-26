@@ -141,6 +141,17 @@ en:
     likes_given: "Likes given"
     comments_made: "Comments made"
     favorites_saved: "Favorites saved"
+    public_activity: "Public Activity"
+    total_likes_received: "Likes received"
+    total_comments_received: "Comments received"
+    statistics: "Statistics"
+    likes_received: "Likes"
+    comments_received: "Comments"
+    average_rating: "Average rating"
+    private_stats: "Private Stats"
+    only_you: "Only you"
+    unread_notifications: "Unread notifications"
+    conversations: "Conversations"
   navigation:
     explore: "Explore"
     add_recipe: "Add Recipe"
@@ -153,6 +164,10 @@ en:
     edit_profile: "Edit Profile"
     select_theme: "Select Theme"
     trending: "Trending now"
+    favorites: "Favorites"
+    view_favorites: "View Favorites"
+    view_notifications: "View Notifications"
+    view_followers: "View Followers"
   devise:
     sessions:
       title: "Recipy"
@@ -658,6 +673,7 @@ en:
     no_messages: "No messages yet. Start the conversation!"
     view_profile: "View Profile"
     send_message: "Send Message"
+    message: "Message"
     unauthorized: "You are not authorized to view this conversation"
   messages:
     placeholder: "Type your message..."

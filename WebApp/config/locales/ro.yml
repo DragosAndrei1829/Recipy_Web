@@ -139,6 +139,17 @@ ro:
     likes_given: "Like-uri date"
     comments_made: "Comentarii făcute"
     favorites_saved: "Favorite salvate"
+    public_activity: "Activitate Publică"
+    total_likes_received: "Like-uri primite"
+    total_comments_received: "Comentarii primite"
+    statistics: "Statistici"
+    likes_received: "Like-uri"
+    comments_received: "Comentarii"
+    average_rating: "Rating mediu"
+    private_stats: "Statistici Private"
+    only_you: "Doar tu"
+    unread_notifications: "Notificări necitite"
+    conversations: "Conversații"
   navigation:
     explore: "Explorează"
     add_recipe: "Adaugă Rețetă"
@@ -151,6 +162,10 @@ ro:
     edit_profile: "Editează profil"
     select_theme: "Selectează Tema"
     trending: "În tendințe"
+    favorites: "Favorite"
+    view_favorites: "Vezi Favorite"
+    view_notifications: "Vezi Notificări"
+    view_followers: "Vezi Urmăritori"
   devise:
     sessions:
       title: "Recipy"
@@ -693,6 +708,7 @@ ro:
     no_messages: "Nicio conversație încă. Începe conversația!"
     view_profile: "Vezi Profil"
     send_message: "Trimite Mesaj"
+    message: "Mesaj"
     unauthorized: "Nu ai permisiunea de a vedea această conversație"
   messages:
     placeholder: "Scrie mesajul tău..."
