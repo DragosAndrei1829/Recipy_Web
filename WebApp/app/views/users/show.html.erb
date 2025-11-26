@@ -106,38 +106,61 @@
         <%= link_to recipe_path(recipe), data: { turbo_frame: "_top" }, 
             class: "block group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 hover:-translate-y-1",
             style: "animation: fadeInUp 0.4s ease-out #{index * 0.05}s both" do %>
+          <% 
+            # Check if recipe has a valid cover photo or at least one valid attached photo
+            # Use service.exist? to verify the file actually exists in storage
+            begin
+              has_cover = recipe.cover_photo.attached? && recipe.cover_photo.blob&.service&.exist?(recipe.cover_photo.blob.key)
+            rescue => e
+              has_cover = false
+            end
+            begin
+              if recipe.photos.attached?
+                first_valid_photo = recipe.photos.find { |p| p.blob&.service&.exist?(p.blob.key) rescue false }
+              else
+                first_valid_photo = nil
+              end
+              has_photos = first_valid_photo.present?
+            rescue => e
+              has_photos = false
+              first_valid_photo = nil
+            end
+            has_image = has_cover || has_photos
+          %>
           <div class="flex flex-col sm:flex-row">
-            <%# Recipe Image %>
-            <div class="sm:w-48 md:w-56 flex-shrink-0">
-              <div class="aspect-[4/3] sm:aspect-square relative overflow-hidden">
-                <% if recipe.cover_photo.present? %>
-                  <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [300,300])), 
-                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
-                <% elsif recipe.photos.attached? && recipe.photos.first.present? %>
-                  <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [300,300])), 
-                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
-                <% else %>
-                  <div class="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center">
-                    <svg class="w-12 h-12 text-emerald-300 dark:text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                  </div>
-                <% end %>
-                
-                <%# Category badge %>
-                <% if recipe.category %>
-                  <div class="absolute top-2 left-2">
-                    <span class="px-2 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-xs font-bold text-gray-700 dark:text-gray-200">
-                      <%= recipe.category&.name %>
-                    </span>
-                  </div>
-                <% end %>
+            <%# Recipe Image - only show if image exists %>
+            <% if has_image %>
+              <div class="sm:w-48 md:w-56 flex-shrink-0">
+                <div class="aspect-[4/3] sm:aspect-square relative overflow-hidden">
+                  <% if has_cover %>
+                    <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [300,300])), 
+                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                  <% elsif has_photos && first_valid_photo %>
+                    <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [300,300])), 
+                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                  <% end %>
+                  
+                  <%# Category badge %>
+                  <% if recipe.category %>
+                    <div class="absolute top-2 left-2">
+                      <span class="px-2 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-xs font-bold text-gray-700 dark:text-gray-200">
+                        <%= recipe.category&.name %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-            </div>
+            <% end %>
             
             <%# Recipe Content %>
             <div class="flex-1 p-4 flex flex-col justify-between">
               <div>
+                <%# Show category badge inline when no image %>
+                <% if !has_image && recipe.category %>
+                  <span class="inline-block px-2 py-0.5 mb-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                    <%= recipe.category&.name %>
+                  </span>
+                <% end %>
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
                   <%= recipe.title %>
                 </h3>
