@@ -2,11 +2,13 @@
 
 ## Overview
 
-This document provides complete API documentation for the Recipy mobile application. The API is RESTful and uses JSON for request and response bodies.
+This document provides complete API documentation for the Recipy mobile application built with **Flutter**. The API is RESTful and uses JSON for request and response bodies.
 
 **Base URL:** `https://your-domain.com/api/v1`
 
 **API Version:** v1
+
+**Target Platform:** Flutter (iOS & Android)
 
 ---
 
@@ -19,9 +21,11 @@ This document provides complete API documentation for the Recipy mobile applicat
 5. [Notifications](#notifications)
 6. [Conversations & Messages](#conversations--messages)
 7. [Categories & Taxonomies](#categories--taxonomies)
-8. [Error Handling](#error-handling)
-9. [Pagination](#pagination)
-10. [Data Models](#data-models)
+8. [Reports & Moderation](#reports--moderation)
+9. [Error Handling](#error-handling)
+10. [Pagination](#pagination)
+11. [Data Models](#data-models)
+12. [Flutter Integration Guide](#flutter-integration-guide)
 
 ---
 
@@ -1384,6 +1388,201 @@ Get all food types (meal types).
 
 ---
 
+## Reports & Moderation
+
+The reporting system allows users to report inappropriate content (recipes or users). Reports are reviewed by administrators.
+
+### Get Report Reasons
+
+**GET** `/reports/reasons`
+
+Get all available report reason categories.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "key": "inappropriate_content",
+      "label_ro": "Conținut inadecvat",
+      "label_en": "Inappropriate Content"
+    },
+    {
+      "key": "spam",
+      "label_ro": "Spam sau publicitate",
+      "label_en": "Spam or Advertising"
+    },
+    {
+      "key": "harassment",
+      "label_ro": "Hărțuire sau bullying",
+      "label_en": "Harassment or Bullying"
+    },
+    {
+      "key": "hate_speech",
+      "label_ro": "Discurs de ură",
+      "label_en": "Hate Speech"
+    },
+    {
+      "key": "violence",
+      "label_ro": "Violență sau conținut periculos",
+      "label_en": "Violence or Dangerous Content"
+    },
+    {
+      "key": "copyright",
+      "label_ro": "Încălcare drepturi de autor",
+      "label_en": "Copyright Violation"
+    },
+    {
+      "key": "misinformation",
+      "label_ro": "Informații false",
+      "label_en": "Misinformation"
+    },
+    {
+      "key": "other",
+      "label_ro": "Altele",
+      "label_en": "Other"
+    }
+  ]
+}
+```
+
+---
+
+### Report a Recipe
+
+**POST** `/recipes/:id/reports`
+
+Report a recipe for inappropriate content.
+
+**Request Body:**
+```json
+{
+  "report": {
+    "reason": "inappropriate_content",
+    "description": "Optional detailed description of the issue"
+  }
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Report submitted successfully",
+  "data": {
+    "id": 15,
+    "reportable_type": "Recipe",
+    "reportable_id": 42,
+    "reason": "inappropriate_content",
+    "status": "pending",
+    "created_at": "2025-11-26T12:00:00Z"
+  }
+}
+```
+
+**Error Response (422 Unprocessable Entity) - Already Reported:**
+```json
+{
+  "success": false,
+  "error": "already_reported",
+  "message": "You have already reported this content"
+}
+```
+
+---
+
+### Report a User
+
+**POST** `/users/:id/reports`
+
+Report a user for inappropriate behavior.
+
+**Request Body:**
+```json
+{
+  "report": {
+    "reason": "harassment",
+    "description": "Optional detailed description of the issue"
+  }
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Report submitted successfully",
+  "data": {
+    "id": 16,
+    "reportable_type": "User",
+    "reportable_id": 25,
+    "reason": "harassment",
+    "status": "pending",
+    "created_at": "2025-11-26T12:00:00Z"
+  }
+}
+```
+
+**Error Response (422 Unprocessable Entity) - Cannot Report Self:**
+```json
+{
+  "success": false,
+  "error": "You cannot report yourself"
+}
+```
+
+---
+
+### Get My Reports
+
+**GET** `/reports/my_reports`
+
+Get all reports submitted by the current user.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 15,
+      "reportable_type": "Recipe",
+      "reportable_id": 42,
+      "reason": "inappropriate_content",
+      "reason_label": "Conținut inadecvat",
+      "description": "Contains offensive language",
+      "status": "pending",
+      "created_at": "2025-11-26T12:00:00Z",
+      "reviewed_at": null
+    },
+    {
+      "id": 14,
+      "reportable_type": "User",
+      "reportable_id": 25,
+      "reason": "harassment",
+      "reason_label": "Hărțuire sau bullying",
+      "description": null,
+      "status": "resolved_valid",
+      "created_at": "2025-11-25T10:00:00Z",
+      "reviewed_at": "2025-11-25T15:00:00Z"
+    }
+  ]
+}
+```
+
+### Report Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Report submitted, awaiting review |
+| `under_review` | Report is being reviewed by admin |
+| `resolved_valid` | Report was valid, action taken |
+| `resolved_invalid` | Report was invalid/spam |
+| `dismissed` | Report was dismissed |
+
+---
+
 ## Error Handling
 
 All API errors follow this format:
@@ -1575,6 +1774,38 @@ interface FoodType {
 }
 ```
 
+### Report
+
+```typescript
+interface Report {
+  id: number;
+  reportable_type: 'Recipe' | 'User';
+  reportable_id: number;
+  reason: ReportReason;
+  reason_label: string;
+  description: string | null;
+  status: 'pending' | 'under_review' | 'resolved_valid' | 'resolved_invalid' | 'dismissed';
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+type ReportReason = 
+  | 'inappropriate_content'
+  | 'spam'
+  | 'harassment'
+  | 'hate_speech'
+  | 'violence'
+  | 'copyright'
+  | 'misinformation'
+  | 'other';
+
+interface ReportReasonOption {
+  key: ReportReason;
+  label_ro: string;
+  label_en: string;
+}
+```
+
 ---
 
 ## Rate Limiting
@@ -1592,8 +1823,8 @@ When rate limited, you'll receive a `429 Too Many Requests` response.
 
 ## Best Practices for Mobile Development
 
-### Token Storage
-- Store JWT token securely (Keychain on iOS, EncryptedSharedPreferences on Android)
+### Token Storage (Flutter)
+- Use `flutter_secure_storage` package for secure token storage
 - Store refresh token separately for token renewal
 - Clear tokens on logout
 
@@ -1616,6 +1847,674 @@ When rate limited, you'll receive a `429 Too Many Requests` response.
 - Display user-friendly error messages
 - Implement retry logic for network errors
 - Log errors for debugging
+
+---
+
+## Flutter Integration Guide
+
+### Recommended Packages
+
+Add these dependencies to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # HTTP & API
+  dio: ^5.4.0                    # HTTP client with interceptors
+  retrofit: ^4.0.3               # Type-safe API client generator
+  json_annotation: ^4.8.1        # JSON serialization
+  
+  # State Management
+  flutter_riverpod: ^2.4.9       # State management
+  # OR
+  flutter_bloc: ^8.1.3           # Alternative state management
+  
+  # Storage
+  flutter_secure_storage: ^9.0.0 # Secure token storage
+  hive_flutter: ^1.1.0           # Local database for caching
+  
+  # Images & Media
+  cached_network_image: ^3.3.1   # Image caching
+  image_picker: ^1.0.7           # Photo/video selection
+  video_player: ^2.8.2           # Video playback
+  
+  # UI
+  shimmer: ^3.0.0                # Loading placeholders
+  pull_to_refresh: ^2.0.0        # Pull to refresh
+  infinite_scroll_pagination: ^4.0.0  # Pagination
+
+dev_dependencies:
+  build_runner: ^2.4.8
+  retrofit_generator: ^8.0.6
+  json_serializable: ^6.7.1
+```
+
+---
+
+### API Service Setup
+
+Create a base API service with Dio:
+
+```dart
+// lib/services/api_service.dart
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class ApiService {
+  static const String baseUrl = 'https://your-domain.com/api/v1';
+  
+  final Dio _dio;
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  
+  ApiService() : _dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 30),
+    receiveTimeout: const Duration(seconds: 30),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  )) {
+    _dio.interceptors.add(_authInterceptor());
+    _dio.interceptors.add(LogInterceptor(responseBody: true));
+  }
+  
+  Interceptor _authInterceptor() {
+    return InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = await _storage.read(key: 'jwt_token');
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        handler.next(options);
+      },
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401) {
+          // Try to refresh token
+          final refreshed = await _refreshToken();
+          if (refreshed) {
+            // Retry the request
+            final opts = error.requestOptions;
+            final token = await _storage.read(key: 'jwt_token');
+            opts.headers['Authorization'] = 'Bearer $token';
+            final response = await _dio.fetch(opts);
+            return handler.resolve(response);
+          }
+        }
+        handler.next(error);
+      },
+    );
+  }
+  
+  Future<bool> _refreshToken() async {
+    try {
+      final refreshToken = await _storage.read(key: 'refresh_token');
+      if (refreshToken == null) return false;
+      
+      final response = await _dio.post('/auth/refresh_token', data: {
+        'refresh_token': refreshToken,
+      });
+      
+      if (response.data['success'] == true) {
+        await _storage.write(
+          key: 'jwt_token', 
+          value: response.data['data']['token']
+        );
+        await _storage.write(
+          key: 'refresh_token', 
+          value: response.data['data']['refresh_token']
+        );
+        return true;
+      }
+    } catch (e) {
+      // Token refresh failed
+    }
+    return false;
+  }
+  
+  Dio get dio => _dio;
+}
+```
+
+---
+
+### Models
+
+Example model classes:
+
+```dart
+// lib/models/user.dart
+import 'package:json_annotation/json_annotation.dart';
+
+part 'user.g.dart';
+
+@JsonSerializable()
+class User {
+  final int id;
+  final String email;
+  final String username;
+  @JsonKey(name: 'first_name')
+  final String? firstName;
+  @JsonKey(name: 'last_name')
+  final String? lastName;
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+  @JsonKey(name: 'followers_count')
+  final int followersCount;
+  @JsonKey(name: 'following_count')
+  final int followingCount;
+  @JsonKey(name: 'recipes_count')
+  final int recipesCount;
+  
+  User({
+    required this.id,
+    required this.email,
+    required this.username,
+    this.firstName,
+    this.lastName,
+    this.avatarUrl,
+    this.followersCount = 0,
+    this.followingCount = 0,
+    this.recipesCount = 0,
+  });
+  
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+}
+```
+
+```dart
+// lib/models/recipe.dart
+import 'package:json_annotation/json_annotation.dart';
+import 'user.dart';
+
+part 'recipe.g.dart';
+
+@JsonSerializable()
+class Recipe {
+  final int id;
+  final String title;
+  final String? description;
+  final String? ingredients;
+  final String? preparation;
+  final int difficulty;
+  final int healthiness;
+  @JsonKey(name: 'time_to_make')
+  final int? timeToMake;
+  @JsonKey(name: 'cover_photo_url')
+  final String? coverPhotoUrl;
+  @JsonKey(name: 'video_url')
+  final String? videoUrl;
+  @JsonKey(name: 'likes_count')
+  final int likesCount;
+  @JsonKey(name: 'comments_count')
+  final int commentsCount;
+  @JsonKey(name: 'is_liked')
+  final bool isLiked;
+  @JsonKey(name: 'is_favorited')
+  final bool isFavorited;
+  final User user;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+  
+  Recipe({
+    required this.id,
+    required this.title,
+    this.description,
+    this.ingredients,
+    this.preparation,
+    this.difficulty = 5,
+    this.healthiness = 5,
+    this.timeToMake,
+    this.coverPhotoUrl,
+    this.videoUrl,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+    this.isLiked = false,
+    this.isFavorited = false,
+    required this.user,
+    required this.createdAt,
+  });
+  
+  factory Recipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
+  Map<String, dynamic> toJson() => _$RecipeToJson(this);
+}
+```
+
+```dart
+// lib/models/report.dart
+import 'package:json_annotation/json_annotation.dart';
+
+part 'report.g.dart';
+
+@JsonSerializable()
+class Report {
+  final int id;
+  @JsonKey(name: 'reportable_type')
+  final String reportableType;
+  @JsonKey(name: 'reportable_id')
+  final int reportableId;
+  final String reason;
+  @JsonKey(name: 'reason_label')
+  final String? reasonLabel;
+  final String? description;
+  final String status;
+  @JsonKey(name: 'created_at')
+  final String createdAt;
+  @JsonKey(name: 'reviewed_at')
+  final String? reviewedAt;
+  
+  Report({
+    required this.id,
+    required this.reportableType,
+    required this.reportableId,
+    required this.reason,
+    this.reasonLabel,
+    this.description,
+    required this.status,
+    required this.createdAt,
+    this.reviewedAt,
+  });
+  
+  factory Report.fromJson(Map<String, dynamic> json) => _$ReportFromJson(json);
+  Map<String, dynamic> toJson() => _$ReportToJson(this);
+}
+
+@JsonSerializable()
+class ReportReason {
+  final String key;
+  @JsonKey(name: 'label_ro')
+  final String labelRo;
+  @JsonKey(name: 'label_en')
+  final String labelEn;
+  
+  ReportReason({
+    required this.key,
+    required this.labelRo,
+    required this.labelEn,
+  });
+  
+  factory ReportReason.fromJson(Map<String, dynamic> json) => 
+      _$ReportReasonFromJson(json);
+}
+```
+
+---
+
+### Repository Pattern
+
+```dart
+// lib/repositories/recipe_repository.dart
+import '../models/recipe.dart';
+import '../services/api_service.dart';
+
+class RecipeRepository {
+  final ApiService _api;
+  
+  RecipeRepository(this._api);
+  
+  Future<List<Recipe>> getFeed({int page = 1}) async {
+    final response = await _api.dio.get('/recipes/feed', 
+      queryParameters: {'page': page}
+    );
+    
+    if (response.data['success'] == true) {
+      final List<dynamic> data = response.data['data'];
+      return data.map((json) => Recipe.fromJson(json)).toList();
+    }
+    throw Exception(response.data['error'] ?? 'Failed to load feed');
+  }
+  
+  Future<Recipe> getRecipe(int id) async {
+    final response = await _api.dio.get('/recipes/$id');
+    
+    if (response.data['success'] == true) {
+      return Recipe.fromJson(response.data['data']);
+    }
+    throw Exception(response.data['error'] ?? 'Recipe not found');
+  }
+  
+  Future<void> likeRecipe(int id) async {
+    await _api.dio.post('/recipes/$id/like');
+  }
+  
+  Future<void> unlikeRecipe(int id) async {
+    await _api.dio.delete('/recipes/$id/like');
+  }
+}
+```
+
+```dart
+// lib/repositories/report_repository.dart
+import '../models/report.dart';
+import '../services/api_service.dart';
+
+class ReportRepository {
+  final ApiService _api;
+  
+  ReportRepository(this._api);
+  
+  Future<List<ReportReason>> getReasons() async {
+    final response = await _api.dio.get('/reports/reasons');
+    
+    if (response.data['success'] == true) {
+      final List<dynamic> data = response.data['data'];
+      return data.map((json) => ReportReason.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load report reasons');
+  }
+  
+  Future<Report> reportRecipe(int recipeId, String reason, {String? description}) async {
+    final response = await _api.dio.post('/recipes/$recipeId/reports', data: {
+      'report': {
+        'reason': reason,
+        if (description != null) 'description': description,
+      }
+    });
+    
+    if (response.data['success'] == true) {
+      return Report.fromJson(response.data['data']);
+    }
+    
+    if (response.data['error'] == 'already_reported') {
+      throw AlreadyReportedException();
+    }
+    throw Exception(response.data['error'] ?? 'Failed to submit report');
+  }
+  
+  Future<Report> reportUser(int userId, String reason, {String? description}) async {
+    final response = await _api.dio.post('/users/$userId/reports', data: {
+      'report': {
+        'reason': reason,
+        if (description != null) 'description': description,
+      }
+    });
+    
+    if (response.data['success'] == true) {
+      return Report.fromJson(response.data['data']);
+    }
+    throw Exception(response.data['error'] ?? 'Failed to submit report');
+  }
+  
+  Future<List<Report>> getMyReports() async {
+    final response = await _api.dio.get('/reports/my_reports');
+    
+    if (response.data['success'] == true) {
+      final List<dynamic> data = response.data['data'];
+      return data.map((json) => Report.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load reports');
+  }
+}
+
+class AlreadyReportedException implements Exception {
+  final String message = 'You have already reported this content';
+}
+```
+
+---
+
+### Report Dialog Widget
+
+```dart
+// lib/widgets/report_dialog.dart
+import 'package:flutter/material.dart';
+import '../models/report.dart';
+import '../repositories/report_repository.dart';
+
+class ReportDialog extends StatefulWidget {
+  final String reportableType; // 'recipe' or 'user'
+  final int reportableId;
+  final ReportRepository repository;
+  
+  const ReportDialog({
+    Key? key,
+    required this.reportableType,
+    required this.reportableId,
+    required this.repository,
+  }) : super(key: key);
+  
+  @override
+  State<ReportDialog> createState() => _ReportDialogState();
+}
+
+class _ReportDialogState extends State<ReportDialog> {
+  List<ReportReason>? _reasons;
+  String? _selectedReason;
+  final _descriptionController = TextEditingController();
+  bool _isLoading = false;
+  String? _error;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadReasons();
+  }
+  
+  Future<void> _loadReasons() async {
+    try {
+      final reasons = await widget.repository.getReasons();
+      setState(() => _reasons = reasons);
+    } catch (e) {
+      setState(() => _error = 'Failed to load reasons');
+    }
+  }
+  
+  Future<void> _submitReport() async {
+    if (_selectedReason == null) return;
+    
+    setState(() => _isLoading = true);
+    
+    try {
+      if (widget.reportableType == 'recipe') {
+        await widget.repository.reportRecipe(
+          widget.reportableId,
+          _selectedReason!,
+          description: _descriptionController.text.isNotEmpty 
+              ? _descriptionController.text 
+              : null,
+        );
+      } else {
+        await widget.repository.reportUser(
+          widget.reportableId,
+          _selectedReason!,
+          description: _descriptionController.text.isNotEmpty 
+              ? _descriptionController.text 
+              : null,
+        );
+      }
+      
+      if (mounted) {
+        Navigator.of(context).pop(true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Report submitted successfully')),
+        );
+      }
+    } on AlreadyReportedException {
+      setState(() {
+        _error = 'You have already reported this content';
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to submit report';
+        _isLoading = false;
+      });
+    }
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    
+    return AlertDialog(
+      title: Text(widget.reportableType == 'recipe' 
+          ? 'Report Recipe' 
+          : 'Report User'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(_error!, style: TextStyle(color: Colors.red)),
+              ),
+            
+            if (_reasons == null)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              const Text('Select a reason:'),
+              const SizedBox(height: 8),
+              ...(_reasons!.map((reason) => RadioListTile<String>(
+                title: Text(locale == 'ro' ? reason.labelRo : reason.labelEn),
+                value: reason.key,
+                groupValue: _selectedReason,
+                onChanged: (value) => setState(() => _selectedReason = value),
+              ))),
+              
+              const SizedBox(height: 16),
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Additional details (optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _selectedReason != null && !_isLoading 
+              ? _submitReport 
+              : null,
+          child: _isLoading 
+              ? const SizedBox(
+                  width: 20, 
+                  height: 20, 
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Submit Report'),
+        ),
+      ],
+    );
+  }
+  
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
+  }
+}
+```
+
+---
+
+### Video Player Widget
+
+```dart
+// lib/widgets/recipe_video_player.dart
+import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+
+class RecipeVideoPlayer extends StatefulWidget {
+  final String videoUrl;
+  
+  const RecipeVideoPlayer({Key? key, required this.videoUrl}) : super(key: key);
+  
+  @override
+  State<RecipeVideoPlayer> createState() => _RecipeVideoPlayerState();
+}
+
+class _RecipeVideoPlayerState extends State<RecipeVideoPlayer> {
+  late VideoPlayerController _controller;
+  bool _isInitialized = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
+      ..initialize().then((_) {
+        setState(() => _isInitialized = true);
+      });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return const AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    return AspectRatio(
+      aspectRatio: _controller.value.aspectRatio,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          VideoPlayer(_controller),
+          IconButton(
+            icon: Icon(
+              _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+              size: 50,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _controller.value.isPlaying
+                    ? _controller.pause()
+                    : _controller.play();
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+```
+
+---
+
+### Localization
+
+The API supports both Romanian (ro) and English (en). Use Flutter's localization:
+
+```dart
+// lib/l10n/app_ro.arb
+{
+  "reportTitle": "Raportează",
+  "reportRecipe": "Raportează rețeta",
+  "reportUser": "Raportează utilizatorul",
+  "reportSuccess": "Raportul a fost trimis cu succes",
+  "reportAlreadyReported": "Ai raportat deja acest conținut",
+  "reasonInappropriate": "Conținut inadecvat",
+  "reasonSpam": "Spam sau publicitate",
+  "reasonHarassment": "Hărțuire sau bullying",
+  "reasonHateSpeech": "Discurs de ură",
+  "reasonViolence": "Violență sau conținut periculos",
+  "reasonCopyright": "Încălcare drepturi de autor",
+  "reasonMisinformation": "Informații false",
+  "reasonOther": "Altele"
+}
+```
 
 ---
 

@@ -75,6 +75,20 @@ Rails.application.routes.draw do
       get "categories", to: "categories#index"
       get "cuisines", to: "categories#cuisines"
       get "food_types", to: "categories#food_types"
+
+      # Reports
+      get "reports/reasons", to: "reports#reasons"
+      get "reports/my_reports", to: "reports#my_reports"
+      
+      # Report a recipe
+      resources :recipes, only: [] do
+        resources :reports, only: [:create], controller: "reports"
+      end
+      
+      # Report a user
+      resources :users, only: [] do
+        resources :reports, only: [:create], controller: "reports"
+      end
     end
   end
   # Language switching route (outside locale scope)
