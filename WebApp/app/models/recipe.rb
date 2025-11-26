@@ -13,6 +13,26 @@ class Recipe < ApplicationRecord
   validates :title, presence: true, length: { minimum: 3, maximum: 200 }
   validates :ingredients, presence: true, length: { minimum: 10 }
   validates :preparation, presence: true, length: { minimum: 10 }
+  
+  # Video validation - max 100MB, only video formats
+  validate :video_format_and_size
+
+  def video_format_and_size
+    return unless video.attached?
+    
+    # Check file size (max 100MB)
+    if video.blob.byte_size > 100.megabytes
+      errors.add(:video, "is too large (maximum is 100MB)")
+      video.purge
+    end
+    
+    # Check content type
+    acceptable_types = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/x-matroska']
+    unless acceptable_types.include?(video.blob.content_type)
+      errors.add(:video, "must be a video file (MP4, MOV, WebM, AVI, MKV)")
+      video.purge
+    end
+  end
 
   def ordered_photos
     return photos if photos_order.blank?

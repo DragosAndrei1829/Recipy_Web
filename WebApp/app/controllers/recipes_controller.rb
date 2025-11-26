@@ -300,6 +300,7 @@ class RecipesController < ApplicationController
       :title, :description, :ingredients, :preparation,
       :category_id, :cuisine_id, :food_type_id, :cover_photo_id,
       :difficulty, :time_to_make, :healthiness,
+      :video,
       photos: [], photos_order: [],
       nutrition: [ :calories, :sugar, :protein, :fat, :carbs ]
     )

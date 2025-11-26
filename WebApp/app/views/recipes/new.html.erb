@@ -1,764 +1,621 @@
-<div class="max-w-4xl mx-auto mb-20 animate-fade-in">
-  <!-- Progress Indicator -->
-  <div class="bg-card rounded-3xl shadow-2xl border-2 border-default mb-6 p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-3xl font-black bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 bg-clip-text text-transparent">
-        <%= t('recipes.form.create_title') %>
-  </h2>
-      <span class="text-sm font-semibold text-secondary-content">
-        <span id="current-step">1</span> / <span id="total-steps">6</span>
-      </span>
-    </div>
+<div class="min-h-screen py-8 px-4">
+  <div class="max-w-3xl mx-auto">
     
-    <!-- Progress Bar -->
-    <div class="w-full bg-card border border-default rounded-full h-2.5 mb-4">
-      <div id="progress-bar" class="bg-gradient-primary h-2.5 rounded-full transition-all duration-500" style="width: 16.67%"></div>
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/30 mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-black text-gray-900 dark:text-white mb-2">
+        <%= t('recipes.form.create_title', default: 'Creează Rețetă') %>
+      </h1>
+      <p class="text-gray-500 dark:text-gray-400">
+        <%= t('recipes.form.create_subtitle', default: 'Împărtășește rețeta ta cu comunitatea') %>
+      </p>
     </div>
-    
-    <!-- Step Indicators -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2 step-indicator active" data-step="1">
-        <div class="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">1</div>
-        <span class="text-xs font-semibold text-primary-content hidden sm:inline"><%= t('recipes.form.step_info') %></span>
-      </div>
-      <div class="flex-1 h-0.5 bg-default mx-2"></div>
-      <div class="flex items-center gap-2 step-indicator" data-step="2">
-        <div class="w-8 h-8 rounded-full bg-card border border-default flex items-center justify-center text-secondary-content font-bold text-sm">2</div>
-        <span class="text-xs font-semibold text-secondary-content hidden sm:inline"><%= t('recipes.form.step_ingredients') %></span>
-      </div>
-      <div class="flex-1 h-0.5 bg-default mx-2"></div>
-      <div class="flex items-center gap-2 step-indicator" data-step="3">
-        <div class="w-8 h-8 rounded-full bg-card border border-default flex items-center justify-center text-secondary-content font-bold text-sm">3</div>
-        <span class="text-xs font-semibold text-secondary-content hidden sm:inline"><%= t('recipes.form.step_preparation') %></span>
-      </div>
-      <div class="flex-1 h-0.5 bg-default mx-2"></div>
-      <div class="flex items-center gap-2 step-indicator" data-step="4">
-        <div class="w-8 h-8 rounded-full bg-card border border-default flex items-center justify-center text-secondary-content font-bold text-sm">4</div>
-        <span class="text-xs font-semibold text-secondary-content hidden sm:inline"><%= t('recipes.form.step_photos') %></span>
-      </div>
-      <div class="flex-1 h-0.5 bg-default mx-2"></div>
-      <div class="flex items-center gap-2 step-indicator" data-step="5">
-        <div class="w-8 h-8 rounded-full bg-card border border-default flex items-center justify-center text-secondary-content font-bold text-sm">5</div>
-        <span class="text-xs font-semibold text-secondary-content hidden sm:inline"><%= t('recipes.form.step_categories') %></span>
-      </div>
-      <div class="flex-1 h-0.5 bg-default mx-2"></div>
-      <div class="flex items-center gap-2 step-indicator" data-step="6">
-        <div class="w-8 h-8 rounded-full bg-card border border-default flex items-center justify-center text-secondary-content font-bold text-sm">6</div>
-        <span class="text-xs font-semibold text-secondary-content hidden sm:inline"><%= t('recipes.form.step_finalize') %></span>
-      </div>
-    </div>
-      </div>
 
-  <%= form_with model: @recipe, multipart: true, id: "recipe-form", class: "bg-card rounded-3xl shadow-2xl border-2 border-default p-8" do |form| %>
-    <!-- Step 1: Basic Info -->
-    <div class="step-content" data-step="1">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-pink-100 to-orange-100 mb-4">
-          <svg class="h-12 w-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
+    <!-- Progress Steps -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between relative">
+        <!-- Progress Line Background -->
+        <div class="absolute top-5 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700"></div>
+        <!-- Progress Line Active -->
+        <div id="progress-line" class="absolute top-5 left-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500" style="width: 0%"></div>
+        
+        <% steps = [
+          { icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', label: t('recipes.form.step_info', default: 'Info') },
+          { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', label: t('recipes.form.step_ingredients', default: 'Ingrediente') },
+          { icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10', label: t('recipes.form.step_preparation', default: 'Preparare') },
+          { icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', label: t('recipes.form.step_media', default: 'Media') },
+          { icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z', label: t('recipes.form.step_details', default: 'Detalii') },
+          { icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', label: t('recipes.form.step_finalize', default: 'Finalizare') }
+        ] %>
+        
+        <% steps.each_with_index do |step, index| %>
+          <div class="step-indicator relative z-10 flex flex-col items-center" data-step="<%= index + 1 %>">
+            <div class="step-circle w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 <%= index == 0 ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30' : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-400' %>">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= step[:icon] %>"/>
+              </svg>
+            </div>
+            <span class="step-label text-[10px] font-semibold mt-2 text-gray-400 dark:text-gray-500 hidden sm:block transition-colors <%= index == 0 ? 'text-emerald-600 dark:text-emerald-400' : '' %>">
+              <%= step[:label] %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <%= form_with model: @recipe, multipart: true, id: "recipe-form", class: "bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden" do |form| %>
+      
+      <!-- Step 1: Basic Info -->
+      <div class="step-content p-8" data-step="1">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.basic_info', default: 'Informații de bază') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.basic_info_description', default: 'Denumește și descrie rețeta ta') %></p>
+          </div>
         </div>
-        <h3 class="text-2xl font-black text-primary-content mb-2"><%= t('recipes.form.basic_info') %></h3>
-        <p class="text-secondary-content"><%= t('recipes.form.basic_info_description') %></p>
+
+        <div class="space-y-5">
+          <div>
+            <%= form.label :title, t('recipes.form.title', default: 'Titlu rețetă'), class: "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= form.text_field :title, required: true, placeholder: t('recipes.form.placeholder_title', default: 'Ex: Paste Carbonara'), 
+                class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-lg font-medium" %>
+          </div>
+
+          <div>
+            <%= form.label :description, t('recipes.form.description', default: 'Descriere'), class: "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= form.text_area :description, placeholder: t('recipes.form.placeholder_description', default: 'O scurtă descriere a rețetei tale...'), rows: 4,
+                class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none" %>
+          </div>
+        </div>
       </div>
 
-      <div class="space-y-6 max-w-2xl mx-auto">
+      <!-- Step 2: Ingredients -->
+      <div class="step-content hidden p-8" data-step="2">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.ingredients', default: 'Ingrediente') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.ingredients_description', default: 'Listează toate ingredientele necesare') %></p>
+          </div>
+        </div>
+
         <div>
-          <%= form.label :title, t('recipes.form.title'), class: "block mb-2 text-sm font-bold text-primary-content" %>
-          <%= form.text_field :title, required: true, placeholder: t('recipes.form.placeholder_title'), 
-              class: "w-full px-4 py-3 text-lg rounded-xl border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-smooth font-bold bg-card text-primary-content" %>
+          <%= form.text_area :ingredients, required: true, placeholder: t('recipes.form.placeholder_ingredients', default: "200g paste\n100g bacon\n2 ouă\n50g parmezan\nSare și piper"), rows: 10,
+              class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none font-mono text-sm" %>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <%= t('recipes.form.help_ingredients', default: 'Scrie fiecare ingredient pe o linie nouă') %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3: Preparation -->
+      <div class="step-content hidden p-8" data-step="3">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.preparation', default: 'Mod de preparare') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.preparation_description', default: 'Descrie pașii de preparare') %></p>
+          </div>
         </div>
 
         <div>
-          <%= form.label :description, t('recipes.form.description'), class: "block mb-2 text-sm font-bold text-primary-content" %>
-          <%= form.text_area :description, placeholder: t('recipes.form.placeholder_description'), rows: 4,
-              class: "w-full px-4 py-3 rounded-xl border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-smooth resize-none bg-card text-primary-content" %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 2: Ingredients -->
-    <div class="step-content hidden" data-step="2">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 mb-4">
-          <svg class="h-12 w-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
-        </div>
-        <h3 class="text-2xl font-black text-primary-content mb-2"><%= t('recipes.form.ingredients') %></h3>
-        <p class="text-secondary-content"><%= t('recipes.form.ingredients_description') %></p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <%= form.label :ingredients, t('recipes.form.ingredients_help'), class: "block mb-2 text-sm font-bold text-primary-content" %>
-        <%= form.text_area :ingredients, required: true, placeholder: t('recipes.form.placeholder_ingredients'), rows: 8,
-            class: "w-full px-4 py-3 rounded-xl border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-smooth resize-none font-mono text-sm bg-card text-primary-content" %>
-        <p class="mt-2 text-xs text-secondary-content"><%= t('recipes.form.help_ingredients') %></p>
-      </div>
-    </div>
-
-    <!-- Step 3: Preparation -->
-    <div class="step-content hidden" data-step="3">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 mb-4">
-          <svg class="h-12 w-12 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-          </svg>
-        </div>
-        <h3 class="text-2xl font-black text-primary-content mb-2"><%= t('recipes.form.preparation') %></h3>
-        <p class="text-secondary-content"><%= t('recipes.form.preparation_description') %></p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <%= form.label :preparation, t('recipes.form.preparation'), class: "block mb-2 text-sm font-bold text-primary-content" %>
-        <%= form.text_area :preparation, required: true, placeholder: t('recipes.form.placeholder_preparation'), rows: 10,
-            class: "w-full px-4 py-3 rounded-xl border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-smooth resize-none bg-card text-primary-content" %>
-        <p class="mt-2 text-xs text-secondary-content"><%= t('recipes.form.help_preparation') %></p>
-      </div>
-    </div>
-
-    <!-- Step 4: Photos -->
-    <div class="step-content hidden" data-step="4">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 mb-4">
-          <svg class="h-12 w-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-        </div>
-        <h3 class="text-2xl font-black text-primary-content mb-2"><%= t('recipes.form.photos_title') %></h3>
-        <p class="text-secondary-content"><%= t('recipes.form.photos_description') %></p>
-      </div>
-
-      <div class="max-w-2xl mx-auto">
-        <div class="border-2 border-dashed border-default rounded-2xl p-8 text-center hover:border-primary transition-smooth bg-card">
-          <%= form.file_field :photos, multiple: true, accept: "image/*", id: "photo-upload",
-              class: "hidden" %>
-          <label for="photo-upload" class="cursor-pointer">
-            <svg class="h-16 w-16 mx-auto text-secondary-content mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          <%= form.text_area :preparation, required: true, placeholder: t('recipes.form.placeholder_preparation', default: "1. Fierbe pastele conform instrucțiunilor\n2. Prăjește baconul până devine crocant\n3. Bate ouăle cu parmezanul\n4. Amestecă totul și servește"), rows: 12,
+              class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none" %>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <p class="text-lg font-semibold text-primary-content mb-2"><%= t('recipes.form.help_photos_click') %></p>
-            <p class="text-sm text-secondary-content"><%= t('recipes.form.help_photos_drag') %></p>
-          </label>
+            <%= t('recipes.form.help_preparation', default: 'Descrie fiecare pas pe o linie nouă') %>
+          </p>
         </div>
-        <div id="photo-preview" class="mt-6 grid grid-cols-3 gap-4"></div>
-        <p class="mt-4 text-xs text-secondary-content text-center"><%= t('recipes.form.help_photos_cover') %></p>
-      </div>
-    </div>
-
-    <!-- Step 5: Categories & Ratings -->
-    <div class="step-content hidden" data-step="5">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 mb-4">
-          <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-          </svg>
-        </div>
-        <h3 class="text-2xl font-black text-gray-900 mb-2"><%= t('recipes.form.categories_title') %></h3>
-        <p class="text-gray-600"><%= t('recipes.form.categories_description') %></p>
       </div>
 
-      <div class="max-w-2xl mx-auto space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div>
-            <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.category') %></label>
-            <%= form.collection_select :category_id, Category.order(:name), :id, :display_name,
-                  { include_blank: t('filters.all_categories') }, class: "w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-smooth" %>
-          </div>
-          <div>
-            <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.cuisine') %></label>
-            <%= form.collection_select :cuisine_id, Cuisine.order(:name), :id, :display_name,
-                  { include_blank: t('filters.all_cuisines') }, class: "w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-smooth" %>
-          </div>
-          <div>
-            <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.food_type') %></label>
-            <%= form.collection_select :food_type_id, FoodType.order(:name), :id, :display_name,
-                  { include_blank: t('filters.all_food_types') }, class: "w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-smooth" %>
-          </div>
-        </div>
-
-        <!-- Star Ratings Section -->
-        <div class="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-100">
-          <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <svg class="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      <!-- Step 4: Photos & Video -->
+      <div class="step-content hidden p-8" data-step="4">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-            <%= t('recipes.form.ratings_optional') %>
-          </h4>
-          
-          <div class="space-y-5">
-            <!-- Difficulty Rating -->
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.difficulty') %></label>
-              <div class="flex items-center gap-2 star-rating" data-field="difficulty">
-                <% (1..5).each do |star| %>
-                  <button type="button" class="star-btn text-2xl text-gray-300 hover:text-emerald-400 transition-colors" data-value="<%= star %>">
-                    ★
-                  </button>
-                <% end %>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.media_title', default: 'Fotografii & Video') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.media_description', default: 'Adaugă imagini și video pentru rețeta ta') %></p>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Photos -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              <%= t('recipes.form.photos_title', default: 'Fotografii') %>
+            </label>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors cursor-pointer group" id="photo-drop-zone">
+              <%= form.file_field :photos, multiple: true, accept: "image/*", id: "photo-upload", class: "hidden" %>
+              <label for="photo-upload" class="cursor-pointer block">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors">
+                  <svg class="w-8 h-8 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                </div>
+                <p class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1"><%= t('recipes.form.help_photos_click', default: 'Click pentru a adăuga fotografii') %></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.help_photos_drag', default: 'sau trage și plasează aici') %></p>
+              </label>
+            </div>
+            <div id="photo-preview" class="mt-4 grid grid-cols-4 gap-3"></div>
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center"><%= t('recipes.form.help_photos_cover', default: 'Prima imagine va fi folosită ca și copertă') %></p>
+          </div>
+
+          <!-- Video -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+              <%= t('recipes.form.video_title', default: 'Video') %>
+              <span class="text-xs font-normal text-gray-400">(opțional, max 100MB)</span>
+            </label>
+            <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-6 text-center hover:border-purple-400 dark:hover:border-purple-500 transition-colors cursor-pointer group" id="video-upload-area">
+              <%= form.file_field :video, accept: "video/mp4,video/quicktime,video/webm,video/x-msvideo,video/x-matroska", id: "video-upload", class: "hidden" %>
+              <label for="video-upload" class="cursor-pointer block">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30 transition-colors">
+                  <svg class="w-6 h-6 text-gray-400 group-hover:text-purple-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300"><%= t('recipes.form.video_click', default: 'Adaugă video de preparare') %></p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">MP4, MOV, WebM</p>
+              </label>
+            </div>
+            <div id="video-preview" class="mt-4 hidden">
+              <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p id="video-filename" class="text-sm font-semibold text-gray-900 dark:text-white truncate">video.mp4</p>
+                  <p id="video-filesize" class="text-xs text-gray-500 dark:text-gray-400">0 MB</p>
+                </div>
+                <button type="button" id="remove-video" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
               </div>
-              <%= form.hidden_field :difficulty, id: "recipe_difficulty", value: 0 %>
-            </div>
-
-            <!-- Time to Make -->
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.time_to_make') %></label>
-              <%= form.number_field :time_to_make, 
-                  placeholder: t('recipes.form.placeholder_time'), 
-                  min: 0,
-                  class: "w-full px-4 py-2.5 rounded-xl border-2 border-emerald-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-smooth" %>
-            </div>
-
-            <!-- Healthiness Rating -->
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-700"><%= t('recipes.form.healthiness') %></label>
-              <div class="flex items-center gap-2 star-rating" data-field="healthiness">
-                <% (1..5).each do |star| %>
-                  <button type="button" class="star-btn text-2xl text-gray-300 hover:text-emerald-400 transition-colors" data-value="<%= star %>">
-                    ★
-                  </button>
-                <% end %>
-              </div>
-              <%= form.hidden_field :healthiness, id: "recipe_healthiness", value: 0 %>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Nutrition (Optional) -->
-        <div class="p-6 bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl border-2 border-orange-100">
-          <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <svg class="h-5 w-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      <!-- Step 5: Categories & Details -->
+      <div class="step-content hidden p-8" data-step="5">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
             </svg>
-            <%= t('recipes.form.nutrition_optional') %>
-          </h4>
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div>
-              <label class="block mb-1 text-xs font-semibold text-gray-600"><%= t('recipes.form.calories') %></label>
-              <%= number_field_tag 'recipe[nutrition][calories]', nil, placeholder: 'N/A', min: 0, 
-                  class: 'w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm' %>
-            </div>
-            <div>
-              <label class="block mb-1 text-xs font-semibold text-gray-600"><%= t('recipes.form.protein') %></label>
-              <%= number_field_tag 'recipe[nutrition][protein]', nil, placeholder: 'N/A', step: 0.1, min: 0,
-                  class: 'w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm' %>
-            </div>
-            <div>
-              <label class="block mb-1 text-xs font-semibold text-gray-600"><%= t('recipes.form.fat') %></label>
-              <%= number_field_tag 'recipe[nutrition][fat]', nil, placeholder: 'N/A', step: 0.1, min: 0,
-                  class: 'w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm' %>
-            </div>
-            <div>
-              <label class="block mb-1 text-xs font-semibold text-gray-600"><%= t('recipes.form.carbs_short') %></label>
-              <%= number_field_tag 'recipe[nutrition][carbs]', nil, placeholder: 'N/A', step: 0.1, min: 0,
-                  class: 'w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm' %>
-            </div>
-            <div>
-              <label class="block mb-1 text-xs font-semibold text-gray-600"><%= t('recipes.form.sugar') %></label>
-              <%= number_field_tag 'recipe[nutrition][sugar]', nil, placeholder: 'N/A', step: 0.1, min: 0,
-                  class: 'w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm' %>
-            </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 6: Review & Submit -->
-    <div class="step-content hidden" data-step="6">
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 rounded-full bg-gradient-to-br from-pink-100 to-rose-100 mb-4">
-          <svg class="h-12 w-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <h3 class="text-2xl font-black text-gray-900 mb-2"><%= t('recipes.form.review_title') %></h3>
-        <p class="text-gray-600"><%= t('recipes.form.review_check') %></p>
-      </div>
-
-      <div class="max-w-2xl mx-auto space-y-6">
-        <div class="bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl p-6 border-2 border-orange-100">
-          <h4 class="font-bold text-lg text-gray-900 mb-4"><%= t('recipes.form.review_summary') %></h4>
-          <div class="space-y-3 text-sm">
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.review_title_label') %></span>
-              <span id="review-title" class="text-gray-600 ml-2">-</span>
-            </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.review_description_label') %></span>
-              <span id="review-description" class="text-gray-600 ml-2">-</span>
-  </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.show.ingredients') %>:</span>
-              <span id="review-ingredients" class="text-gray-600 ml-2">-</span>
-  </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.review_preparation_label') %></span>
-              <span id="review-preparation" class="text-gray-600 ml-2">-</span>
-  </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.review_photos_label') %></span>
-              <span id="review-photos" class="text-gray-600 ml-2">-</span>
-            </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.difficulty') %>:</span>
-              <span id="review-difficulty" class="text-gray-600 ml-2">-</span>
-            </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.review_time_label') %></span>
-              <span id="review-time" class="text-gray-600 ml-2">-</span>
-            </div>
-            <div>
-              <span class="font-semibold text-gray-700"><%= t('recipes.form.healthiness') %>:</span>
-              <span id="review-healthiness" class="text-gray-600 ml-2">-</span>
-            </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.categories_title', default: 'Categorii & Detalii') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.categories_description', default: 'Clasifică rețeta și adaugă detalii') %></p>
           </div>
         </div>
 
-        <div class="text-center">
-          <p class="text-sm text-gray-600 mb-4"><%= t('recipes.form.review_ready') %></p>
+        <div class="space-y-6">
+          <!-- Categories -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><%= t('recipes.form.category', default: 'Categorie') %></label>
+              <%= form.collection_select :category_id, Category.order(:name), :id, :display_name,
+                    { include_blank: t('filters.all_categories', default: 'Selectează...') }, 
+                    class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" %>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><%= t('recipes.form.cuisine', default: 'Bucătărie') %></label>
+              <%= form.collection_select :cuisine_id, Cuisine.order(:name), :id, :display_name,
+                    { include_blank: t('filters.all_cuisines', default: 'Selectează...') }, 
+                    class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" %>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><%= t('recipes.form.food_type', default: 'Tip') %></label>
+              <%= form.collection_select :food_type_id, FoodType.order(:name), :id, :display_name,
+                    { include_blank: t('filters.all_food_types', default: 'Selectează...') }, 
+                    class: "w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" %>
+            </div>
+          </div>
+
+          <!-- Ratings -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6">
+            <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <%= t('recipes.form.ratings_optional', default: 'Evaluări (opțional)') %>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Difficulty -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2"><%= t('recipes.form.difficulty', default: 'Dificultate') %></label>
+                <div class="flex items-center gap-1 star-rating" data-field="difficulty">
+                  <% (1..5).each do |star| %>
+                    <button type="button" class="star-btn text-2xl text-gray-300 hover:text-amber-400 transition-colors focus:outline-none" data-value="<%= star %>">★</button>
+                  <% end %>
+                </div>
+                <%= form.hidden_field :difficulty, id: "recipe_difficulty", value: 0 %>
+              </div>
+
+              <!-- Time -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2"><%= t('recipes.form.time_to_make', default: 'Timp preparare (min)') %></label>
+                <%= form.number_field :time_to_make, placeholder: '30', min: 0,
+                    class: "w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all" %>
+              </div>
+
+              <!-- Healthiness -->
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2"><%= t('recipes.form.healthiness', default: 'Sănătate') %></label>
+                <div class="flex items-center gap-1 star-rating" data-field="healthiness">
+                  <% (1..5).each do |star| %>
+                    <button type="button" class="star-btn text-2xl text-gray-300 hover:text-green-400 transition-colors focus:outline-none" data-value="<%= star %>">★</button>
+                  <% end %>
+                </div>
+                <%= form.hidden_field :healthiness, id: "recipe_healthiness", value: 0 %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nutrition (collapsed) -->
+          <details class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+            <summary class="p-4 cursor-pointer text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              <%= t('recipes.form.nutrition_optional', default: 'Informații nutriționale (opțional)') %>
+            </summary>
+            <div class="p-4 pt-0 grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Calorii</label>
+                <%= number_field_tag 'recipe[nutrition][calories]', nil, placeholder: '-', min: 0,
+                    class: 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm' %>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Proteine</label>
+                <%= number_field_tag 'recipe[nutrition][protein]', nil, placeholder: '-', step: 0.1, min: 0,
+                    class: 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm' %>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Grăsimi</label>
+                <%= number_field_tag 'recipe[nutrition][fat]', nil, placeholder: '-', step: 0.1, min: 0,
+                    class: 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm' %>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Carbohidrați</label>
+                <%= number_field_tag 'recipe[nutrition][carbs]', nil, placeholder: '-', step: 0.1, min: 0,
+                    class: 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm' %>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Zahăr</label>
+                <%= number_field_tag 'recipe[nutrition][sugar]', nil, placeholder: '-', step: 0.1, min: 0,
+                    class: 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm' %>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
-    </div>
 
-    <!-- Navigation Buttons -->
-    <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200" id="nav-buttons">
-      <button type="button" id="prev-btn" class="hidden px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-smooth">
-        <span class="flex items-center gap-2">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Step 6: Review -->
+      <div class="step-content hidden p-8" data-step="6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white"><%= t('recipes.form.review_title', default: 'Verifică și publică') %></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.review_check', default: 'Revizuiește informațiile înainte de publicare') %></p>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-6 border border-emerald-100 dark:border-emerald-800/30">
+          <div class="space-y-4 text-sm">
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Titlu:</span>
+              <span id="review-title" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Descriere:</span>
+              <span id="review-description" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Ingrediente:</span>
+              <span id="review-ingredients" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Preparare:</span>
+              <span id="review-preparation" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Media:</span>
+              <span id="review-media" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 w-24 flex-shrink-0">Timp:</span>
+              <span id="review-time" class="text-gray-600 dark:text-gray-400">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <%= t('recipes.form.review_ready', default: 'Ești gata? Apasă butonul pentru a publica rețeta!') %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="px-8 py-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <button type="button" id="prev-btn" class="hidden px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
           </svg>
-          <%= t('common.back') %>
-        </span>
-      </button>
-      <div class="flex-1"></div>
-      <button type="button" id="next-btn" class="px-8 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 hover:from-pink-700 hover:via-rose-600 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-smooth hover-lift" data-next-text="<%= j t('common.next') %>">
-        <span class="flex items-center gap-2">
-          <%= t('common.next') %>
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= t('common.back', default: 'Înapoi') %>
+        </button>
+        <div class="flex-1"></div>
+        <button type="button" id="next-btn" class="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
+          <%= t('common.next', default: 'Continuă') %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
           </svg>
-        </span>
-      </button>
-      <%= form.submit "#{t('recipes.form.submit')} ✨", 
-          class: 'px-8 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-rose-500 to-orange-500 hover:from-pink-700 hover:via-rose-600 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-smooth hover-lift',
-          id: 'submit-btn',
-          style: 'display: none;' %>
+        </button>
+        <%= form.submit t('recipes.form.submit', default: 'Publică Rețeta') + " ✨", 
+            class: 'hidden px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all',
+            id: 'submit-btn' %>
       </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>
 
 <script>
-  function initializeRecipeForm() {
-    // Check if form exists on page
-    const form = document.getElementById('recipe-form');
-    if (!form) return; // Form not on this page
-    
-    // Translations for JavaScript
-    const nextText = '<%= j t("common.next") %>';
-    
-    let currentStep = 1;
-    const totalSteps = 6;
-    const stepContents = document.querySelectorAll('.step-content');
-    const stepIndicators = document.querySelectorAll('.step-indicator');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const submitBtn = document.getElementById('submit-btn');
-    const progressBar = document.getElementById('progress-bar');
-    const currentStepSpan = document.getElementById('current-step');
+document.addEventListener('DOMContentLoaded', initRecipeWizard);
+document.addEventListener('turbo:load', initRecipeWizard);
 
-    console.log('Form initialized', { stepContents: stepContents.length, nextBtn, prevBtn });
+function initRecipeWizard() {
+  const form = document.getElementById('recipe-form');
+  if (!form) return;
 
-    // Photo preview
-    const photoUpload = document.getElementById('photo-upload');
-    const photoPreview = document.getElementById('photo-preview');
-    
-    if (photoUpload) {
-      photoUpload.addEventListener('change', function(e) {
-        photoPreview.innerHTML = '';
-        const files = Array.from(e.target.files);
-        files.forEach((file, index) => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'relative group';
-            div.innerHTML = `
-              <img src="${e.target.result}" class="w-full h-32 object-cover rounded-xl border-2 border-gray-200" />
-              ${index === 0 ? '<div class="absolute top-2 left-2 bg-pink-600 text-white text-xs px-2 py-1 rounded-full font-bold"><%= j t("recipes.form.cover_label") %></div>' : ''}
-            `;
-            photoPreview.appendChild(div);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-    }
+  let currentStep = 1;
+  const totalSteps = 6;
+  
+  const stepContents = document.querySelectorAll('.step-content');
+  const stepIndicators = document.querySelectorAll('.step-indicator');
+  const progressLine = document.getElementById('progress-line');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const submitBtn = document.getElementById('submit-btn');
 
-    function updateStep(step) {
-      console.log('updateStep called with step:', step);
-      
-      // Hide all steps
-      stepContents.forEach((content, index) => {
-        const stepNum = content.getAttribute('data-step');
-        console.log('Hiding step content:', stepNum, content);
-        content.classList.add('hidden');
-        content.classList.remove('animate-slide-in');
-      });
-
-      // Show current step
-      const currentContent = document.querySelector(`.step-content[data-step="${step}"]`);
-      console.log('Current content found:', currentContent);
-      if (currentContent) {
-        currentContent.classList.remove('hidden');
-        currentContent.classList.add('animate-slide-in');
-        console.log('Step', step, 'is now visible');
-      } else {
-        console.error('Could not find step content for step', step);
-      }
-
-      // Update indicators
-      stepIndicators.forEach((indicator, index) => {
-        const indicatorStep = parseInt(indicator.dataset.step);
-        const circle = indicator.querySelector('div');
-        const label = indicator.querySelector('span');
-        
-        if (indicatorStep <= step) {
-          indicator.classList.add('active');
-          circle.className = 'w-8 h-8 rounded-full bg-gradient-to-r from-pink-600 to-rose-500 flex items-center justify-center text-white font-bold text-sm';
-          if (label) {
-            label.classList.remove('text-gray-500');
-            label.classList.add('text-gray-700');
-          }
-        } else {
-          indicator.classList.remove('active');
-          circle.className = 'w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm';
-          if (label) {
-            label.classList.add('text-gray-500');
-            label.classList.remove('text-gray-700');
-          }
-        }
-      });
-
-      // Update progress bar
-      const progress = (step / totalSteps) * 100;
-      progressBar.style.width = progress + '%';
-
-      // Update step counter
-      currentStepSpan.textContent = step;
-
-      // Update buttons
-      if (step === 1) {
-        prevBtn.classList.add('hidden');
-      } else {
-        prevBtn.classList.remove('hidden');
-      }
-
-      if (step === totalSteps) {
-        // Update review when reaching final step
-        updateReview();
-        // Hide next button, show submit button
-        nextBtn.style.display = 'none';
-        if (submitBtn) {
-          submitBtn.style.display = 'inline-flex';
-        }
-      } else {
-        // Show next button, hide submit
-        nextBtn.style.display = 'inline-flex';
-        if (submitBtn) {
-          submitBtn.style.display = 'none';
-        }
-        // Update button content without replacing the entire button
-        const nextBtnSpan = nextBtn.querySelector('span');
-        if (nextBtnSpan) {
-          nextBtnSpan.innerHTML = `
-            ${nextText}
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-            </svg>
+  // Photo preview
+  const photoUpload = document.getElementById('photo-upload');
+  const photoPreview = document.getElementById('photo-preview');
+  
+  if (photoUpload) {
+    photoUpload.addEventListener('change', function(e) {
+      photoPreview.innerHTML = '';
+      Array.from(e.target.files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'relative rounded-xl overflow-hidden';
+          div.innerHTML = `
+            <img src="${e.target.result}" class="w-full h-20 object-cover" />
+            ${index === 0 ? '<div class="absolute top-1 left-1 bg-emerald-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold">Cover</div>' : ''}
           `;
-        } else {
-          nextBtn.innerHTML = `
-            <span class="flex items-center gap-2">
-              ${nextText}
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </span>
-          `;
-        }
-        nextBtn.type = 'button';
-      }
-    }
-
-    function validateStep(step) {
-      const currentContent = document.querySelector(`[data-step="${step}"]`);
-      if (!currentContent) return true;
-
-      // Step 1: Title required
-      if (step === 1) {
-        const title = document.querySelector('#recipe_title');
-        if (title && !title.value.trim()) {
-          title.focus();
-          title.classList.add('border-red-400');
-          setTimeout(() => title.classList.remove('border-red-400'), 2000);
-          return false;
-        }
-      }
-
-      // Step 2: Ingredients required
-      if (step === 2) {
-        const ingredients = document.querySelector('#recipe_ingredients');
-        if (ingredients && !ingredients.value.trim()) {
-          ingredients.focus();
-          ingredients.classList.add('border-red-400');
-          setTimeout(() => ingredients.classList.remove('border-red-400'), 2000);
-          return false;
-        }
-      }
-
-      // Step 3: Preparation required
-      if (step === 3) {
-        const preparation = document.querySelector('#recipe_preparation');
-        if (preparation && !preparation.value.trim()) {
-          preparation.focus();
-          preparation.classList.add('border-red-400');
-          setTimeout(() => preparation.classList.remove('border-red-400'), 2000);
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    function nextStep(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      
-      console.log('nextStep called, currentStep:', currentStep);
-      
-      if (!validateStep(currentStep)) {
-        console.log('Validation failed for step', currentStep);
-        return false;
-      }
-
-      if (currentStep < totalSteps) {
-        currentStep++;
-        console.log('Moving to step', currentStep);
-        updateStep(currentStep);
-        // Smooth scroll to top of form
-        setTimeout(() => {
-          const stepElement = document.querySelector('.step-content[data-step="' + currentStep + '"]');
-          if (stepElement) {
-            stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
-      return false;
-    }
-
-    function prevStep(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      
-      if (currentStep > 1) {
-        currentStep--;
-        updateStep(currentStep);
-        // Smooth scroll to top of form
-        setTimeout(() => {
-          const stepElement = document.querySelector('.step-content[data-step="' + currentStep + '"]');
-          if (stepElement) {
-            stepElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
-      return false;
-    }
-
-    function updateReview() {
-      const title = document.querySelector('#recipe_title')?.value || '-';
-      const description = document.querySelector('#recipe_description')?.value || '-';
-      const ingredients = document.querySelector('#recipe_ingredients')?.value || '-';
-      const preparation = document.querySelector('#recipe_preparation')?.value || '-';
-      const photoCount = document.querySelector('#photo-upload')?.files?.length || 0;
-      const difficulty = document.querySelector('#recipe_difficulty')?.value || '0';
-      const timeToMake = document.querySelector('#recipe_time_to_make')?.value || '0';
-      const healthiness = document.querySelector('#recipe_healthiness')?.value || '0';
-
-      document.getElementById('review-title').textContent = title || '-';
-      document.getElementById('review-description').textContent = description || '-';
-      document.getElementById('review-ingredients').textContent = ingredients.substring(0, 100) + (ingredients.length > 100 ? '...' : '') || '-';
-      document.getElementById('review-preparation').textContent = preparation.substring(0, 100) + (preparation.length > 100 ? '...' : '') || '-';
-      const photosCountText = '<%= j t("recipes.form.photos_count") %>';
-      const noPhotosText = '<%= j t("recipes.form.no_photos") %>';
-      document.getElementById('review-photos').textContent = photoCount > 0 ? `${photoCount} ${photosCountText}` : noPhotosText;
-      
-      // Display ratings
-      const notSetText = '<%= j t("recipes.form.not_set") %>';
-      const minutesText = '<%= j t("recipes.form.minutes") %>';
-      
-      const difficultyVal = parseInt(difficulty) || 0;
-      const difficultyStars = difficultyVal > 0 ? '★'.repeat(difficultyVal) + '☆'.repeat(5 - difficultyVal) + ` (${difficultyVal}/5)` : notSetText;
-      document.getElementById('review-difficulty').textContent = difficultyStars;
-      
-      const timeVal = parseInt(timeToMake) || 0;
-      document.getElementById('review-time').textContent = timeVal > 0 ? `${timeVal} ${minutesText}` : notSetText;
-      
-      const healthinessVal = parseInt(healthiness) || 0;
-      const healthinessStars = healthinessVal > 0 ? '★'.repeat(healthinessVal) + '☆'.repeat(5 - healthinessVal) + ` (${healthinessVal}/5)` : notSetText;
-      document.getElementById('review-healthiness').textContent = healthinessStars;
-    }
-
-    // Add event listeners directly to buttons
-    if (nextBtn) {
-      console.log('Adding click listener to nextBtn', nextBtn);
-      // Remove any existing onclick handlers
-      nextBtn.onclick = null;
-      nextBtn.type = 'button';
-      nextBtn.addEventListener('click', function(e) {
-        console.log('Next button clicked!', e);
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        nextStep(e);
-        return false;
-      }, true); // Use capture phase
-    } else {
-      console.error('nextBtn not found!');
-    }
-    
-    if (prevBtn) {
-      console.log('Adding click listener to prevBtn');
-      prevBtn.addEventListener('click', function(e) {
-        console.log('Prev button clicked!');
-        e.preventDefault();
-        e.stopPropagation();
-        prevStep(e);
-        return false;
-      }, false);
-    } else {
-      console.error('prevBtn not found!');
-    }
-    
-    // Also use event delegation as backup - but with lower priority
-    setTimeout(() => {
-      document.addEventListener('click', function(e) {
-        const target = e.target;
-        const nextBtnEl = document.getElementById('next-btn');
-        const prevBtnEl = document.getElementById('prev-btn');
-        
-        if (target && (target === nextBtnEl || target.closest('#next-btn'))) {
-          console.log('Event delegation: Next button clicked');
-          e.preventDefault();
-          e.stopPropagation();
-          nextStep(e);
-        } else if (target && (target === prevBtnEl || target.closest('#prev-btn'))) {
-          console.log('Event delegation: Prev button clicked');
-          e.preventDefault();
-          e.stopPropagation();
-          prevStep(e);
-        }
-      }, false); // Use bubble phase for delegation
-    }, 100);
-
-    // Prevent form submission when clicking next/prev buttons
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        if (currentStep < totalSteps) {
-          e.preventDefault();
-          console.log('Form submission blocked because wizard is not on the final step yet.');
-          return false;
-        }
-        if (submitBtn) {
-          submitBtn.classList.add('opacity-70', 'pointer-events-none');
-          submitBtn.setAttribute('aria-disabled', 'true');
-        }
-        return true;
-      });
-    }
-
-    // Initialize
-    updateStep(1);
-
-    // Allow Enter key to go to next step (except in textareas)
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && !e.target.closest('textarea')) {
-        e.preventDefault();
-        if (e.target.type !== 'submit') {
-          nextStep();
-        }
-      }
-    });
-  }
-
-  // Star rating functionality
-  function initializeStarRatings() {
-    document.querySelectorAll('.star-rating').forEach(ratingContainer => {
-      const field = ratingContainer.dataset.field;
-      const hiddenField = document.getElementById(`recipe_${field}`);
-      const stars = ratingContainer.querySelectorAll('.star-btn');
-      let currentValue = parseInt(hiddenField.value) || 0;
-
-      // Set initial state
-      stars.forEach((star, index) => {
-        if (index < currentValue) {
-          star.classList.add('text-emerald-500');
-          star.classList.remove('text-gray-300');
-        }
-      });
-
-      stars.forEach((star, index) => {
-        star.addEventListener('click', () => {
-          const value = index + 1;
-          currentValue = value;
-          hiddenField.value = value;
-
-          // Update star display
-          stars.forEach((s, i) => {
-            if (i < value) {
-              s.classList.add('text-emerald-500');
-              s.classList.remove('text-gray-300');
-            } else {
-              s.classList.remove('text-emerald-500');
-              s.classList.add('text-gray-300');
-            }
-          });
-        });
-
-        star.addEventListener('mouseenter', () => {
-          const hoverValue = index + 1;
-          stars.forEach((s, i) => {
-            if (i < hoverValue) {
-              s.classList.add('text-emerald-400');
-            } else {
-              s.classList.remove('text-emerald-400');
-            }
-          });
-        });
-
-        ratingContainer.addEventListener('mouseleave', () => {
-          stars.forEach((s, i) => {
-            if (i < currentValue) {
-              s.classList.add('text-emerald-500');
-              s.classList.remove('text-emerald-400', 'text-gray-300');
-            } else {
-              s.classList.remove('text-emerald-500', 'text-emerald-400');
-              s.classList.add('text-gray-300');
-            }
-          });
-        });
+          photoPreview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
       });
     });
   }
 
-  // Initialize on both DOMContentLoaded and turbo:load
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeRecipeForm();
-    initializeStarRatings();
+  // Video preview
+  const videoUpload = document.getElementById('video-upload');
+  const videoPreview = document.getElementById('video-preview');
+  const videoUploadArea = document.getElementById('video-upload-area');
+  const removeVideoBtn = document.getElementById('remove-video');
+
+  if (videoUpload) {
+    videoUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 100 * 1024 * 1024) {
+          alert('Video prea mare! Maxim 100MB.');
+          videoUpload.value = '';
+          return;
+        }
+        document.getElementById('video-filename').textContent = file.name;
+        document.getElementById('video-filesize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+        videoPreview.classList.remove('hidden');
+        videoUploadArea.classList.add('hidden');
+      }
+    });
+
+    if (removeVideoBtn) {
+      removeVideoBtn.addEventListener('click', function() {
+        videoUpload.value = '';
+        videoPreview.classList.add('hidden');
+        videoUploadArea.classList.remove('hidden');
+      });
+    }
+  }
+
+  // Star ratings
+  document.querySelectorAll('.star-rating').forEach(container => {
+    const field = container.dataset.field;
+    const hiddenField = document.getElementById(`recipe_${field}`);
+    const stars = container.querySelectorAll('.star-btn');
+    let value = 0;
+
+    stars.forEach((star, index) => {
+      star.addEventListener('click', (e) => {
+        e.preventDefault();
+        value = index + 1;
+        hiddenField.value = value;
+        updateStars();
+      });
+    });
+
+    function updateStars() {
+      stars.forEach((s, i) => {
+        if (i < value) {
+          s.classList.remove('text-gray-300');
+          s.classList.add(field === 'healthiness' ? 'text-green-500' : 'text-amber-500');
+        } else {
+          s.classList.add('text-gray-300');
+          s.classList.remove('text-green-500', 'text-amber-500');
+        }
+      });
+    }
   });
-  document.addEventListener('turbo:load', function() {
-    initializeRecipeForm();
-    initializeStarRatings();
+
+  function updateStep(step) {
+    // Update content visibility
+    stepContents.forEach(content => {
+      const s = parseInt(content.dataset.step);
+      content.classList.toggle('hidden', s !== step);
+    });
+
+    // Update step indicators
+    stepIndicators.forEach(indicator => {
+      const s = parseInt(indicator.dataset.step);
+      const circle = indicator.querySelector('.step-circle');
+      const label = indicator.querySelector('.step-label');
+      
+      if (s <= step) {
+        circle.className = 'step-circle w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30';
+        if (label) label.classList.add('text-emerald-600', 'dark:text-emerald-400');
+      } else {
+        circle.className = 'step-circle w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-gray-400';
+        if (label) label.classList.remove('text-emerald-600', 'dark:text-emerald-400');
+      }
+    });
+
+    // Update progress line
+    const progress = ((step - 1) / (totalSteps - 1)) * 100;
+    progressLine.style.width = progress + '%';
+
+    // Update buttons
+    prevBtn.classList.toggle('hidden', step === 1);
+    
+    if (step === totalSteps) {
+      nextBtn.classList.add('hidden');
+      submitBtn.classList.remove('hidden');
+      updateReview();
+    } else {
+      nextBtn.classList.remove('hidden');
+      submitBtn.classList.add('hidden');
+    }
+  }
+
+  function validateStep(step) {
+    if (step === 1) {
+      const title = document.getElementById('recipe_title');
+      if (!title.value.trim()) {
+        title.focus();
+        title.classList.add('border-red-400', 'ring-red-100');
+        setTimeout(() => title.classList.remove('border-red-400', 'ring-red-100'), 2000);
+        return false;
+      }
+    }
+    if (step === 2) {
+      const ingredients = document.getElementById('recipe_ingredients');
+      if (!ingredients.value.trim()) {
+        ingredients.focus();
+        ingredients.classList.add('border-red-400');
+        setTimeout(() => ingredients.classList.remove('border-red-400'), 2000);
+        return false;
+      }
+    }
+    if (step === 3) {
+      const preparation = document.getElementById('recipe_preparation');
+      if (!preparation.value.trim()) {
+        preparation.focus();
+        preparation.classList.add('border-red-400');
+        setTimeout(() => preparation.classList.remove('border-red-400'), 2000);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function updateReview() {
+    const title = document.getElementById('recipe_title')?.value || '-';
+    const desc = document.getElementById('recipe_description')?.value || '-';
+    const ingredients = document.getElementById('recipe_ingredients')?.value || '-';
+    const preparation = document.getElementById('recipe_preparation')?.value || '-';
+    const photoCount = document.getElementById('photo-upload')?.files?.length || 0;
+    const hasVideo = document.getElementById('video-upload')?.files?.length > 0;
+    const time = document.getElementById('recipe_time_to_make')?.value || '0';
+
+    document.getElementById('review-title').textContent = title;
+    document.getElementById('review-description').textContent = desc.substring(0, 100) + (desc.length > 100 ? '...' : '');
+    document.getElementById('review-ingredients').textContent = ingredients.split('\n').length + ' ingrediente';
+    document.getElementById('review-preparation').textContent = preparation.split('\n').filter(l => l.trim()).length + ' pași';
+    document.getElementById('review-media').textContent = `${photoCount} foto${hasVideo ? ' + video' : ''}`;
+    document.getElementById('review-time').textContent = time > 0 ? time + ' minute' : 'Nespecificat';
+  }
+
+  // Event listeners
+  nextBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (validateStep(currentStep) && currentStep < totalSteps) {
+      currentStep++;
+      updateStep(currentStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   });
+
+  prevBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentStep > 1) {
+      currentStep--;
+      updateStep(currentStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    if (currentStep < totalSteps) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Initialize
+  updateStep(1);
+}
 </script>
