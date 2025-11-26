@@ -415,6 +415,144 @@ class Admin::AdminController < ApplicationController
     end
   end
 
+  # ==================== MODERATION ====================
+
+  def moderation
+    @pending_reports_count = Report.pending_review.count
+    @quarantined_recipes_count = Recipe.quarantined.count
+    @flagged_users_count = User.where('reports_count >= ?', 3).count
+    @recent_reports = Report.pending_review.includes(:reporter, :reportable).order(created_at: :desc).limit(10)
+  end
+
+  def moderation_reports
+    @status_filter = params[:status] || 'pending'
+    @type_filter = params[:type] || 'all'
+
+    @reports = Report.includes(:reporter, :reportable, :reviewed_by).order(created_at: :desc)
+
+    case @status_filter
+    when 'pending'
+      @reports = @reports.pending_review
+    when 'resolved'
+      @reports = @reports.resolved
+    end
+
+    case @type_filter
+    when 'recipes'
+      @reports = @reports.for_recipes
+    when 'users'
+      @reports = @reports.for_users
+    end
+
+    @reports = @reports.page(params[:page]).per(20) if @reports.respond_to?(:page)
+  end
+
+  def quarantined_recipes
+    @recipes = Recipe.quarantined
+                     .includes(:user, :reports)
+                     .order(quarantined_at: :desc)
+  end
+
+  def flagged_users
+    @users = User.where('reports_count >= ?', 3)
+                 .or(User.blocked)
+                 .includes(:recipes)
+                 .order(reports_count: :desc)
+  end
+
+  def review_report
+    @report = Report.find(params[:id])
+    new_status = params[:status]
+    notes = params[:admin_notes]
+
+    if Report.statuses.keys.include?(new_status)
+      @report.mark_as_reviewed!(current_user, new_status, notes)
+      
+      # If report is valid, take action on the reportable
+      if new_status == 'resolved_valid'
+        case @report.reportable_type
+        when 'Recipe'
+          @report.reportable.quarantine!("Raport validat: #{@report.reason_label}")
+        when 'User'
+          # Increment user's report count
+          @report.reportable.increment!(:reports_count)
+        end
+      end
+      
+      redirect_back fallback_location: admin_moderation_reports_path, notice: "Raportul a fost procesat."
+    else
+      redirect_back fallback_location: admin_moderation_reports_path, alert: "Status invalid."
+    end
+  end
+
+  def quarantine_recipe
+    @recipe = Recipe.find(params[:id])
+    reason = params[:reason] || "Carantinat manual de administrator"
+    @recipe.quarantine!(reason)
+    
+    # Notify user
+    Notification.create!(
+      user: @recipe.user,
+      notification_type: "recipe_quarantined",
+      title: "Rețeta ta a fost pusă în carantină",
+      message: "Rețeta '#{@recipe.title}' a fost pusă în carantină. Motiv: #{reason}",
+      recipe_id: @recipe.id
+    )
+    
+    redirect_back fallback_location: admin_quarantined_recipes_path, notice: "Rețeta a fost pusă în carantină."
+  end
+
+  def release_recipe
+    @recipe = Recipe.find(params[:id])
+    @recipe.release_from_quarantine!
+    
+    # Notify user
+    Notification.create!(
+      user: @recipe.user,
+      notification_type: "recipe_released",
+      title: "Rețeta ta a fost eliberată",
+      message: "Rețeta '#{@recipe.title}' a fost eliberată din carantină și este din nou vizibilă.",
+      recipe_id: @recipe.id
+    )
+    
+    redirect_back fallback_location: admin_quarantined_recipes_path, notice: "Rețeta a fost eliberată din carantină."
+  end
+
+  def delete_reported_recipe
+    @recipe = Recipe.find(params[:id])
+    user = @recipe.user
+    recipe_title = @recipe.title
+    
+    # Mark all reports as resolved
+    @recipe.reports.update_all(status: :resolved_valid, reviewed_by_id: current_user.id, reviewed_at: Time.current)
+    
+    # Notify user
+    Notification.create!(
+      user: user,
+      notification_type: "recipe_removed",
+      title: "Rețeta ta a fost ștearsă",
+      message: "Rețeta '#{recipe_title}' a fost ștearsă pentru încălcarea regulilor comunității."
+    )
+    
+    @recipe.destroy
+    redirect_to admin_quarantined_recipes_path, notice: "Rețeta a fost ștearsă."
+  end
+
+  def block_user
+    @user = User.find(params[:id])
+    reason = params[:reason] || "Contul tău a fost suspendat pentru încălcarea regulilor comunității."
+    @user.block!(reason)
+    
+    redirect_back fallback_location: admin_flagged_users_path, notice: "Utilizatorul #{@user.username} a fost blocat."
+  end
+
+  def unblock_user
+    @user = User.find(params[:id])
+    @user.unblock!
+    
+    redirect_back fallback_location: admin_flagged_users_path, notice: "Utilizatorul #{@user.username} a fost deblocat."
+  end
+
   private
 
   def ensure_admin

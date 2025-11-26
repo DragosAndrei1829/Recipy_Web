@@ -680,6 +680,10 @@ en:
     send: "Send"
     sending: "Sending..."
     create_error: "Failed to send message. Please try again."
+  reports:
+    created: "Report submitted. Thank you for helping us keep the community safe!"
+    invalid_target: "Invalid report target"
+    already_reported: "You have already reported this content"
   shared_recipes:
     title: "Shared Recipes"
     subtitle: "Recipes shared with you"

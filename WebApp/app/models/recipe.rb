@@ -7,6 +7,7 @@ class Recipe < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :favorites, dependent: :destroy
+  has_many :reports, as: :reportable, dependent: :destroy
   has_one_attached :video
   has_many_attached :photos
 
@@ -16,6 +17,39 @@ class Recipe < ApplicationRecord
   
   # Video validation - max 100MB, only video formats
   validate :video_format_and_size
+
+  # Moderation scopes
+  scope :visible, -> { where(quarantined: false) }
+  scope :quarantined, -> { where(quarantined: true) }
+  scope :with_reports, -> { where('reports_count > 0') }
+
+  # Quarantine a recipe
+  def quarantine!(reason = nil)
+    update!(
+      quarantined: true,
+      quarantined_at: Time.current,
+      quarantine_reason: reason
+    )
+  end
+
+  # Release from quarantine
+  def release_from_quarantine!
+    update!(
+      quarantined: false,
+      quarantined_at: nil,
+      quarantine_reason: nil
+    )
+    # Mark all pending reports as resolved
+    reports.pending_review.update_all(status: :resolved_invalid)
+  end
+
+  # Check if visible to user
+  def visible_to?(viewer)
+    return true unless quarantined?
+    return true if viewer&.admin?
+    return true if viewer == user # Owner can see their own quarantined recipes
+    false
+  end
 
   def video_format_and_size
     return unless video.attached?

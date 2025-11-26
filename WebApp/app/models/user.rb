@@ -51,8 +51,18 @@ class User < ApplicationRecord
   has_many :sent_shared_recipes, class_name: "SharedRecipe", foreign_key: "sender_id", dependent: :destroy
   has_many :received_shared_recipes, class_name: "SharedRecipe", foreign_key: "recipient_id", dependent: :destroy
 
+  # Reports (as reporter)
+  has_many :submitted_reports, class_name: "Report", foreign_key: "reporter_id", dependent: :destroy
+  # Reports (as target)
+  has_many :reports, as: :reportable, dependent: :destroy
+
   # Theme preference
   belongs_to :theme, optional: true
+
+  # Moderation scopes
+  scope :active, -> { where(blocked: false) }
+  scope :blocked, -> { where(blocked: true) }
+  scope :with_reports, -> { where('reports_count > 0') }
 
   def conversations
     Conversation.for_user(self).includes(:sender, :recipient, messages: :user).order(updated_at: :desc)
@@ -68,6 +78,40 @@ class User < ApplicationRecord
 
   def admin?
     admin == true || username == "admin" || email == "andrei247dml@gmail.com"
+  end
+
+  # Block user
+  def block!(reason = nil)
+    update!(
+      blocked: true,
+      blocked_at: Time.current,
+      blocked_reason: reason,
+      suspension_count: suspension_count + 1
+    )
+  end
+
+  # Unblock user
+  def unblock!
+    update!(
+      blocked: false,
+      blocked_at: nil,
+      blocked_reason: nil
+    )
+  end
+
+  # Check if user can perform actions
+  def can_post?
+    !blocked?
+  end
+
+  # Override active_for_authentication to block suspended users
+  def active_for_authentication?
+    super && !blocked?
+  end
+
+  # Message shown to blocked users
+  def inactive_message
+    blocked? ? :blocked : super
   end
 
   def self.from_omniauth(auth)

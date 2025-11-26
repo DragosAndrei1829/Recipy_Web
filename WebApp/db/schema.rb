@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_26_103513) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -174,6 +174,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
     t.json "nutrition"
     t.json "photos_order"
     t.text "preparation"
+    t.text "quarantine_reason"
+    t.boolean "quarantined", default: false, null: false
+    t.datetime "quarantined_at"
+    t.integer "reports_count", default: 0, null: false
     t.integer "time_to_make", default: 0, null: false
     t.string "title"
     t.datetime "updated_at", null: false
@@ -181,7 +185,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
     t.index ["category_id"], name: "index_recipes_on_category_id"
     t.index ["cuisine_id"], name: "index_recipes_on_cuisine_id"
     t.index ["food_type_id"], name: "index_recipes_on_food_type_id"
+    t.index ["quarantined"], name: "index_recipes_on_quarantined"
     t.index ["user_id"], name: "index_recipes_on_user_id"
+  end
+
+  create_table "reports", force: :cascade do |t|
+    t.text "admin_notes"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "reason", null: false
+    t.bigint "reportable_id", null: false
+    t.string "reportable_type", null: false
+    t.bigint "reporter_id", null: false
+    t.datetime "reviewed_at"
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["reportable_type", "reportable_id", "reporter_id"], name: "index_reports_unique_per_reporter", unique: true
+    t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
+    t.index ["reporter_id"], name: "index_reports_on_reporter_id"
+    t.index ["reviewed_by_id"], name: "index_reports_on_reviewed_by_id"
+    t.index ["status"], name: "index_reports_on_status"
   end
 
   create_table "shared_recipes", force: :cascade do |t|
@@ -253,6 +277,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
   create_table "users", force: :cascade do |t|
     t.string "account_type"
     t.boolean "admin", default: false, null: false
+    t.boolean "blocked", default: false, null: false
+    t.datetime "blocked_at"
+    t.text "blocked_reason"
     t.string "confirmation_code"
     t.datetime "confirmation_code_sent_at"
     t.datetime "confirmed_at"
@@ -268,8 +295,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
     t.datetime "privacy_policy_accepted_at"
     t.string "provider"
     t.datetime "remember_created_at"
+    t.integer "reports_count", default: 0, null: false
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.integer "suspension_count", default: 0, null: false
     t.boolean "terms_accepted", default: false, null: false
     t.datetime "terms_accepted_at"
     t.integer "theme_id"
@@ -278,6 +307,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["admin"], name: "index_users_on_admin"
+    t.index ["blocked"], name: "index_users_on_blocked"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -303,6 +333,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_092816) do
   add_foreign_key "recipes", "cuisines"
   add_foreign_key "recipes", "food_types"
   add_foreign_key "recipes", "users"
+  add_foreign_key "reports", "users", column: "reporter_id"
+  add_foreign_key "reports", "users", column: "reviewed_by_id"
   add_foreign_key "shared_recipes", "conversations"
   add_foreign_key "shared_recipes", "recipes"
   add_foreign_key "shared_recipes", "users", column: "recipient_id"

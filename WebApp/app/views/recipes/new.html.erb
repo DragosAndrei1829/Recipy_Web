@@ -146,14 +146,21 @@
           </div>
         </div>
 
-        <div class="space-y-6">
-          <!-- Photos -->
+        <div class="space-y-6" data-controller="nsfw-detector" data-nsfw-detector-threshold-value="0.7" data-nsfw-detector-enabled-value="true">
+          <!-- Photos with NSFW Detection -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
               <%= t('recipes.form.photos_title', default: 'Fotografii') %>
+              <span class="px-2 py-0.5 text-[10px] font-semibold bg-green-100 text-green-700 rounded-full flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Protejat
+              </span>
             </label>
             <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors cursor-pointer group" id="photo-drop-zone">
-              <%= form.file_field :photos, multiple: true, accept: "image/*", id: "photo-upload", class: "hidden" %>
+              <%= form.file_field :photos, multiple: true, accept: "image/*", id: "photo-upload", class: "hidden", 
+                  data: { nsfw_detector_target: "input", action: "change->nsfw-detector#checkFiles" } %>
               <label for="photo-upload" class="cursor-pointer block">
                 <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors">
                   <svg class="w-8 h-8 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +171,22 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.help_photos_drag', default: 'sau trage și plasează aici') %></p>
               </label>
             </div>
-            <div id="photo-preview" class="mt-4 grid grid-cols-4 gap-3"></div>
+            <!-- NSFW Warning (hidden by default) -->
+            <div data-nsfw-detector-target="warning" class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                  <h4 class="font-semibold text-red-800 dark:text-red-200">Conținut inadecvat detectat</h4>
+                  <p class="text-sm text-red-600 dark:text-red-300 mt-1">
+                    Una sau mai multe imagini par să conțină conținut inadecvat și nu pot fi încărcate. 
+                    Te rugăm să selectezi alte imagini.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div id="photo-preview" data-nsfw-detector-target="preview" class="mt-4 grid grid-cols-4 gap-3"></div>
             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center"><%= t('recipes.form.help_photos_cover', default: 'Prima imagine va fi folosită ca și copertă') %></p>
           </div>
 

@@ -113,6 +113,24 @@ Rails.application.routes.draw do
     get "/legal", to: "admin#legal_contents", as: :legal_contents
     get "/legal/:page_type/edit", to: "admin#edit_legal_page", as: :edit_legal_page
     patch "/legal/:page_type", to: "admin#update_legal_page", as: :update_legal_page
+
+    # Moderation Dashboard
+    get "/moderation", to: "admin#moderation", as: :moderation
+    get "/moderation/reports", to: "admin#moderation_reports", as: :moderation_reports
+    get "/moderation/quarantined", to: "admin#quarantined_recipes", as: :quarantined_recipes
+    get "/moderation/flagged_users", to: "admin#flagged_users", as: :flagged_users
+    
+    # Report actions
+    patch "/reports/:id/review", to: "admin#review_report", as: :review_report
+    
+    # Recipe moderation actions
+    post "/recipes/:id/quarantine", to: "admin#quarantine_recipe", as: :quarantine_recipe
+    post "/recipes/:id/release", to: "admin#release_recipe", as: :release_recipe
+    delete "/recipes/:id/delete_reported", to: "admin#delete_reported_recipe", as: :delete_reported_recipe
+    
+    # User moderation actions
+    post "/users/:id/block", to: "admin#block_user", as: :block_user
+    post "/users/:id/unblock", to: "admin#unblock_user", as: :unblock_user
   end
 
   # Legacy route for admin dashboard (redirects to new route)
@@ -152,6 +170,12 @@ Rails.application.routes.draw do
       resource  :like,     only: [ :create, :destroy ]
       resource  :favorite, only: [ :create, :destroy ]
       resources :comments, only: [ :create, :destroy ]
+      resources :reports, only: [ :new, :create ], controller: 'reports'
+    end
+
+    # User reports
+    resources :users, only: [] do
+      resources :reports, only: [ :new, :create ], controller: 'reports'
     end
 
     # Top recipes page

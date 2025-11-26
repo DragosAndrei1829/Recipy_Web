@@ -715,6 +715,10 @@ ro:
     send: "Trimite"
     sending: "Se trimite..."
     create_error: "Trimiterea mesajului a eșuat. Te rugăm să încerci din nou."
+  reports:
+    created: "Raportul a fost trimis. Mulțumim că ne ajuți să menținem comunitatea sigură!"
+    invalid_target: "Ținta raportului nu este validă"
+    already_reported: "Ai raportat deja acest conținut"
   shared_recipes:
     title: "Rețete Partajate"
     subtitle: "Rețete partajate cu tine"

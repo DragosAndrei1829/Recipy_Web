@@ -238,6 +238,9 @@
       </div>
       <div class="flex items-center gap-3">
         <% if user_signed_in? && @recipe.user != current_user %>
+          <!-- Report Button -->
+          <%= render 'reports/report_button', reportable: @recipe %>
+          
           <button onclick="document.getElementById('share-modal').classList.remove('hidden')" 
               class="recipe-action-btn bg-gradient-primary text-white hover:shadow-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
