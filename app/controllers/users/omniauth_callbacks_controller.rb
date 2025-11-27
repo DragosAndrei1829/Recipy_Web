@@ -1,31 +1,70 @@
-class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  def google_oauth2
-    @user = User.from_omniauth(request.env["omniauth.auth"])
+# frozen_string_literal: true
 
-    if @user.persisted?
-      sign_in_and_redirect @user, event: :authentication
-      set_flash_message(:notice, :success, kind: "Google") if is_navigational_format?
-    else
-      session["devise.google_data"] = request.env["omniauth.auth"].except(:extra)
-      locale = session[:locale] || I18n.default_locale
-      redirect_to "/#{locale}/users/sign_up", alert: @user.errors.full_messages.join("\n")
-    end
+class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
+  skip_before_action :verify_authenticity_token, only: [:google_oauth2, :apple, :failure]
+
+  def google_oauth2
+    handle_oauth("Google")
   end
 
   def apple
-    @user = User.from_omniauth(request.env["omniauth.auth"])
-
-    if @user.persisted?
-      sign_in_and_redirect @user, event: :authentication
-      set_flash_message(:notice, :success, kind: "Apple") if is_navigational_format?
-    else
-      session["devise.apple_data"] = request.env["omniauth.auth"].except(:extra)
-      locale = session[:locale] || I18n.default_locale
-      redirect_to "/#{locale}/users/sign_up", alert: @user.errors.full_messages.join("\n")
-    end
+    # Apple Sign In is not yet configured
+    locale = session[:locale] || I18n.default_locale
+    redirect_to "/#{locale}/users/sign_in", alert: "🚧 Sign in with Apple este în lucru. Te rugăm să folosești Google sau email."
   end
 
   def failure
-    redirect_to root_path, alert: t("devise.omniauth_callbacks.failure", kind: "OAuth", reason: "unknown")
+    locale = session[:locale] || I18n.default_locale
+    error_message = failure_message || "A apărut o eroare la autentificare"
+    
+    Rails.logger.error "OmniAuth failure: #{error_message}"
+    
+    redirect_to "/#{locale}/users/sign_in", alert: "Autentificarea a eșuat: #{error_message}"
+  end
+
+  protected
+
+  def handle_oauth(kind)
+    auth_data = request.env["omniauth.auth"]
+    
+    if auth_data.nil?
+      Rails.logger.error "OmniAuth #{kind}: No auth data received"
+      return redirect_to_failure("Nu am primit date de autentificare de la #{kind}")
+    end
+
+    @user = User.from_omniauth(auth_data)
+
+    if @user.persisted?
+      flash[:notice] = I18n.t("devise.omniauth_callbacks.success", kind: kind)
+      sign_in_and_redirect @user, event: :authentication
+    else
+      session["devise.#{kind.downcase}_data"] = auth_data.except(:extra)
+      locale = session[:locale] || I18n.default_locale
+      redirect_to "/#{locale}/users/sign_up", alert: @user.errors.full_messages.join(", ")
+    end
+  rescue StandardError => e
+    Rails.logger.error "OmniAuth #{kind} error: #{e.message}"
+    redirect_to_failure("Eroare la autentificarea cu #{kind}: #{e.message}")
+  end
+
+  def redirect_to_failure(message)
+    locale = session[:locale] || I18n.default_locale
+    redirect_to "/#{locale}/users/sign_in", alert: message
+  end
+
+  def failure_message
+    exception = request.env["omniauth.error"]
+    error_type = request.env["omniauth.error.type"]
+    
+    case error_type
+    when :csrf_detected, :authenticity_error
+      "Eroare de securitate. Te rugăm să încerci din nou."
+    when :invalid_credentials
+      "Credențiale invalide."
+    when :timeout
+      "Conexiunea a expirat. Te rugăm să încerci din nou."
+    else
+      exception&.message || error_type&.to_s&.humanize || "Eroare necunoscută"
+    end
   end
 end

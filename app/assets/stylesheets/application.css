@@ -1000,9 +1000,26 @@ a:hover {
   color: #ffffff;
 }
 
-.auth-oauth-btn--apple:hover {
+.auth-oauth-btn--apple:hover:not(:disabled) {
   background: #334155;
   border-color: #334155;
+}
+
+.auth-oauth-btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.auth-oauth-badge {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Auth primary button */
