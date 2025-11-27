@@ -72,6 +72,111 @@ GOOGLE_CLIENT_SECRET=GOCSPX-abcdefghijklmnopqrstuvwxyz
 
 ---
 
+## 📱 Configurare Google OAuth pentru Mobile (Flutter)
+
+### Pasul 1: Creează iOS Client ID
+
+1. În Google Cloud Console → **Credentials**
+2. Click **Create Credentials** → **OAuth client ID**
+3. **Application type**: iOS
+4. **Name**: `Recipy iOS`
+5. **Bundle ID**: `com.recipy.app` (sau Bundle ID-ul tău din Flutter)
+6. Click **Create**
+
+**iOS Client ID generat:**
+```
+163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6.apps.googleusercontent.com
+```
+
+### Pasul 2: Creează Android Client ID
+
+1. În Google Cloud Console → **Credentials**
+2. Click **Create Credentials** → **OAuth client ID**
+3. **Application type**: Android
+4. **Name**: `Recipy Android`
+5. **Package name**: `com.recipy.app`
+6. **SHA-1 certificate fingerprint**: 
+   - Pentru debug: rulează în terminal:
+     ```bash
+     cd android && ./gradlew signingReport
+     ```
+   - Copiază SHA-1 din output
+
+### Pasul 3: Adaugă iOS Client ID în .env (backend)
+
+```env
+# Google OAuth iOS Client ID (pentru validarea token-urilor de pe mobile)
+GOOGLE_IOS_CLIENT_ID=163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6.apps.googleusercontent.com
+```
+
+### Pasul 4: Configurare Flutter
+
+1. **Adaugă `google_sign_in` în `pubspec.yaml`:**
+   ```yaml
+   dependencies:
+     google_sign_in: ^6.1.6
+   ```
+
+2. **Configurare iOS (`ios/Runner/Info.plist`):**
+   ```xml
+   <key>CFBundleURLTypes</key>
+   <array>
+     <dict>
+       <key>CFBundleTypeRole</key>
+       <string>Editor</string>
+       <key>CFBundleURLSchemes</key>
+       <array>
+         <string>com.googleusercontent.apps.163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6</string>
+       </array>
+     </dict>
+   </array>
+   <key>GIDClientID</key>
+   <string>163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6.apps.googleusercontent.com</string>
+   ```
+
+3. **Configurare Android (`android/app/build.gradle`):**
+   - Asigură-te că `applicationId` este `com.recipy.app`
+
+4. **Cod Flutter pentru Google Sign-In:**
+   ```dart
+   import 'package:google_sign_in/google_sign_in.dart';
+   
+   final GoogleSignIn _googleSignIn = GoogleSignIn(
+     scopes: ['email', 'profile'],
+     // Pentru iOS, folosește iOS Client ID
+     clientId: '163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6.apps.googleusercontent.com',
+   );
+   
+   Future<void> signInWithGoogle() async {
+     try {
+       final GoogleSignInAccount? account = await _googleSignIn.signIn();
+       if (account != null) {
+         final GoogleSignInAuthentication auth = await account.authentication;
+         final String? idToken = auth.idToken;
+         
+         // Trimite idToken la backend
+         final response = await http.post(
+           Uri.parse('$baseUrl/api/v1/auth/google'),
+           headers: {'Content-Type': 'application/json'},
+           body: jsonEncode({'id_token': idToken}),
+         );
+         
+         // Procesează răspunsul...
+       }
+     } catch (error) {
+       print('Google Sign-In error: $error');
+     }
+   }
+   ```
+
+### Fișiere de descărcat din Google Cloud Console:
+
+După ce creezi iOS Client ID, descarcă fișierul `.plist`:
+- **Nume fișier:** `client_163361667480-5lksujehv7cpj50f2v1rdrr98g7cbkp6.apps.googleusercontent.com.plist`
+- **Locație în Flutter:** `ios/Runner/GoogleService-Info.plist` (redenumește-l)
+
+---
+
 ## 🍎 Configurare Apple OAuth
 
 ### Pasul 1: Creează un App ID în Apple Developer

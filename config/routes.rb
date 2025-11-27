@@ -16,10 +16,6 @@ Rails.application.routes.draw do
       post "auth/resend_confirmation", to: "auth#resend_confirmation"
       get "auth/me", to: "auth#me"
 
-      # OAuth
-      post "auth/google", to: "auth#google"
-      post "auth/apple", to: "auth#apple"
-
       # Recipes
       resources :recipes, only: [ :index, :show, :create, :update, :destroy ] do
         collection do
@@ -107,11 +103,6 @@ Rails.application.routes.draw do
   devise_for :users, only: :omniauth_callbacks, controllers: {
     omniauth_callbacks: "users/omniauth_callbacks"
   }
-
-  # OAuth failure route - must be inside devise_scope
-  devise_scope :user do
-    get "/users/auth/failure", to: "users/omniauth_callbacks#failure"
-  end
 
   # Admin routes (outside locale scope)
   namespace :admin do
