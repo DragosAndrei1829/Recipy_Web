@@ -940,42 +940,7 @@ a:hover {
   box-shadow: 0 18px 35px color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
-/* Auth-specific button styles */
-.auth-panel .btn-outline {
-  border: 1.5px solid #1e293b;
-  color: #1e293b !important;
-  background: #1e293b;
-  color: #ffffff !important;
-  border-radius: 12px;
-  padding: 0.85rem 1.2rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.auth-panel .btn-outline:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.auth-panel .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.95rem 1.2rem;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  background: #10b981;
-  color: #ffffff !important;
-  border: none;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.auth-panel .btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
+/* Auth-specific button styles - removed old styles, using auth-btn-primary below */
 
 .auth-alert {
   border-radius: 12px;
@@ -1041,7 +1006,10 @@ a:hover {
 }
 
 /* Auth primary button */
-.auth-btn-primary {
+.auth-btn-primary,
+.auth-panel .btn-primary,
+.auth-form input[type="submit"],
+.auth-form button[type="submit"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1050,16 +1018,19 @@ a:hover {
   border-radius: 50px;
   font-weight: 600;
   font-size: 0.95rem;
-  background: #10b981;
+  background: #10b981 !important;
   color: #ffffff !important;
-  border: none;
+  border: none !important;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
 }
 
-.auth-btn-primary:hover {
-  background: #059669;
+.auth-btn-primary:hover,
+.auth-panel .btn-primary:hover,
+.auth-form input[type="submit"]:hover,
+.auth-form button[type="submit"]:hover {
+  background: #059669 !important;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
