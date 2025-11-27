@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # OmniAuth configuration for Rails 7+ with Turbo/Hotwire
-# Fixes "Authenticity error" and CSRF issues
 
-# Allow POST method (required for OmniAuth 2.0+)
-OmniAuth.config.allowed_request_methods = [:post]
+# IMPORTANT: This fixes the "Authenticity error" with OmniAuth 2.0+
+OmniAuth.config.allowed_request_methods = [:post, :get]
+OmniAuth.config.silence_get_warning = true
 
 # Handle failures gracefully
 OmniAuth.config.on_failure = Proc.new do |env|
@@ -14,4 +14,5 @@ end
 # Log OmniAuth errors in development
 if Rails.env.development?
   OmniAuth.config.logger = Rails.logger
+  OmniAuth.config.full_host = "http://localhost:3000"
 end

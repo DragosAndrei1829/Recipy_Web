@@ -1006,20 +1006,8 @@ a:hover {
 }
 
 .auth-oauth-btn--disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  position: relative;
-}
-
-.auth-oauth-badge {
-  position: absolute;
-  right: 1rem;
-  font-size: 0.65rem;
-  padding: 0.2rem 0.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* Auth primary button */

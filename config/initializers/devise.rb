@@ -280,10 +280,13 @@ Devise.setup do |config|
     config.omniauth :google_oauth2,
       ENV["GOOGLE_CLIENT_ID"],
       ENV["GOOGLE_CLIENT_SECRET"],
-      scope: "email,profile",
-      prompt: "select_account",
-      image_aspect_ratio: "square",
-      image_size: 50
+      {
+        scope: "email,profile",
+        prompt: "select_account",
+        image_aspect_ratio: "square",
+        image_size: 50,
+        provider_ignores_state: true
+      }
   end
 
   # Apple OAuth - Set these in your environment variables
