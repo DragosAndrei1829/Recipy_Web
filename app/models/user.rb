@@ -118,21 +118,71 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(auth)
-    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
-      user.email = auth.info.email
-      user.username = auth.info.email&.split("@")&.first || "user_#{SecureRandom.hex(4)}"
-      user.password = Devise.friendly_token[0, 20]
-      # Download avatar if available
-      if auth.info.image.present?
-        begin
-          require "open-uri"
-          downloaded_image = URI.open(auth.info.image)
-          user.avatar.attach(io: downloaded_image, filename: "avatar.jpg")
-        rescue => e
-          Rails.logger.error "Failed to download avatar: #{e.message}"
+    # First try to find by OAuth identity
+    oauth_identity = OauthIdentity.find_by(provider: auth.provider, uid: auth.uid)
+    return oauth_identity.user if oauth_identity
+
+    # Then try to find by provider/uid on user (legacy)
+    user = find_by(provider: auth.provider, uid: auth.uid)
+    
+    # Then try to find by email
+    user ||= find_by(email: auth.info.email)
+    
+    if user
+      # Update OAuth info if user exists
+      user.update(provider: auth.provider, uid: auth.uid) if user.provider.blank?
+      # Create OAuth identity link
+      user.oauth_identities.find_or_create_by(provider: auth.provider, uid: auth.uid)
+    else
+      # Create new user
+      user = new(
+        email: auth.info.email,
+        provider: auth.provider,
+        uid: auth.uid,
+        username: generate_unique_username(auth.info.email, auth.info.name),
+        first_name: auth.info.first_name || auth.info.name&.split&.first,
+        last_name: auth.info.last_name || auth.info.name&.split&.drop(1)&.join(" "),
+        password: Devise.friendly_token[0, 20],
+        terms_accepted: true,
+        privacy_policy_accepted: true
+      )
+      
+      # Skip email confirmation for OAuth users
+      user.skip_confirmation! if user.respond_to?(:skip_confirmation!)
+      user.confirmed_at = Time.current
+      
+      if user.save
+        # Create OAuth identity
+        user.oauth_identities.create(provider: auth.provider, uid: auth.uid)
+        
+        # Download avatar if available
+        if auth.info.image.present?
+          begin
+            require "open-uri"
+            downloaded_image = URI.open(auth.info.image)
+            user.avatar.attach(io: downloaded_image, filename: "avatar.jpg", content_type: "image/jpeg")
+          rescue => e
+            Rails.logger.error "Failed to download avatar: #{e.message}"
+          end
         end
       end
     end
+    
+    user
+  end
+
+  def self.generate_unique_username(email, name)
+    base = name&.parameterize&.underscore || email&.split("@")&.first || "user"
+    base = base.gsub(/[^a-z0-9_]/, "")[0, 15]
+    username = base
+    
+    counter = 1
+    while exists?(username: username)
+      username = "#{base[0, 12]}#{counter}"
+      counter += 1
+    end
+    
+    username
   end
 
   # Allow authentication with username or email via :login parameter
