@@ -56,6 +56,9 @@ class User < ApplicationRecord
   # Reports (as target)
   has_many :reports, as: :reportable, dependent: :destroy
 
+  # OAuth identities
+  has_many :oauth_identities, dependent: :destroy
+
   # Theme preference
   belongs_to :theme, optional: true
 

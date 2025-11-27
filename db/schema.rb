@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_26_103513) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_27_144555) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -157,6 +157,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_103513) do
     t.index ["read"], name: "index_notifications_on_read"
     t.index ["recipe_id"], name: "index_notifications_on_recipe_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "oauth_identities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["provider", "uid"], name: "index_oauth_identities_on_provider_and_uid", unique: true
+    t.index ["user_id"], name: "index_oauth_identities_on_user_id"
   end
 
   create_table "recipes", force: :cascade do |t|
@@ -329,6 +339,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_103513) do
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
   add_foreign_key "notifications", "users"
+  add_foreign_key "oauth_identities", "users"
   add_foreign_key "recipes", "categories"
   add_foreign_key "recipes", "cuisines"
   add_foreign_key "recipes", "food_types"

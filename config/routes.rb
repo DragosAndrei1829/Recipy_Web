@@ -16,6 +16,10 @@ Rails.application.routes.draw do
       post "auth/resend_confirmation", to: "auth#resend_confirmation"
       get "auth/me", to: "auth#me"
 
+      # OAuth
+      post "auth/google", to: "auth#google"
+      post "auth/apple", to: "auth#apple"
+
       # Recipes
       resources :recipes, only: [ :index, :show, :create, :update, :destroy ] do
         collection do

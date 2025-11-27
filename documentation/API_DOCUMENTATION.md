@@ -173,6 +173,178 @@ Authorization: Bearer <refresh_token>
 
 ---
 
+### Google OAuth (Mobile)
+
+**POST** `/auth/google`
+
+Authenticate using Google Sign-In from mobile app. Send the Google ID token received from Google Sign-In SDK.
+
+**Request Body:**
+```json
+{
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiJ9...",
+    "expires_in": 604800,
+    "user": {
+      "id": 1,
+      "email": "user@gmail.com",
+      "username": "john_doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "avatar_url": "https://...",
+      "email_confirmed": true,
+      "created_at": "2025-01-01T00:00:00Z",
+      "followers_count": 0,
+      "following_count": 0,
+      "recipes_count": 0
+    },
+    "new_user": true
+  }
+}
+```
+
+**Error Response (401 Unauthorized):**
+```json
+{
+  "success": false,
+  "error": "Invalid Google token"
+}
+```
+
+**Flutter Implementation:**
+```dart
+import 'package:google_sign_in/google_sign_in.dart';
+
+final GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: ['email', 'profile'],
+);
+
+Future<void> signInWithGoogle() async {
+  try {
+    final GoogleSignInAccount? account = await _googleSignIn.signIn();
+    if (account == null) return; // User cancelled
+
+    final GoogleSignInAuthentication auth = await account.authentication;
+    final String? idToken = auth.idToken;
+
+    if (idToken == null) throw Exception('No ID token');
+
+    // Send to your API
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/v1/auth/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id_token': idToken}),
+    );
+
+    final data = jsonDecode(response.body);
+    if (data['success']) {
+      // Store token and user data
+      await _saveToken(data['data']['token']);
+      await _saveRefreshToken(data['data']['refresh_token']);
+    }
+  } catch (e) {
+    print('Google sign in failed: $e');
+  }
+}
+```
+
+---
+
+### Apple OAuth (Mobile)
+
+**POST** `/auth/apple`
+
+Authenticate using Apple Sign-In from mobile app. Send the Apple ID token received from Sign in with Apple.
+
+**Request Body:**
+```json
+{
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "full_name": "John Doe",
+  "given_name": "John",
+  "family_name": "Doe"
+}
+```
+
+> **Note:** Apple only provides the user's name on the first login. Store it locally and send it with subsequent requests.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "eyJhbGciOiJIUzI1NiJ9...",
+    "expires_in": 604800,
+    "user": {
+      "id": 1,
+      "email": "user@privaterelay.appleid.com",
+      "username": "john_doe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "avatar_url": null,
+      "email_confirmed": true,
+      "created_at": "2025-01-01T00:00:00Z",
+      "followers_count": 0,
+      "following_count": 0,
+      "recipes_count": 0
+    },
+    "new_user": true
+  }
+}
+```
+
+**Flutter Implementation:**
+```dart
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
+Future<void> signInWithApple() async {
+  try {
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
+
+    final String? idToken = credential.identityToken;
+    if (idToken == null) throw Exception('No ID token');
+
+    // Send to your API
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/v1/auth/apple'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id_token': idToken,
+        'full_name': '${credential.givenName ?? ''} ${credential.familyName ?? ''}'.trim(),
+        'given_name': credential.givenName,
+        'family_name': credential.familyName,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+    if (data['success']) {
+      // Store token and user data
+      await _saveToken(data['data']['token']);
+      await _saveRefreshToken(data['data']['refresh_token']);
+    }
+  } catch (e) {
+    print('Apple sign in failed: $e');
+  }
+}
+```
+
+---
+
 ### Forgot Password
 
 **POST** `/auth/forgot_password`
