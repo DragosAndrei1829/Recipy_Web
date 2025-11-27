@@ -108,6 +108,9 @@ Rails.application.routes.draw do
     omniauth_callbacks: "users/omniauth_callbacks"
   }
 
+  # OAuth failure route
+  get "/users/auth/failure", to: "users/omniauth_callbacks#failure"
+
   # Admin routes (outside locale scope)
   namespace :admin do
     get "/dashboard", to: "admin#index", as: :dashboard
