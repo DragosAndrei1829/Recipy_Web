@@ -82,7 +82,7 @@ module Api
       end
 
       def message_params
-        params.permit(:body, :recipe_id, images: [])
+        params.permit(:body, :recipe_id)
       end
 
       def conversation_json(conversation, full: false)
@@ -115,7 +115,7 @@ module Api
       def message_json(message)
         data = {
           id: message.id,
-          body: message.body || "",
+          body: message.body,
           read: message.read,
           is_mine: message.user_id == current_api_user.id,
           created_at: message.created_at,
@@ -126,42 +126,15 @@ module Api
           }
         }
 
-        # Include images if attached
-        begin
-          if message.images.attached?
-            data[:images] = message.images.map do |image|
-              {
-                id: image.id,
-                url: url_for(image)
-              }
-            end
+        if message.recipe_id.present?
+          recipe = Recipe.find_by(id: message.recipe_id)
+          if recipe
+            data[:shared_recipe] = {
+              id: recipe.id,
+              title: recipe.title,
+              cover_photo_url: recipe.cover_photo ? url_for(recipe.cover_photo) : nil
+            }
           end
-        rescue => e
-          Rails.logger.error "Error loading images for message #{message.id}: #{e.message}"
-        end
-
-        # Include shared recipe if present
-        begin
-          if message.recipe_id.present?
-            Rails.logger.info "Message #{message.id} has recipe_id: #{message.recipe_id}"
-            recipe = Recipe.includes(photos_attachments: :blob).find_by(id: message.recipe_id)
-            if recipe
-              cover_photo = recipe.cover_photo
-              cover_url = cover_photo.present? ? url_for(cover_photo) : nil
-              Rails.logger.info "Found recipe: #{recipe.title}, cover_url: #{cover_url}"
-              
-              data[:shared_recipe] = {
-                id: recipe.id,
-                title: recipe.title,
-                cover_photo_url: cover_url
-              }
-            else
-              Rails.logger.warn "Recipe #{message.recipe_id} not found for message #{message.id}"
-            end
-          end
-        rescue => e
-          Rails.logger.error "Error loading recipe for message #{message.id}: #{e.message}"
-          Rails.logger.error e.backtrace.first(5).join("\n")
         end
 
         data
