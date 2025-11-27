@@ -1,4 +1,9 @@
+<% current_provider ||= AiRecipeAssistant::PROVIDER_LOCAL %>
+
 <%= form_with url: ai_assistant_chat_path, id: "ai-input-form", class: "ai-input-form", data: { turbo_stream: true } do |f| %>
+  <!-- Hidden provider input -->
+  <input type="hidden" name="provider" id="ai-provider-input" value="<%= current_provider %>">
+  
   <div class="flex gap-3">
     <div class="flex-1 relative">
       <%= f.text_field :message, 
@@ -16,15 +21,23 @@
     </div>
     
     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex items-center gap-2">
-      <span class="hidden sm:inline">Trimite</span>
+      <span class="hidden sm:inline">Caută</span>
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
       </svg>
     </button>
   </div>
   
-  <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-    💡 Exemplu: "Am pui, roșii și usturoi. Vreau ceva sănătos la cuptor în 30 de minute"
-  </p>
+  <div class="mt-2 flex items-center justify-between">
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      💡 Exemplu: "Am pui, roșii și usturoi. Vreau ceva sănătos la cuptor în 30 de minute"
+    </p>
+    <span class="text-xs px-2 py-1 rounded-full <%= current_provider == 'local' ? 'bg-green-100 text-green-700' : current_provider == 'llama' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' %>">
+      <%= case current_provider
+          when 'local' then '🔍 Local'
+          when 'llama' then '🦙 Llama'
+          when 'openai' then '✨ OpenAI'
+          end %>
+    </span>
+  </div>
 <% end %>
-

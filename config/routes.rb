@@ -98,6 +98,7 @@ Rails.application.routes.draw do
       # AI Assistant
       scope :ai, as: :ai do
         post "chat", to: "ai_assistant#chat"
+        get "providers", to: "ai_assistant#providers"
         get "conversations", to: "ai_assistant#conversations"
         get "conversations/:id", to: "ai_assistant#show_conversation", as: :conversation
         delete "conversations/:id", to: "ai_assistant#destroy_conversation"
@@ -241,6 +242,8 @@ Rails.application.routes.draw do
     post "/chef-ai/chat", to: "ai_assistant#chat", as: :ai_assistant_chat
     delete "/chef-ai/clear", to: "ai_assistant#clear_conversation", as: :clear_ai_conversation
     post "/chef-ai/save_recipe", to: "ai_assistant#save_recipe", as: :ai_assistant_save_recipe
+    post "/chef-ai/set_provider", to: "ai_assistant#set_provider", as: :set_ai_provider
+    post "/chef-ai/generate", to: "ai_assistant#generate", as: :ai_assistant_generate
   end
 
 

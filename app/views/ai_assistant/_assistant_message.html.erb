@@ -3,10 +3,23 @@
     <% if response.is_a?(Hash) %>
       <!-- AI Response with structured data -->
       <div class="space-y-4">
+        <!-- Provider Badge -->
+        <% if response["ai_provider"] %>
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2 py-0.5 rounded-full <%= response['ai_provider'] == 'local' ? 'bg-green-100 text-green-700' : response['ai_provider'] == 'llama' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' %>">
+              <%= case response["ai_provider"]
+                  when 'local' then '🔍 Căutare locală'
+                  when 'llama' then '🦙 Generat cu Llama'
+                  when 'openai' then '✨ Generat cu OpenAI'
+                  end %>
+            </span>
+          </div>
+        <% end %>
+        
         <!-- Main Message -->
         <% if response["message"].present? %>
-          <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
-            <%= response["message"] %>
+          <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-line">
+            <%= response["message"].gsub(/\*\*(.+?)\*\*/, '<strong>\1</strong>').html_safe %>
           </p>
         <% end %>
         
@@ -15,7 +28,7 @@
           <!-- Recipe Recommendations -->
           <% if response["matching_recipes"].present? %>
             <div class="mt-4 space-y-3">
-              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rețete recomandate</p>
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rețete găsite în comunitate</p>
               <% response["matching_recipes"].each_with_index do |recipe, index| %>
                 <div class="bg-white dark:bg-gray-600 rounded-xl p-3 border border-gray-200 dark:border-gray-500 hover:shadow-md transition-shadow">
                   <div class="flex justify-between items-start">
@@ -25,7 +38,7 @@
                       </h4>
                       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         de <%= recipe["user"] %> • 
-                        <span class="text-emerald-600"><%= recipe["match_percentage"] %>% potrivire</span>
+                        <span class="text-emerald-600 font-medium"><%= recipe["match_percentage"] %>% potrivire</span>
                       </p>
                     </div>
                     <span class="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-medium">
@@ -52,6 +65,30 @@
                   <% end %>
                 </div>
               <% end %>
+            </div>
+          <% end %>
+          
+        <% when "no_match" %>
+          <!-- No matches found - offer AI generation -->
+          <% if response["can_generate"] %>
+            <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+              <p class="text-sm font-medium text-purple-800 dark:text-purple-300 mb-3">🤖 Vrei să generez o rețetă cu AI?</p>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" 
+                        class="generate-ai-btn px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        data-provider="llama"
+                        data-ingredients='<%= response["ingredients"].to_json %>'>
+                  🦙 Generează cu Llama (gratuit)
+                </button>
+                <% if ENV["OPENAI_API_KEY"].present? %>
+                  <button type="button" 
+                          class="generate-ai-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                          data-provider="openai"
+                          data-ingredients='<%= response["ingredients"].to_json %>'>
+                    ✨ Generează cu OpenAI
+                  </button>
+                <% end %>
+              </div>
             </div>
           <% end %>
           
@@ -85,7 +122,7 @@
               </div>
               
               <div class="space-y-3">
-                <details class="group">
+                <details class="group" open>
                   <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
                     <svg class="w-4 h-4 transform group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -128,18 +165,11 @@
             </div>
           <% end %>
           
-          <% if response["additional_ingredients_needed"].present? && response["additional_ingredients_needed"].any? %>
-            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm">
-              <span class="font-medium text-blue-700 dark:text-blue-300">🛒 Ingrediente adiționale necesare:</span>
-              <span class="text-blue-600 dark:text-blue-400"><%= response["additional_ingredients_needed"].join(", ") %></span>
-            </div>
-          <% end %>
-          
         <% when "insufficient_ingredients" %>
           <!-- Not enough ingredients -->
           <% if response["suggested_ingredients"].present? %>
             <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-              <p class="text-sm font-medium text-amber-700 dark:text-amber-300 mb-2">🛒 Ingrediente sugerate de cumpărat:</p>
+              <p class="text-sm font-medium text-amber-700 dark:text-amber-300 mb-2">🛒 Ingrediente sugerate:</p>
               <div class="flex flex-wrap gap-2">
                 <% response["suggested_ingredients"].each do |ing| %>
                   <span class="px-2 py-1 bg-amber-100 dark:bg-amber-800/30 text-amber-700 dark:text-amber-300 rounded-lg text-xs">
@@ -161,9 +191,17 @@
             </div>
           <% end %>
           
+        <% when "need_clarification" %>
+          <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-600 dark:text-blue-400">
+            💬 Încearcă să formulezi diferit, de exemplu: "Am pui, cartofi și ceapă"
+          </div>
+          
         <% when "error" %>
           <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm text-red-600 dark:text-red-400">
             ⚠️ <%= response["message"] %>
+            <% if response["error"] %>
+              <br><span class="text-xs opacity-75">Detalii: <%= response["error"] %></span>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -179,6 +217,7 @@
 <script>
 // Handle save recipe button
 document.addEventListener('click', function(e) {
+  // Save recipe button
   if (e.target.classList.contains('save-ai-recipe-btn') || e.target.closest('.save-ai-recipe-btn')) {
     const btn = e.target.classList.contains('save-ai-recipe-btn') ? e.target : e.target.closest('.save-ai-recipe-btn');
     const recipeData = JSON.parse(btn.dataset.recipe);
@@ -220,6 +259,32 @@ document.addEventListener('click', function(e) {
       btn.disabled = false;
     });
   }
+  
+  // Generate with AI button
+  if (e.target.classList.contains('generate-ai-btn') || e.target.closest('.generate-ai-btn')) {
+    const btn = e.target.classList.contains('generate-ai-btn') ? e.target : e.target.closest('.generate-ai-btn');
+    const provider = btn.dataset.provider;
+    const ingredients = JSON.parse(btn.dataset.ingredients);
+    
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Se generează...';
+    
+    // Submit a new message with the AI provider
+    const input = document.getElementById('ai-message-input');
+    const providerInput = document.getElementById('ai-provider-input');
+    
+    if (input && providerInput) {
+      providerInput.value = provider;
+      input.value = `Generează o rețetă cu: ${ingredients.join(', ')}`;
+      document.getElementById('ai-input-form').requestSubmit();
+    }
+    
+    // Reset button after a delay
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }, 2000);
+  }
 });
 </script>
-

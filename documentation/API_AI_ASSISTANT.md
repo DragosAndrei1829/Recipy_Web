@@ -2,13 +2,18 @@
 
 ## Overview
 
-Chef AI este un asistent culinar inteligent care ajută utilizatorii să găsească sau să creeze rețete bazate pe ingredientele disponibile.
+Chef AI este un asistent culinar inteligent cu **sistem în 3 niveluri**:
 
-### Funcționalități principale:
-- **Parsare ingrediente** - Extrage ingredientele din mesajul utilizatorului
-- **Matching rețete** - Găsește rețete existente care se potrivesc cu ingredientele
-- **Generare rețete** - Creează rețete noi când nu există match-uri
-- **Sugestii ingrediente** - Recomandă ingrediente suplimentare dacă sunt prea puține
+1. **🔍 Local (GRATUIT)** - Caută în rețetele existente din comunitate
+2. **🦙 Llama (GRATUIT)** - Generează rețete cu AI local (Ollama/Llama 3.1)
+3. **✨ OpenAI (PREMIUM)** - Generare cu GPT-4 (opțional, necesită API key)
+
+### Flux de funcționare:
+```
+User Message → Parse Local → Search Recipes → Found? 
+                                              ├── YES → Return recommendations (FREE)
+                                              └── NO → Generate with AI (Llama FREE / OpenAI PAID)
+```
 
 ---
 
@@ -37,69 +42,86 @@ Trimite un mesaj către AI și primește răspunsul.
 ```json
 {
   "message": "Am pui, roșii și usturoi. Ce pot găti?",
-  "conversation_id": "optional-uuid-for-context"
+  "provider": "local",
+  "conversation_id": "optional-uuid"
 }
 ```
 
-#### Response - Recommendation (când există rețete potrivite)
+#### Provider Options:
+| Provider | Cost | Descriere |
+|----------|------|-----------|
+| `local` | Gratuit | Caută doar în rețete existente |
+| `llama` | Gratuit | Generează cu Llama 3.1 (necesită Ollama) |
+| `openai` | Plătit | Generează cu GPT-4 (necesită API key) |
+
+#### Response - Recommendation (rețete găsite)
 ```json
 {
   "success": true,
   "data": {
-    "conversation_id": "uuid-string",
+    "conversation_id": "uuid",
     "response": {
-      "message": "Am găsit câteva rețete perfecte pentru ingredientele tale! Îți recomand...",
+      "message": "🎉 Am găsit 3 rețete care se potrivesc...",
       "type": "recommendation",
+      "ai_provider": "local",
       "recommended_recipe_id": 123,
       "alternatives": [124, 125],
-      "missing_ingredients_suggestions": [
-        "Poți înlocui roșiile proaspete cu roșii din conservă"
-      ],
       "matching_recipes": [
         {
           "id": 123,
-          "title": "Pui cu roșii și usturoi la cuptor",
-          "description": "O rețetă delicioasă...",
-          "difficulty": 2,
-          "time_to_make": 45,
-          "healthiness": 4,
-          "likes_count": 156,
-          "user": "chef_maria",
-          "category": "Feluri principale",
-          "cuisine": "Românească",
+          "title": "Pui cu roșii și usturoi",
           "match_percentage": 95,
           "matched_ingredients": ["pui", "roșii", "usturoi"],
-          "missing_ingredients": ["ceapă", "ardei"]
+          "missing_ingredients": ["ceapă"],
+          "time_to_make": 45,
+          "difficulty": 2,
+          "likes_count": 156,
+          "user": "chef_maria"
         }
       ]
     },
+    "provider_used": "local",
     "timestamp": "2025-11-27T15:30:00Z"
   }
 }
 ```
 
-#### Response - Generated Recipe (când nu există match-uri)
+#### Response - No Match (oferă generare AI)
 ```json
 {
   "success": true,
   "data": {
-    "conversation_id": "uuid-string",
     "response": {
-      "message": "Nu am găsit rețete existente, dar am creat una specială pentru tine!",
+      "message": "😕 Nu am găsit rețete în baza noastră...",
+      "type": "no_match",
+      "ai_provider": "local",
+      "ingredients": ["pui", "roșii", "usturoi"],
+      "can_generate": true
+    }
+  }
+}
+```
+
+#### Response - Generated Recipe (de la Llama/OpenAI)
+```json
+{
+  "success": true,
+  "data": {
+    "response": {
+      "message": "🍳 Am creat o rețetă specială pentru tine!",
       "type": "generated_recipe",
+      "ai_provider": "llama",
       "recipe": {
         "title": "Pui aromat cu roșii și usturoi",
         "description": "O rețetă simplă și delicioasă...",
-        "ingredients": "- 500g piept de pui\n- 4 roșii mari\n- 6 căței de usturoi\n- 2 linguri ulei de măsline\n- Sare și piper după gust",
-        "preparation": "1. Tăiați pieptul de pui în cuburi\n2. Încălziți uleiul într-o tigaie\n3. ...",
+        "ingredients": "- 500g piept de pui\n- 4 roșii mari\n...",
+        "preparation": "1. Tăiați puiul...\n2. Încălziți uleiul...",
         "time_to_make": 30,
         "difficulty": 2,
         "healthiness": 4,
-        "tips": "Pentru mai mult gust, marinați puiul 30 de minute înainte"
-      },
-      "additional_ingredients_needed": ["ulei de măsline", "sare", "piper"]
-    },
-    "timestamp": "2025-11-27T15:30:00Z"
+        "tips": "Pentru mai mult gust, marinați 30 min"
+      }
+    }
   }
 }
 ```
@@ -109,32 +131,66 @@ Trimite un mesaj către AI și primește răspunsul.
 {
   "success": true,
   "data": {
-    "conversation_id": "uuid-string",
     "response": {
-      "message": "Ai doar 2 ingrediente. Pentru o rețetă completă ai nevoie de cel puțin 3-4.",
+      "message": "📝 Ai doar 2 ingrediente...",
       "type": "insufficient_ingredients",
-      "suggested_ingredients": ["ceapă", "morcovi", "cartofi", "ulei"],
-      "possible_recipes_with_additions": [
-        "Tocăniță de pui cu legume",
-        "Supă de pui"
-      ]
-    },
-    "timestamp": "2025-11-27T15:30:00Z"
+      "ai_provider": "local",
+      "suggested_ingredients": ["ceapă", "ulei", "sare"],
+      "possible_recipes_with_additions": ["Pui la tigaie", "Supă de pui"]
+    }
   }
-}
-```
-
-#### Error Response
-```json
-{
-  "success": false,
-  "error": "Message is required"
 }
 ```
 
 ---
 
-## 2. Salvare Rețetă Generată
+## 2. Lista Provideri Disponibili
+
+### `GET /api/v1/ai/providers`
+
+Returnează lista de provideri AI disponibili.
+
+#### Response
+```json
+{
+  "success": true,
+  "data": {
+    "providers": [
+      {
+        "id": "local",
+        "name": "Căutare Locală",
+        "description": "Caută în rețetele existente",
+        "available": true,
+        "cost": "Gratuit",
+        "icon": "🔍"
+      },
+      {
+        "id": "llama",
+        "name": "Llama 3.1",
+        "description": "Generează rețete cu AI local",
+        "available": true,
+        "cost": "Gratuit",
+        "icon": "🦙",
+        "setup_required": false
+      },
+      {
+        "id": "openai",
+        "name": "OpenAI GPT-4",
+        "description": "Generare premium",
+        "available": false,
+        "cost": "Premium",
+        "icon": "✨",
+        "setup_required": true
+      }
+    ],
+    "default": "local"
+  }
+}
+```
+
+---
+
+## 3. Salvare Rețetă Generată
 
 ### `POST /api/v1/ai/save_recipe`
 
@@ -144,10 +200,10 @@ Salvează o rețetă generată de AI în profilul utilizatorului.
 ```json
 {
   "recipe": {
-    "title": "Pui aromat cu roșii și usturoi",
-    "description": "O rețetă simplă și delicioasă...",
-    "ingredients": "- 500g piept de pui\n- 4 roșii mari\n...",
-    "preparation": "1. Tăiați pieptul de pui...",
+    "title": "Pui aromat cu roșii",
+    "description": "O rețetă delicioasă...",
+    "ingredients": "- 500g pui\n- 4 roșii...",
+    "preparation": "1. Tăiați puiul...",
     "time_to_make": 30,
     "difficulty": 2,
     "healthiness": 4
@@ -163,7 +219,7 @@ Salvează o rețetă generată de AI în profilul utilizatorului.
     "message": "Recipe saved successfully",
     "recipe": {
       "id": 456,
-      "title": "Pui aromat cu roșii și usturoi",
+      "title": "Pui aromat cu roșii",
       "created_at": "2025-11-27T15:35:00Z"
     }
   }
@@ -172,97 +228,24 @@ Salvează o rețetă generată de AI în profilul utilizatorului.
 
 ---
 
-## 3. Lista Conversații
-
-### `GET /api/v1/ai/conversations`
-
-Returnează istoricul conversațiilor utilizatorului cu AI.
-
-#### Response
-```json
-{
-  "success": true,
-  "data": {
-    "conversations": [
-      {
-        "id": "uuid-1",
-        "title": "Rețete cu pui",
-        "last_message": "Am găsit câteva rețete perfecte...",
-        "updated_at": "2025-11-27T15:30:00Z",
-        "message_count": 5
-      }
-    ]
-  }
-}
-```
-
----
-
-## 4. Detalii Conversație
-
-### `GET /api/v1/ai/conversations/:id`
-
-Returnează o conversație specifică cu toate mesajele.
-
-#### Response
-```json
-{
-  "success": true,
-  "data": {
-    "id": "uuid-1",
-    "title": "Rețete cu pui",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Am pui, roșii și usturoi",
-        "timestamp": "2025-11-27T15:28:00Z"
-      },
-      {
-        "role": "assistant",
-        "content": { /* response object */ },
-        "timestamp": "2025-11-27T15:28:05Z"
-      }
-    ],
-    "created_at": "2025-11-27T15:28:00Z"
-  }
-}
-```
-
----
-
-## 5. Ștergere Conversație
-
-### `DELETE /api/v1/ai/conversations/:id`
-
-Șterge o conversație.
-
-#### Response
-```json
-{
-  "success": true,
-  "data": {
-    "message": "Conversation deleted"
-  }
-}
-```
-
----
-
-## Flutter Implementation Example
+## Flutter Implementation
 
 ### Service Class
 
 ```dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 class AiAssistantService {
   final String baseUrl;
   final String authToken;
 
   AiAssistantService({required this.baseUrl, required this.authToken});
 
-  Future<Map<String, dynamic>> chat(String message, {String? conversationId}) async {
+  /// Chat with AI - uses 3-tier system
+  /// provider: "local" (free), "llama" (free), "openai" (paid)
+  Future<Map<String, dynamic>> chat(
+    String message, {
+    String provider = 'local',
+    String? conversationId,
+  }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/v1/ai/chat'),
       headers: {
@@ -271,6 +254,7 @@ class AiAssistantService {
       },
       body: jsonEncode({
         'message': message,
+        'provider': provider,
         if (conversationId != null) 'conversation_id': conversationId,
       }),
     );
@@ -278,130 +262,74 @@ class AiAssistantService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to get AI response: ${response.body}');
+      throw Exception('AI chat failed: ${response.body}');
     }
   }
 
-  Future<Map<String, dynamic>> saveRecipe(Map<String, dynamic> recipeData) async {
+  /// Get available AI providers
+  Future<List<Map<String, dynamic>>> getProviders() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/v1/ai/providers'),
+      headers: {'Authorization': 'Bearer $authToken'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data['data']['providers']);
+    }
+    return [];
+  }
+
+  /// Save AI-generated recipe
+  Future<Map<String, dynamic>> saveRecipe(Map<String, dynamic> recipe) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/v1/ai/save_recipe'),
       headers: {
         'Authorization': 'Bearer $authToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({'recipe': recipeData}),
+      body: jsonEncode({'recipe': recipe}),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to save recipe: ${response.body}');
     }
+    throw Exception('Save failed: ${response.body}');
   }
 }
 ```
 
-### Usage in Flutter Widget
+### Usage Example
 
 ```dart
-class AiChatScreen extends StatefulWidget {
-  @override
-  _AiChatScreenState createState() => _AiChatScreenState();
+final aiService = AiAssistantService(
+  baseUrl: 'https://api.recipy.com',
+  authToken: userToken,
+);
+
+// Step 1: Try local search first (FREE)
+var result = await aiService.chat(
+  'Am pui, roșii și usturoi',
+  provider: 'local',
+);
+
+if (result['data']['response']['type'] == 'no_match') {
+  // Step 2: Generate with Llama (FREE)
+  result = await aiService.chat(
+    'Am pui, roșii și usturoi',
+    provider: 'llama',
+  );
 }
 
-class _AiChatScreenState extends State<AiChatScreen> {
-  final TextEditingController _messageController = TextEditingController();
-  final List<Map<String, dynamic>> _messages = [];
-  String? _conversationId;
-  bool _isLoading = false;
-
-  Future<void> _sendMessage() async {
-    final message = _messageController.text.trim();
-    if (message.isEmpty) return;
-
-    setState(() {
-      _messages.add({'role': 'user', 'content': message});
-      _isLoading = true;
-    });
-    _messageController.clear();
-
-    try {
-      final response = await AiAssistantService(
-        baseUrl: 'https://your-api.com',
-        authToken: 'your-jwt-token',
-      ).chat(message, conversationId: _conversationId);
-
-      if (response['success']) {
-        final data = response['data'];
-        _conversationId = data['conversation_id'];
-        
-        setState(() {
-          _messages.add({
-            'role': 'assistant',
-            'content': data['response'],
-          });
-        });
-      }
-    } catch (e) {
-      // Handle error
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Chef AI')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return _buildMessageBubble(msg);
-              },
-            ),
-          ),
-          if (_isLoading) LinearProgressIndicator(),
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(Map<String, dynamic> message) {
-    final isUser = message['role'] == 'user';
-    // Build UI based on message type
-    // ...
-  }
-
-  Widget _buildInputArea() {
-    return Padding(
-      padding: EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Ce ingrediente ai?',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 8),
-          IconButton(
-            icon: Icon(Icons.send),
-            onPressed: _sendMessage,
-          ),
-        ],
-      ),
-    );
-  }
+// Display result
+if (result['data']['response']['type'] == 'recommendation') {
+  // Show matching recipes
+  final recipes = result['data']['response']['matching_recipes'];
+  // ...
+} else if (result['data']['response']['type'] == 'generated_recipe') {
+  // Show generated recipe
+  final recipe = result['data']['response']['recipe'];
+  // ...
 }
 ```
 
@@ -409,32 +337,55 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
 ## Response Types Summary
 
-| Type | Când apare | Ce conține |
-|------|------------|------------|
-| `recommendation` | Există rețete potrivite | Lista de rețete cu scor de potrivire |
-| `generated_recipe` | Nu există match-uri, suficiente ingrediente | Rețetă nouă generată de AI |
-| `insufficient_ingredients` | Prea puține ingrediente (<3) | Sugestii de ingrediente și idei |
-| `error` | Eroare la procesare | Mesaj de eroare |
+| Type | Provider | Când apare |
+|------|----------|------------|
+| `recommendation` | local | Rețete găsite în DB |
+| `no_match` | local | Nu s-au găsit rețete |
+| `generated_recipe` | llama/openai | Rețetă generată de AI |
+| `insufficient_ingredients` | local | Prea puține ingrediente (<3) |
+| `need_clarification` | local | Nu s-au identificat ingrediente |
+| `error` | any | Eroare la procesare |
 
 ---
 
-## Rate Limiting
+## Setup Ollama (pentru Llama gratuit)
 
-- **Limită:** 20 requests/minut per utilizator
-- **Headers în răspuns:**
-  - `X-RateLimit-Limit`: 20
-  - `X-RateLimit-Remaining`: requests rămase
-  - `X-RateLimit-Reset`: timestamp reset
+### Instalare Ollama
+```bash
+# macOS
+brew install ollama
 
----
-
-## Configurare OpenAI
-
-Pentru a funcționa, backend-ul necesită:
-
-```env
-OPENAI_API_KEY=sk-your-openai-api-key
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-Model folosit: `gpt-4o-mini` (cost-effective și rapid)
+### Descarcă Llama 3.1
+```bash
+ollama pull llama3.1:8b
+```
 
+### Pornește serverul
+```bash
+ollama serve
+```
+
+### Configurare în .env
+```env
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.1:8b
+```
+
+---
+
+## Costuri Estimate
+
+| Provider | Cost per request | Recomandare |
+|----------|-----------------|-------------|
+| Local | $0 | ✅ Folosește mereu primul |
+| Llama | $0 (self-hosted) | ✅ Pentru generare gratuită |
+| OpenAI | ~$0.002 | ⚠️ Doar când e necesar |
+
+**Strategie recomandată:**
+1. Întotdeauna caută local mai întâi
+2. Oferă Llama ca opțiune de generare gratuită
+3. OpenAI doar pentru utilizatori premium sau când Llama nu e disponibil
