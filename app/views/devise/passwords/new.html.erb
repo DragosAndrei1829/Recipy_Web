@@ -1,64 +1,52 @@
 <div class="auth-shell">
   <div class="auth-grid">
     <section class="auth-sidebar">
-      <p class="text-xs uppercase tracking-[0.3em] text-white/60 font-semibold mb-4">RECIPY</p>
+      <p class="text-xs uppercase tracking-[0.25em] text-white/50 font-medium mb-3">RECIPY</p>
       <h2>Reset Your<br>Password</h2>
-      <p class="text-white/80 leading-relaxed text-sm mt-4">
-        Îți trimitem un link securizat pentru resetarea parolei. Verifică și folderul de spam dacă nu găsești imediat mesajul.
+      <p class="text-white/70 leading-relaxed text-sm mt-4">
+        Îți trimitem un link securizat pentru resetarea parolei. Verifică și spam-ul.
       </p>
       <div class="pill-list">
         <span>Reset instant</span>
         <span>Link unic</span>
-        <span>Monitorizare</span>
+        <span>Securitate</span>
       </div>
-      <div class="mt-6 space-y-3 text-white/70 text-sm leading-relaxed">
-        <div class="flex items-start gap-2">
-          <svg class="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+      <div class="mt-6 space-y-2 text-white/60 text-sm">
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <p>Linkul de reset expiră în 30 de minute.</p>
-        </div>
-        <div class="flex items-start gap-2">
-          <svg class="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          <p>Recomandăm să activezi verificarea în doi pași.</p>
+          <span>Linkul expiră în 30 minute</span>
         </div>
       </div>
-      <div class="auth-links">
-        <strong class="text-white text-sm"><%= t('devise.passwords.back_to_login') %></strong>
-        <%= link_to t('devise.sessions.sign_in'),
-                    new_user_session_path,
-                    class: "sidebar-cta sidebar-cta--light" %>
+      <div class="auth-links mt-8">
+        <span class="text-white/60 text-sm">Îți amintești parola?</span>
+        <%= link_to "Conectează-te", new_user_session_path, class: "sidebar-cta sidebar-cta--light" %>
       </div>
     </section>
 
     <section class="auth-panel">
-      <h1><%= t('devise.passwords.forgot_password') %></h1>
-      <p class="lead"><%= t('devise.passwords.enter_email') %></p>
+      <h1>Recipy</h1>
+      <p class="lead">Resetare parolă</p>
 
       <% if resource.errors.any? %>
-        <%= render 'shared/error_message', errors: resource.errors.full_messages, emoji: "📨" %>
+        <div class="auth-alert auth-alert--danger mb-4">
+          <%= resource.errors.full_messages.first %>
+        </div>
       <% end %>
       <% if notice %>
-        <div class="auth-alert auth-alert--success mb-4">
-          <span><%= notice %></span>
-        </div>
+        <div class="auth-alert auth-alert--success mb-4"><%= notice %></div>
       <% end %>
       <% if alert %>
-        <div class="auth-alert auth-alert--danger mb-4">
-          <span><%= alert %></span>
-        </div>
+        <div class="auth-alert auth-alert--danger mb-4"><%= alert %></div>
       <% end %>
 
       <%- if devise_mapping.omniauthable? && resource_class.omniauth_providers.any? %>
-        <div class="space-y-3 mb-6">
+        <div class="space-y-3 mb-4">
           <%- resource_class.omniauth_providers.each do |provider| %>
             <% if provider == :google_oauth2 %>
               <%= button_to omniauth_authorize_path(resource_name, provider), 
-                  method: :post,
-                  data: { turbo: false },
-                  class: "flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-white border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all" do %>
+                  method: :post, data: { turbo: false }, class: "auth-oauth-btn auth-oauth-btn--google" do %>
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -69,9 +57,7 @@
               <% end %>
             <% elsif provider == :apple %>
               <%= button_to omniauth_authorize_path(resource_name, provider), 
-                  method: :post,
-                  data: { turbo: false },
-                  class: "flex items-center justify-center gap-3 w-full px-4 py-3.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-all" do %>
+                  method: :post, data: { turbo: false }, class: "auth-oauth-btn auth-oauth-btn--apple" do %>
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                 </svg>
@@ -80,23 +66,17 @@
             <% end %>
           <% end %>
         </div>
-
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-slate-200"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-3 bg-white text-slate-400">sau resetează cu email</span>
-          </div>
-        </div>
+        <div class="auth-divider">sau resetează cu email</div>
       <% end %>
 
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form space-y-5" }) do |f| %>
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form space-y-4" }) do |f| %>
         <div>
-          <%= f.label :email, t('devise.passwords.email'), class: "text-sm font-medium text-slate-600 mb-2 block" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true %>
+          <%= f.label :email, "Email", class: "text-xs font-medium text-slate-500 mb-1.5 block uppercase tracking-wide" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, placeholder: "email@exemplu.com" %>
         </div>
-        <%= f.submit t('devise.passwords.send_short', default: 'Trimite link de resetare'), class: "auth-btn-primary w-full justify-center" %>
+        <div class="pt-2">
+          <%= f.submit "Trimite link de resetare", class: "auth-btn-primary w-full" %>
+        </div>
       <% end %>
     </section>
   </div>
