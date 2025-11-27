@@ -95,6 +95,22 @@ Rails.application.routes.draw do
       # Contact/Support
       post "contact", to: "contact#create"
 
+      # Groups
+      resources :groups, only: [:index, :show, :create, :update, :destroy] do
+        collection do
+          post :join
+        end
+        member do
+          delete :leave
+          get :members
+          get :recipes
+          post :recipes, action: :add_recipe
+          delete "recipes/:recipe_id", action: :remove_recipe
+          get :messages
+          post :messages, action: :send_message
+        end
+      end
+
       # AI Assistant
       scope :ai, as: :ai do
         post "chat", to: "ai_assistant#chat"
@@ -213,6 +229,26 @@ Rails.application.routes.draw do
 
     # Top recipes page
     get "/top_recipes", to: "recipes#top_recipes", as: :top_recipes
+
+    # Groups
+    resources :groups do
+      member do
+        get :chat
+        post :send_message
+        get :settings
+        get :members
+        get :recipes
+        post :add_recipe
+        delete :remove_recipe
+        delete :leave
+        post :regenerate_invite
+        patch :update_member_role
+        delete :remove_member
+      end
+      collection do
+        post :join
+      end
+    end
 
     resources :favorites, only: [ :index ]
 

@@ -1,0 +1,56 @@
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all">
+  <% recipe = group_recipe.recipe %>
+  
+  <%= link_to recipe_path(recipe), class: "block" do %>
+    <!-- Image -->
+    <div class="h-40 bg-gradient-to-br from-emerald-400 to-teal-500 relative">
+      <% if recipe.cover_photo&.attached? && recipe.cover_photo.blob.present? %>
+        <%= image_tag recipe.cover_photo.variant(resize_to_fill: [400, 200]), class: "w-full h-full object-cover" %>
+      <% else %>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-5xl opacity-30">🍽️</span>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Content -->
+    <div class="p-4">
+      <h3 class="font-bold text-gray-800 dark:text-white truncate"><%= recipe.title %></h3>
+      
+      <div class="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <span>⏱️ <%= recipe.time_to_make %> min</span>
+        <span>•</span>
+        <span>❤️ <%= recipe.likes_count %></span>
+      </div>
+      
+      <% if group_recipe.note.present? %>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-700 rounded-lg p-2">
+          "<%= truncate(group_recipe.note, length: 80) %>"
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <!-- Footer -->
+  <div class="px-4 pb-4 flex items-center justify-between">
+    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+      <% if group_recipe.added_by.avatar.attached? %>
+        <%= image_tag group_recipe.added_by.avatar.variant(resize_to_fill: [20, 20]), class: "w-5 h-5 rounded-full object-cover" %>
+      <% else %>
+        <div class="w-5 h-5 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center text-white text-[10px] font-bold">
+          <%= group_recipe.added_by.username&.first&.upcase %>
+        </div>
+      <% end %>
+      <span>Adăugat de <%= group_recipe.added_by.username %></span>
+    </div>
+    
+    <% if group.moderator?(current_user) || group_recipe.added_by == current_user %>
+      <%= button_to remove_recipe_group_path(group, recipe_id: recipe.id), method: :delete, data: { turbo_confirm: "Elimini această rețetă din grup?" }, class: "text-red-500 hover:text-red-700 transition-colors" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+

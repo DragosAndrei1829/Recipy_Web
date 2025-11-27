@@ -1,0 +1,148 @@
+<% content_for :title, "Setări - #{@group.name}" %>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Back Link -->
+  <div class="mb-6">
+    <%= link_to group_path(@group), class: "inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 transition-colors" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      Înapoi la <%= @group.name %>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sticky top-24">
+        <h2 class="font-bold text-gray-800 dark:text-white mb-4">Setări grup</h2>
+        <nav class="space-y-1">
+          <a href="#general" class="block px-3 py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium">
+            ⚙️ General
+          </a>
+          <a href="#invite" class="block px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            🔗 Cod invitație
+          </a>
+          <a href="#members" class="block px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            👥 Membri
+          </a>
+          <a href="#danger" class="block px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+            ⚠️ Zonă periculoasă
+          </a>
+        </nav>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- General Settings -->
+      <div id="general" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Setări generale</h3>
+        
+        <%= form_with model: @group, url: group_path(@group), method: :patch, local: true, class: "space-y-4" do |f| %>
+          <div>
+            <%= f.label :name, "Nume grup", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= f.text_field :name, class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white" %>
+          </div>
+          
+          <div>
+            <%= f.label :description, "Descriere", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+            <%= f.text_area :description, rows: 3, class: "w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white resize-none" %>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <%= f.check_box :is_private, class: "w-5 h-5 text-emerald-600 border-gray-300 rounded" %>
+            <%= f.label :is_private, "Grup privat", class: "font-medium text-gray-800 dark:text-white" %>
+          </div>
+          
+          <%= f.submit "Salvează modificările", class: "px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors cursor-pointer" %>
+        <% end %>
+      </div>
+      
+      <!-- Invite Code -->
+      <div id="invite" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Cod de invitație</h3>
+        
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          Distribuie acest cod persoanelor pe care vrei să le adaugi în grup.
+        </p>
+        
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-700 rounded-xl text-center">
+            <span class="text-2xl font-mono font-bold tracking-widest text-emerald-600 dark:text-emerald-400" id="invite-code">
+              <%= @group.invite_code %>
+            </span>
+          </div>
+          <button type="button" onclick="copyInviteCode()" class="px-4 py-4 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Copiază">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+          </button>
+        </div>
+        
+        <%= button_to regenerate_invite_group_path(@group), method: :post, data: { turbo_confirm: "Ești sigur? Codul vechi nu va mai funcționa." }, class: "text-sm text-orange-600 hover:text-orange-700 transition-colors" do %>
+          🔄 Regenerează codul (invalidează codul vechi)
+        <% end %>
+      </div>
+      
+      <!-- Members -->
+      <div id="members" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white">Membri (<%= @group.members_count %>)</h3>
+          <%= link_to members_group_path(@group), class: "text-sm text-emerald-600 hover:text-emerald-700" do %>
+            Gestionează →
+          <% end %>
+        </div>
+        
+        <div class="space-y-2">
+          <% @members.first(5).each do |membership| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+              <div class="flex items-center gap-3">
+                <% if membership.user.avatar.attached? %>
+                  <%= image_tag membership.user.avatar.variant(resize_to_fill: [40, 40]), class: "w-10 h-10 rounded-full object-cover" %>
+                <% else %>
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center text-white font-bold">
+                    <%= membership.user.username&.first&.upcase %>
+                  </div>
+                <% end %>
+                <div>
+                  <p class="font-medium text-gray-800 dark:text-white"><%= membership.user.username %></p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <%= case membership.role
+                        when 'admin' then '👑 Admin'
+                        when 'moderator' then '🛡️ Moderator'
+                        else '👤 Membru'
+                        end %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <!-- Danger Zone -->
+      <div id="danger" class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-red-200 dark:border-red-800 p-6">
+        <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-4">⚠️ Zonă periculoasă</h3>
+        
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+          Ștergerea grupului este permanentă și nu poate fi anulată. Toate rețetele și mesajele vor fi șterse.
+        </p>
+        
+        <%= button_to group_path(@group), method: :delete, data: { turbo_confirm: "Ești ABSOLUT sigur că vrei să ștergi acest grup? Această acțiune NU poate fi anulată!" }, class: "px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors" do %>
+          🗑️ Șterge grupul permanent
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyInviteCode() {
+  const code = document.getElementById('invite-code').textContent.trim();
+  navigator.clipboard.writeText(code).then(() => {
+    alert('Codul a fost copiat!');
+  });
+}
+</script>
+

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_144555) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,6 +102,58 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_144555) do
     t.string "name"
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_food_types_on_name"
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.datetime "joined_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.string "role", default: "member", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["group_id", "user_id"], name: "index_group_memberships_on_group_id_and_user_id", unique: true
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["role"], name: "index_group_memberships_on_role"
+    t.index ["user_id"], name: "index_group_memberships_on_user_id"
+  end
+
+  create_table "group_messages", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["group_id", "created_at"], name: "index_group_messages_on_group_id_and_created_at"
+    t.index ["group_id"], name: "index_group_messages_on_group_id"
+    t.index ["user_id"], name: "index_group_messages_on_user_id"
+  end
+
+  create_table "group_recipes", force: :cascade do |t|
+    t.bigint "added_by_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.text "note"
+    t.bigint "recipe_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["added_by_id"], name: "index_group_recipes_on_added_by_id"
+    t.index ["group_id", "recipe_id"], name: "index_group_recipes_on_group_id_and_recipe_id", unique: true
+    t.index ["group_id"], name: "index_group_recipes_on_group_id"
+    t.index ["recipe_id"], name: "index_group_recipes_on_recipe_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "invite_code", null: false
+    t.boolean "is_private", default: true, null: false
+    t.integer "members_count", default: 0, null: false
+    t.string "name", null: false
+    t.bigint "owner_id", null: false
+    t.integer "recipes_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["invite_code"], name: "index_groups_on_invite_code", unique: true
+    t.index ["name"], name: "index_groups_on_name"
+    t.index ["owner_id"], name: "index_groups_on_owner_id"
   end
 
   create_table "legal_contents", force: :cascade do |t|
@@ -334,6 +386,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_144555) do
   add_foreign_key "favorites", "users"
   add_foreign_key "follows", "users"
   add_foreign_key "follows", "users", column: "follower_id"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "users"
+  add_foreign_key "group_messages", "groups"
+  add_foreign_key "group_messages", "users"
+  add_foreign_key "group_recipes", "groups"
+  add_foreign_key "group_recipes", "recipes"
+  add_foreign_key "group_recipes", "users", column: "added_by_id"
+  add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "recipes"
   add_foreign_key "likes", "users"
   add_foreign_key "messages", "conversations"

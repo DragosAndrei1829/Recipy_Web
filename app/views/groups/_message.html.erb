@@ -1,0 +1,30 @@
+<% is_own_message = message.user == current_user %>
+
+<div class="flex <%= is_own_message ? 'justify-end' : 'justify-start' %>">
+  <div class="flex items-end gap-2 max-w-[75%] <%= is_own_message ? 'flex-row-reverse' : '' %>">
+    <!-- Avatar -->
+    <% unless is_own_message %>
+      <% if message.user.avatar.attached? %>
+        <%= image_tag message.user.avatar.variant(resize_to_fill: [32, 32]), class: "w-8 h-8 rounded-full object-cover flex-shrink-0" %>
+      <% else %>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          <%= message.user.username&.first&.upcase || "?" %>
+        </div>
+      <% end %>
+    <% end %>
+    
+    <!-- Message Bubble -->
+    <div class="<%= is_own_message ? 'bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-2xl rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-2xl rounded-bl-md shadow-sm' %> px-4 py-2">
+      <% unless is_own_message %>
+        <p class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1"><%= message.user.username %></p>
+      <% end %>
+      
+      <p class="text-sm whitespace-pre-wrap break-words"><%= message.content %></p>
+      
+      <p class="text-[10px] <%= is_own_message ? 'text-white/60' : 'text-gray-400' %> mt-1 text-right">
+        <%= message.created_at.strftime("%H:%M") %>
+      </p>
+    </div>
+  </div>
+</div>
+
