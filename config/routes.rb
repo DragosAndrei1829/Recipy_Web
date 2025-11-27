@@ -108,8 +108,10 @@ Rails.application.routes.draw do
     omniauth_callbacks: "users/omniauth_callbacks"
   }
 
-  # OAuth failure route
-  get "/users/auth/failure", to: "users/omniauth_callbacks#failure"
+  # OAuth failure route - must be inside devise_scope
+  devise_scope :user do
+    get "/users/auth/failure", to: "users/omniauth_callbacks#failure"
+  end
 
   # Admin routes (outside locale scope)
   namespace :admin do

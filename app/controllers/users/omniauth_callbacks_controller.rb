@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
-  skip_before_action :verify_authenticity_token, only: [:google_oauth2, :apple, :failure]
+  skip_before_action :verify_authenticity_token, only: [:google_oauth2, :apple, :failure, :passthru]
 
   def google_oauth2
     handle_oauth("Google")
@@ -13,11 +13,26 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     redirect_to "/#{locale}/users/sign_in", alert: "🚧 Sign in with Apple este în lucru. Te rugăm să folosești Google sau email."
   end
 
+  def passthru
+    render status: 404, plain: "Not found. Authentication passthru."
+  end
+
   def failure
     locale = session[:locale] || I18n.default_locale
-    error_message = failure_message || "A apărut o eroare la autentificare"
+    error_type = params[:message] || request.env["omniauth.error.type"]
     
-    Rails.logger.error "OmniAuth failure: #{error_message}"
+    error_message = case error_type&.to_s
+    when "authenticity_error", "csrf_detected"
+      "Te rugăm să încerci din nou."
+    when "invalid_credentials"
+      "Credențiale invalide."
+    when "timeout"
+      "Conexiunea a expirat."
+    else
+      "A apărut o eroare. Te rugăm să încerci din nou."
+    end
+    
+    Rails.logger.error "OmniAuth failure: #{error_type} - #{error_message}"
     
     redirect_to "/#{locale}/users/sign_in", alert: "Autentificarea a eșuat: #{error_message}"
   end
@@ -50,21 +65,5 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def redirect_to_failure(message)
     locale = session[:locale] || I18n.default_locale
     redirect_to "/#{locale}/users/sign_in", alert: message
-  end
-
-  def failure_message
-    exception = request.env["omniauth.error"]
-    error_type = request.env["omniauth.error.type"]
-    
-    case error_type
-    when :csrf_detected, :authenticity_error
-      "Eroare de securitate. Te rugăm să încerci din nou."
-    when :invalid_credentials
-      "Credențiale invalide."
-    when :timeout
-      "Conexiunea a expirat. Te rugăm să încerci din nou."
-    else
-      exception&.message || error_type&.to_s&.humanize || "Eroare necunoscută"
-    end
   end
 end
