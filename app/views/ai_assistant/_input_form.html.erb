@@ -1,0 +1,30 @@
+<%= form_with url: ai_assistant_chat_path, id: "ai-input-form", class: "ai-input-form", data: { turbo_stream: true } do |f| %>
+  <div class="flex gap-3">
+    <div class="flex-1 relative">
+      <%= f.text_field :message, 
+          id: "ai-message-input",
+          class: "w-full px-4 py-3 pr-12 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-800 dark:text-white placeholder-gray-400 transition-all",
+          placeholder: "Scrie ingredientele tale sau ce vrei să gătești...",
+          autocomplete: "off",
+          autofocus: true %>
+      
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+      </div>
+    </div>
+    
+    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 flex items-center gap-2">
+      <span class="hidden sm:inline">Trimite</span>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+      </svg>
+    </button>
+  </div>
+  
+  <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+    💡 Exemplu: "Am pui, roșii și usturoi. Vreau ceva sănătos la cuptor în 30 de minute"
+  </p>
+<% end %>
+

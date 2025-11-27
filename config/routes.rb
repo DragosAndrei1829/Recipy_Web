@@ -94,6 +94,19 @@ Rails.application.routes.draw do
 
       # Contact/Support
       post "contact", to: "contact#create"
+
+      # AI Assistant
+      scope :ai, as: :ai do
+        post "chat", to: "ai_assistant#chat"
+        get "conversations", to: "ai_assistant#conversations"
+        get "conversations/:id", to: "ai_assistant#show_conversation", as: :conversation
+        delete "conversations/:id", to: "ai_assistant#destroy_conversation"
+        post "save_recipe", to: "ai_assistant#save_recipe"
+      end
+
+      # OAuth for mobile
+      post "auth/google", to: "auth#google"
+      post "auth/apple", to: "auth#apple"
     end
   end
   # Language switching route (outside locale scope)
@@ -222,6 +235,12 @@ Rails.application.routes.draw do
 
     # Theme switching
     post "/users/change_theme", to: "users#change_theme", as: :change_theme
+
+    # AI Assistant
+    get "/chef-ai", to: "ai_assistant#index", as: :ai_assistant
+    post "/chef-ai/chat", to: "ai_assistant#chat", as: :ai_assistant_chat
+    delete "/chef-ai/clear", to: "ai_assistant#clear_conversation", as: :clear_ai_conversation
+    post "/chef-ai/save_recipe", to: "ai_assistant#save_recipe", as: :ai_assistant_save_recipe
   end
 
 

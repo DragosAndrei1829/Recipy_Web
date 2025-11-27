@@ -1,0 +1,148 @@
+<% content_for :title, "Chef AI - Asistent Culinar" %>
+
+<div class="ai-assistant-container max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="ai-header bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl p-6 mb-6 text-white shadow-xl">
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+        <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Chef AI</h1>
+        <p class="text-white/80">Spune-mi ce ingrediente ai și te ajut să gătești ceva delicios!</p>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex flex-wrap gap-2">
+      <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">🥗 Rețete sănătoase</span>
+      <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">⏱️ Gătit rapid</span>
+      <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">🍳 La cuptor sau tigaie</span>
+      <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">🌱 Vegetarian/Vegan</span>
+    </div>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="ai-chat-container bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+    <!-- Messages Area -->
+    <div id="ai-messages" class="ai-messages p-6 space-y-4 min-h-[400px] max-h-[60vh] overflow-y-auto">
+      <% if @conversation_history.empty? %>
+        <!-- Welcome Message -->
+        <div class="ai-welcome text-center py-8">
+          <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-full flex items-center justify-center">
+            <span class="text-4xl">👨‍🍳</span>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Bună! Sunt Chef AI</h2>
+          <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+            Spune-mi ce ingrediente ai în bucătărie și îți voi recomanda rețete delicioase sau îți voi crea una nouă!
+          </p>
+          
+          <!-- Quick Suggestions -->
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <button type="button" class="ai-suggestion-btn px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl text-sm text-gray-700 dark:text-gray-300 transition-colors" data-message="Am pui, roșii și usturoi. Ce pot găti?">
+              🍗 Pui, roșii, usturoi
+            </button>
+            <button type="button" class="ai-suggestion-btn px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl text-sm text-gray-700 dark:text-gray-300 transition-colors" data-message="Vreau ceva sănătos cu legume, la cuptor">
+              🥗 Sănătos la cuptor
+            </button>
+            <button type="button" class="ai-suggestion-btn px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl text-sm text-gray-700 dark:text-gray-300 transition-colors" data-message="Am paste, brânză și ouă. Ceva rapid în 20 de minute">
+              🍝 Paste rapide
+            </button>
+            <button type="button" class="ai-suggestion-btn px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-xl text-sm text-gray-700 dark:text-gray-300 transition-colors" data-message="Sunt vegetarian și am cartofi, ciuperci și smântână">
+              🌱 Vegetarian
+            </button>
+          </div>
+        </div>
+      <% else %>
+        <% @conversation_history.each do |msg| %>
+          <% if msg[:role] == "user" %>
+            <%= render "ai_assistant/user_message", message: msg[:content] %>
+          <% else %>
+            <%= render "ai_assistant/assistant_message", response: msg[:content] %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Input Area -->
+    <div class="ai-input-area border-t border-gray-100 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
+      <%= render "ai_assistant/input_form" %>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-4 flex justify-between items-center">
+    <%= link_to clear_ai_conversation_path, method: :delete, class: "text-sm text-gray-500 hover:text-red-500 transition-colors", data: { turbo_method: :delete, turbo_confirm: "Ești sigur că vrei să ștergi conversația?" } do %>
+      <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+      Șterge conversația
+    <% end %>
+    
+    <p class="text-xs text-gray-400">
+      Powered by AI • Rețetele generate pot fi salvate în profilul tău
+    </p>
+  </div>
+</div>
+
+<style>
+  .ai-messages::-webkit-scrollbar {
+    width: 6px;
+  }
+  .ai-messages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ai-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  .ai-messages::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+  
+  .ai-typing-indicator span {
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .ai-typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+  .ai-typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+  
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle suggestion buttons
+  document.querySelectorAll('.ai-suggestion-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const message = this.dataset.message;
+      const input = document.getElementById('ai-message-input');
+      if (input) {
+        input.value = message;
+        input.focus();
+        // Optionally auto-submit
+        // document.getElementById('ai-chat-form').requestSubmit();
+      }
+    });
+  });
+  
+  // Auto-scroll to bottom of messages
+  const messagesContainer = document.getElementById('ai-messages');
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+  
+  // Observe for new messages and scroll
+  const observer = new MutationObserver(() => {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
+  
+  if (messagesContainer) {
+    observer.observe(messagesContainer, { childList: true, subtree: true });
+  }
+});
+</script>
+

@@ -192,6 +192,13 @@
                         <span><%= t('users.view_profile') %></span>
                       </div>
                     <% end %>
+                    <%= link_to ai_assistant_path(locale: I18n.locale), class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all" do %>
+                      <div class="flex items-center gap-2">
+                        <span class="text-lg">🤖</span>
+                        <span>Chef AI</span>
+                        <span class="px-1.5 py-0.5 text-[10px] bg-emerald-100 text-emerald-700 rounded-full font-medium">NEW</span>
+                      </div>
+                    <% end %>
                     <%= link_to favorites_path(locale: I18n.locale), class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-orange-50 transition-all" do %>
                       <div class="flex items-center gap-2">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,0 +1,225 @@
+<div class="ai-message ai-message-assistant flex justify-start">
+  <div class="max-w-[85%] bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+    <% if response.is_a?(Hash) %>
+      <!-- AI Response with structured data -->
+      <div class="space-y-4">
+        <!-- Main Message -->
+        <% if response["message"].present? %>
+          <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
+            <%= response["message"] %>
+          </p>
+        <% end %>
+        
+        <% case response["type"] %>
+        <% when "recommendation" %>
+          <!-- Recipe Recommendations -->
+          <% if response["matching_recipes"].present? %>
+            <div class="mt-4 space-y-3">
+              <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rețete recomandate</p>
+              <% response["matching_recipes"].each_with_index do |recipe, index| %>
+                <div class="bg-white dark:bg-gray-600 rounded-xl p-3 border border-gray-200 dark:border-gray-500 hover:shadow-md transition-shadow">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-medium text-gray-800 dark:text-white text-sm">
+                        <%= link_to recipe["title"], recipe_path(recipe["id"]), class: "hover:text-emerald-600 transition-colors" %>
+                      </h4>
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        de <%= recipe["user"] %> • 
+                        <span class="text-emerald-600"><%= recipe["match_percentage"] %>% potrivire</span>
+                      </p>
+                    </div>
+                    <span class="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-medium">
+                      #<%= index + 1 %>
+                    </span>
+                  </div>
+                  
+                  <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                    <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-500 rounded text-gray-600 dark:text-gray-300">
+                      ⏱️ <%= recipe["time_to_make"] %> min
+                    </span>
+                    <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-500 rounded text-gray-600 dark:text-gray-300">
+                      📊 Dificultate: <%= recipe["difficulty"] %>/5
+                    </span>
+                    <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-500 rounded text-gray-600 dark:text-gray-300">
+                      ❤️ <%= recipe["likes_count"] %> aprecieri
+                    </span>
+                  </div>
+                  
+                  <% if recipe["missing_ingredients"].present? && recipe["missing_ingredients"].any? %>
+                    <div class="mt-2 text-xs text-orange-600 dark:text-orange-400">
+                      ⚠️ Ingrediente lipsă: <%= recipe["missing_ingredients"].first(3).join(", ") %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          
+        <% when "generated_recipe" %>
+          <!-- AI Generated Recipe -->
+          <% if response["recipe"].present? %>
+            <% recipe = response["recipe"] %>
+            <div class="mt-4 bg-white dark:bg-gray-600 rounded-xl p-4 border-2 border-emerald-200 dark:border-emerald-700">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-2xl">🍽️</span>
+                <h3 class="font-bold text-gray-800 dark:text-white"><%= recipe["title"] %></h3>
+              </div>
+              
+              <% if recipe["description"].present? %>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><%= recipe["description"] %></p>
+              <% end %>
+              
+              <div class="grid grid-cols-3 gap-2 mb-4 text-xs">
+                <div class="text-center p-2 bg-gray-50 dark:bg-gray-500 rounded-lg">
+                  <span class="block text-lg">⏱️</span>
+                  <span class="text-gray-600 dark:text-gray-300"><%= recipe["time_to_make"] %> min</span>
+                </div>
+                <div class="text-center p-2 bg-gray-50 dark:bg-gray-500 rounded-lg">
+                  <span class="block text-lg">📊</span>
+                  <span class="text-gray-600 dark:text-gray-300">Nivel <%= recipe["difficulty"] %>/5</span>
+                </div>
+                <div class="text-center p-2 bg-gray-50 dark:bg-gray-500 rounded-lg">
+                  <span class="block text-lg">🥗</span>
+                  <span class="text-gray-600 dark:text-gray-300">Sănătos <%= recipe["healthiness"] %>/5</span>
+                </div>
+              </div>
+              
+              <div class="space-y-3">
+                <details class="group">
+                  <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                    <svg class="w-4 h-4 transform group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    🥕 Ingrediente
+                  </summary>
+                  <div class="mt-2 pl-6 text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                    <%= recipe["ingredients"] %>
+                  </div>
+                </details>
+                
+                <details class="group">
+                  <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                    <svg class="w-4 h-4 transform group-open:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    📝 Mod de preparare
+                  </summary>
+                  <div class="mt-2 pl-6 text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                    <%= recipe["preparation"] %>
+                  </div>
+                </details>
+                
+                <% if recipe["tips"].present? %>
+                  <div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-sm">
+                    <span class="font-medium text-yellow-700 dark:text-yellow-300">💡 Sfat:</span>
+                    <span class="text-yellow-600 dark:text-yellow-400"><%= recipe["tips"] %></span>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Save Recipe Button -->
+              <div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-500">
+                <button type="button" 
+                        class="save-ai-recipe-btn w-full py-2 px-4 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all text-sm"
+                        data-recipe='<%= recipe.to_json %>'>
+                  💾 Salvează rețeta în profilul meu
+                </button>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if response["additional_ingredients_needed"].present? && response["additional_ingredients_needed"].any? %>
+            <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm">
+              <span class="font-medium text-blue-700 dark:text-blue-300">🛒 Ingrediente adiționale necesare:</span>
+              <span class="text-blue-600 dark:text-blue-400"><%= response["additional_ingredients_needed"].join(", ") %></span>
+            </div>
+          <% end %>
+          
+        <% when "insufficient_ingredients" %>
+          <!-- Not enough ingredients -->
+          <% if response["suggested_ingredients"].present? %>
+            <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <p class="text-sm font-medium text-amber-700 dark:text-amber-300 mb-2">🛒 Ingrediente sugerate de cumpărat:</p>
+              <div class="flex flex-wrap gap-2">
+                <% response["suggested_ingredients"].each do |ing| %>
+                  <span class="px-2 py-1 bg-amber-100 dark:bg-amber-800/30 text-amber-700 dark:text-amber-300 rounded-lg text-xs">
+                    <%= ing %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if response["possible_recipes_with_additions"].present? %>
+            <div class="mt-3">
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">💡 Cu ingredientele sugerate ai putea face:</p>
+              <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <% response["possible_recipes_with_additions"].each do |recipe_idea| %>
+                  <li><%= recipe_idea %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+          
+        <% when "error" %>
+          <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm text-red-600 dark:text-red-400">
+            ⚠️ <%= response["message"] %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <!-- Plain text response -->
+      <p class="text-gray-800 dark:text-gray-200 text-sm leading-relaxed">
+        <%= response %>
+      </p>
+    <% end %>
+  </div>
+</div>
+
+<script>
+// Handle save recipe button
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('save-ai-recipe-btn') || e.target.closest('.save-ai-recipe-btn')) {
+    const btn = e.target.classList.contains('save-ai-recipe-btn') ? e.target : e.target.closest('.save-ai-recipe-btn');
+    const recipeData = JSON.parse(btn.dataset.recipe);
+    
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Se salvează...';
+    
+    fetch('<%= ai_assistant_save_recipe_path %>', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ recipe: recipeData })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        btn.innerHTML = '✅ Salvată!';
+        btn.classList.remove('from-emerald-600', 'to-teal-500');
+        btn.classList.add('bg-green-500');
+        
+        setTimeout(() => {
+          if (data.recipe_url) {
+            window.location.href = data.recipe_url;
+          }
+        }, 1000);
+      } else {
+        btn.innerHTML = '❌ Eroare: ' + (data.errors ? data.errors.join(', ') : 'Necunoscută');
+        btn.disabled = false;
+        setTimeout(() => {
+          btn.innerHTML = '💾 Salvează rețeta în profilul meu';
+        }, 3000);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      btn.innerHTML = '❌ Eroare la salvare';
+      btn.disabled = false;
+    });
+  }
+});
+</script>
+
