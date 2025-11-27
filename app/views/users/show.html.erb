@@ -145,7 +145,7 @@
                   <%# Category badge %>
                   <% if recipe.category %>
                     <div class="absolute top-2 left-2">
-                      <span class="px-2 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg text-xs font-bold text-gray-700 dark:text-gray-200">
+                      <span class="px-2.5 py-1 bg-gradient-to-r from-emerald-500/90 to-teal-500/90 backdrop-blur-sm rounded-lg text-xs font-bold text-white shadow-lg">
                         <%= recipe.category&.name %>
                       </span>
                     </div>
@@ -159,7 +159,7 @@
               <div>
                 <%# Show category badge inline when no image %>
                 <% if !has_image && recipe.category %>
-                  <span class="inline-block px-2 py-0.5 mb-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                  <span class="inline-block px-2.5 py-1 mb-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg text-xs font-bold text-white shadow-sm">
                     <%= recipe.category&.name %>
                   </span>
                 <% end %>
