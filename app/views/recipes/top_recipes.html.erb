@@ -1,188 +1,41 @@
-<div class="space-y-6 animate-fade-in max-w-full overflow-hidden">
+<div class="top-recipes-full-page">
   <!-- Header -->
-  <div class="bg-card rounded-3xl shadow-2xl border-2 border-default overflow-hidden">
-    <div class="bg-gradient-primary px-6 py-5 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
-      <div class="relative z-10">
-        <h1 class="text-3xl font-black text-white flex items-center gap-3 mb-2">
-          <svg class="h-8 w-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-          </svg>
-          <%= t('top_recipes.page_title') %>
-        </h1>
-        <p class="text-white/90 text-sm"><%= t('top_recipes.page_description') %></p>
-      </div>
-    </div>
+  <div class="top-recipes-header">
+    <h1 class="top-recipes-title flex items-center gap-2">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+      </svg>
+      <%= t('top_recipes.page_title') %>
+    </h1>
+    <p class="top-recipes-subtitle"><%= t('top_recipes.page_description') %></p>
   </div>
 
-  <div class="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 gap-4 max-w-full">
-    <!-- Filters Sidebar -->
-    <div class="xl:col-span-1 lg:col-span-1">
-      <div class="bg-card rounded-3xl shadow-xl border-2 border-default p-5 sticky top-20">
-        <h2 class="text-lg font-bold text-primary-content mb-4 flex items-center gap-2">
-          <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-          </svg>
-          <%= t('top_recipes.filters') %>
-        </h2>
-        
-        <%= form_with url: top_recipes_path(locale: I18n.locale), method: :get, local: true, class: "space-y-4" do |f| %>
-          <!-- Period Selection -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('top_recipes.period') %></label>
-            <div class="grid grid-cols-2 gap-2">
-              <%= f.radio_button :period, 'day', checked: @current_period == 'day', class: "hidden peer", id: "period_day" %>
-              <%= f.label :period_day, t('top_recipes.today'), for: "period_day", class: "px-3 py-2 text-xs font-bold text-center rounded-lg border-2 border-default cursor-pointer peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary hover:bg-primary hover:bg-opacity-10 transition-all" %>
-              
-              <%= f.radio_button :period, 'week', checked: @current_period == 'week', class: "hidden peer", id: "period_week" %>
-              <%= f.label :period_week, t('top_recipes.week'), for: "period_week", class: "px-3 py-2 text-xs font-bold text-center rounded-lg border-2 border-default cursor-pointer peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary hover:bg-primary hover:bg-opacity-10 transition-all" %>
-              
-              <%= f.radio_button :period, 'month', checked: @current_period == 'month', class: "hidden peer", id: "period_month" %>
-              <%= f.label :period_month, t('top_recipes.month'), for: "period_month", class: "px-3 py-2 text-xs font-bold text-center rounded-lg border-2 border-default cursor-pointer peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary hover:bg-primary hover:bg-opacity-10 transition-all" %>
-              
-              <%= f.radio_button :period, 'year', checked: @current_period == 'year', class: "hidden peer", id: "period_year" %>
-              <%= f.label :period_year, t('top_recipes.year'), for: "period_year", class: "px-3 py-2 text-xs font-bold text-center rounded-lg border-2 border-default cursor-pointer peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary hover:bg-primary hover:bg-opacity-10 transition-all" %>
-            </div>
-          </div>
-
-          <!-- Difficulty (Stars) -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.difficulty') %> (min)</label>
-            <div class="flex gap-1" id="difficulty-stars">
-              <% (1..5).each do |star| %>
-                <button type="button" 
-                        data-star="<%= star %>" 
-                        data-field="min_difficulty"
-                        class="text-2xl cursor-pointer hover:text-primary transition-colors <%= params[:min_difficulty].to_i >= star ? 'text-primary' : 'text-secondary-content' %>"
-                        onclick="setStarRating(this, 'min_difficulty', <%= star %>)">
-                  ★
-                </button>
-              <% end %>
-            </div>
-            <%= f.hidden_field :min_difficulty, value: params[:min_difficulty], id: "min_difficulty_hidden" %>
-          </div>
-
-          <!-- Healthiness (Stars) -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.healthiness') %> (min)</label>
-            <div class="flex gap-1" id="healthiness-stars">
-              <% (1..5).each do |star| %>
-                <button type="button" 
-                        data-star="<%= star %>" 
-                        data-field="min_healthiness"
-                        class="text-2xl cursor-pointer hover:text-primary transition-colors <%= params[:min_healthiness].to_i >= star ? 'text-primary' : 'text-secondary-content' %>"
-                        onclick="setStarRating(this, 'min_healthiness', <%= star %>)">
-                  ★
-                </button>
-              <% end %>
-            </div>
-            <%= f.hidden_field :min_healthiness, value: params[:min_healthiness], id: "min_healthiness_hidden" %>
-          </div>
-
-          <!-- Time to Prepare -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('top_recipes.time_range') %></label>
-            <div class="grid grid-cols-2 gap-2">
-              <%= f.number_field :min_time, placeholder: t('top_recipes.min_time'), value: params[:min_time], class: "px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
-              <%= f.number_field :max_time, placeholder: t('top_recipes.max_time'), value: params[:max_time], class: "px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
-            </div>
-          </div>
-
-          <!-- Category -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.category') %></label>
-            <%= f.select :category_id, options_from_collection_for_select(@categories, :id, :name, params[:category_id]), { include_blank: t('top_recipes.all_categories') }, { class: "w-full px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" } %>
-          </div>
-
-          <!-- Cuisine -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.cuisine') %></label>
-            <%= f.select :cuisine_id, options_from_collection_for_select(@cuisines, :id, :name, params[:cuisine_id]), { include_blank: t('top_recipes.all_cuisines') }, { class: "w-full px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" } %>
-          </div>
-
-          <!-- Food Type -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.food_type') %></label>
-            <%= f.select :food_type_id, options_from_collection_for_select(@food_types, :id, :name, params[:food_type_id]), { include_blank: t('top_recipes.all_food_types') }, { class: "w-full px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" } %>
-          </div>
-
-          <!-- Max Calories -->
-          <div>
-            <label class="block text-sm font-semibold text-primary-content mb-2"><%= t('recipes.form.nutrition') %> - <%= t('recipes.form.calories') %> (max)</label>
-            <%= f.number_field :max_calories, placeholder: t('top_recipes.max_calories'), value: params[:max_calories], class: "w-full px-3 py-2 text-sm border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-primary-content" %>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="pt-2">
-            <%= f.submit t('top_recipes.apply_filters'), class: "w-full px-4 py-2.5 bg-gradient-primary text-white font-bold rounded-lg hover:opacity-90 transition-all shadow-lg" %>
-            <%= link_to top_recipes_path(locale: I18n.locale, period: @current_period), class: "mt-2 block w-full px-4 py-2 text-center text-sm text-secondary-content hover:text-primary transition-colors" do %>
-              <%= t('top_recipes.clear_filters') %>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Recipes Grid -->
-    <div class="xl:col-span-3 lg:col-span-2">
+  <!-- Main Layout -->
+  <div class="top-recipes-layout">
+    <!-- Recipes Section -->
+    <div class="top-recipes-content">
       <% if @recipes.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="top-recipes-grid">
           <% @recipes.each_with_index do |recipe, index| %>
-            <%= render 'recipes/card_inner', recipe: recipe, index: index %>
+            <div class="top-recipe-card-wrapper">
+              <%= render 'recipes/card_inner', recipe: recipe, index: index %>
+            </div>
           <% end %>
         </div>
       <% else %>
-        <div class="bg-card rounded-3xl shadow-xl border-2 border-default p-12 text-center">
-          <svg class="h-16 w-16 text-secondary-content mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="top-recipes-empty">
+          <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <h3 class="text-xl font-bold text-primary-content mb-2"><%= t('top_recipes.no_results') %></h3>
-          <p class="text-secondary-content"><%= t('top_recipes.no_results_description') %></p>
+          <h3><%= t('top_recipes.no_results') %></h3>
+          <p><%= t('top_recipes.no_results_description') %></p>
         </div>
       <% end %>
     </div>
+
+    <!-- Filters Sidebar -->
+    <aside class="top-recipes-sidebar">
+      <%= render 'recipes/top_recipes_filters' %>
+    </aside>
   </div>
 </div>
-
-<script>
-  // Star rating function
-  function setStarRating(button, fieldName, value) {
-    const hiddenField = document.getElementById(fieldName + '_hidden');
-    const allStars = document.querySelectorAll(`[data-field="${fieldName}"]`);
-    
-    // Update hidden field
-    if (hiddenField) {
-      if (hiddenField.value == value) {
-        // If clicking the same star, clear it
-        hiddenField.value = '';
-        allStars.forEach(star => {
-          star.classList.remove('text-primary');
-          star.classList.add('text-secondary-content');
-        });
-      } else {
-        // Set the value and update star colors
-        hiddenField.value = value;
-        allStars.forEach((star, index) => {
-          if (index < value) {
-            star.classList.add('text-primary');
-            star.classList.remove('text-secondary-content');
-          } else {
-            star.classList.remove('text-primary');
-            star.classList.add('text-secondary-content');
-          }
-        });
-      }
-    }
-  }
-
-  // Auto-submit form when period changes
-  document.addEventListener('DOMContentLoaded', function() {
-    const periodInputs = document.querySelectorAll('input[name="period"]');
-    periodInputs.forEach(input => {
-      input.addEventListener('change', function() {
-        this.closest('form').submit();
-      });
-    });
-  });
-</script>
-

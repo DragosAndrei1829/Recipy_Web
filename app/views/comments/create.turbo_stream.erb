@@ -1,11 +1,14 @@
+<%# Update recipe card in feed (always update if exists) %>
 <%= turbo_stream.update dom_id(@recipe, :inner),
       partial: "recipes/card_inner",
       locals: { recipe: @recipe } %>
 
-<%= turbo_stream.update dom_id(@recipe, :actions),
-      partial: "recipes/show_actions",
-      locals: { recipe: @recipe } %>
-
+<%# Update comments section on show page (only if exists) %>
 <%= turbo_stream.update dom_id(@recipe, :comments),
       partial: "recipes/show_comments",
+      locals: { recipe: @recipe } %>
+
+<%# Update actions on show page (only if exists) %>
+<%= turbo_stream.update dom_id(@recipe, :actions),
+      partial: "recipes/show_actions",
       locals: { recipe: @recipe } %>

@@ -20,8 +20,8 @@ ro:
     show: "Vezi rețeta"
     delete: "Șterge"
     index:
-      title: "Atelierul Savoarelor"
-      description: "Explorează toată biblioteca Recipy — idei rapide, cine lente și experimente îndrăznețe pentru orice stare."
+      title: "Exploratorul Culinar"
+      description: "Descoperă universul Recipy — de la preparate rapide la mese elaborate, experimente creative și inspirație pentru fiecare moment."
       empty: "Nicio rețetă găsită"
       empty_description: "Fii primul care publică o rețetă sănătoasă!"
       create_first: "Publică prima rețetă"
@@ -109,6 +109,9 @@ ro:
     unprocessable: "Nu am putut salva datele. Verifică informațiile și încearcă din nou."
     internal: "Ne pare rău, a apărut o eroare neașteptată. Această eroare va fi remediată."
   activerecord:
+    attributes:
+      challenge:
+        status: "Status"
     errors:
       models:
         user:
@@ -121,6 +124,11 @@ ro:
               blank: "Adaugă un comentariu sau măcar o notă."
             rating:
               invalid: "Rating-ul trebuie să fie un număr întreg între 0 și 10."
+        challenge:
+          attributes:
+            status:
+              blank: "este obligatoriu."
+              inclusion: "trebuie să fie unul dintre: upcoming, active, completed, cancelled."
       difficulty_label: "Dificultate:"
       healthiness_label: "Sănătate:"
   users:
@@ -150,6 +158,30 @@ ro:
     only_you: "Doar tu"
     unread_notifications: "Notificări necitite"
     conversations: "Conversații"
+  user_shortcuts:
+    title: "Shortcut-uri Personalizate"
+    description: "Creează și gestionează shortcut-urile tale personalizate pentru acces rapid la paginile tale preferate."
+    new: "Shortcut Nou"
+    edit: "Editează Shortcut"
+    add_new: "Adaugă Shortcut"
+    add_first: "Adaugă primul shortcut"
+    empty: "Nu ai shortcut-uri personalizate încă. Creează unul pentru acces rapid!"
+    name: "Nume"
+    name_placeholder: "ex: Rețetele mele"
+    url: "URL"
+    url_placeholder: "ex: /ro/recipes sau /ro/users/username"
+    url_hint: "Poate fi un link intern (ex: /ro/recipes) sau extern (ex: https://example.com)"
+    color: "Culoare"
+    icon: "Iconiță"
+    icon_hint: "Folosește un emoji sau un simbol (ex: 🔗, ⭐, 📝)"
+    create: "Creează"
+    update: "Actualizează"
+    created: "Shortcut-ul a fost creat cu succes!"
+    updated: "Shortcut-ul a fost actualizat cu succes!"
+    destroyed: "Shortcut-ul a fost șters cu succes!"
+    confirm_delete: "Ești sigur că vrei să ștergi acest shortcut?"
+    manage: "Gestionează Shortcut-uri"
+
   navigation:
     explore: "Explorează"
     add_recipe: "Adaugă Rețetă"
@@ -253,6 +285,7 @@ ro:
     cancel: "Anulează"
     delete: "Șterge"
     edit: "Editează"
+    close: "Închide"
     back: "Înapoi"
     back_to_profile: "Înapoi la profil"
     next: "Următorul"
@@ -357,6 +390,10 @@ ro:
     all_cuisines: "Toate Originile"
     all_food_types: "Toate Tipurile de Mâncare"
     apply_filters: "Aplică Filtrele"
+    view_all: "Vezi Toate"
+    clear_filters: "Șterge Filtrele"
+    no_results: "Fără Rezultate"
+    no_results_description: "Încearcă să ajustezi filtrele"
     clear_filters: "Șterge Filtrele"
     no_results: "Nu s-au găsit rețete"
     no_results_description: "Încearcă să ajustezi filtrele pentru a vedea mai multe rezultate"
@@ -408,6 +445,21 @@ ro:
         other: "aproape %{count} ani"
   sidebar:
     menu: "Meniu"
+  modern_menu:
+    quick_actions: "Acțiuni Rapide"
+    ai_smart: "AI & Smart"
+    organize_plan: "Organizează & Planifică"
+    compete_social: "Competiții & Social"
+    customization: "Personalizare"
+    chef_ai: "Chef AI"
+    chef_ai_description: "Asistent inteligent pentru rețete"
+    top_recipes: "Top Rețete"
+    meal_planning: "Planificare Mese"
+    shopping_list: "Listă Cumpărături"
+    collections: "Colecții"
+    challenges: "Challenge-uri"
+    challenges_description: "Participă la competiții"
+    groups: "Grupuri"
     home: "Acasă"
     all_recipes: "Toate rețetele"
     my_account: "Contul meu"

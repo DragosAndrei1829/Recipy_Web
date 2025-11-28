@@ -1,11 +1,16 @@
-<%= turbo_stream.update dom_id(@recipe, :inner),
-      partial: "recipes/card_inner",
-      locals: { recipe: @recipe } %>
-
-<%= turbo_stream.update dom_id(@recipe, :actions),
-      partial: "recipes/show_actions",
-      locals: { recipe: @recipe } %>
-
+<%# Update comments section (works for both show page and feed) %>
 <%= turbo_stream.update dom_id(@recipe, :comments),
       partial: "recipes/show_comments",
       locals: { recipe: @recipe } %>
+
+<%# Update recipe card in feed (only if exists) %>
+<% if @from_feed %>
+  <%= turbo_stream.update dom_id(@recipe, :inner),
+        partial: "recipes/card_inner",
+        locals: { recipe: @recipe } %>
+<% else %>
+  <%# Update actions on show page %>
+  <%= turbo_stream.update dom_id(@recipe, :actions),
+        partial: "recipes/show_actions",
+        locals: { recipe: @recipe } %>
+<% end %>

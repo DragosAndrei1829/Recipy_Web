@@ -1,0 +1,170 @@
+<% content_for :title, "Adaugă masă în planificare" %>
+
+<div class="meal-plan-form-page">
+  <div class="meal-plan-form-container">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-black text-primary-content">Adaugă masă în planificare</h1>
+      <%= link_to meal_plans_path, class: "btn-icon" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      <% end %>
+    </div>
+
+    <%= form_with model: @meal_plan, local: true, class: "space-y-6" do |f| %>
+      <% if @meal_plan.errors.any? %>
+        <div class="alert-error">
+          <ul>
+            <% @meal_plan.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-field">
+        <%= f.label :recipe_id, "Rețetă", class: "form-label" %>
+        <p class="text-sm text-secondary-content mb-3">
+          Poți selecta o rețetă din <strong>rețetele tale</strong>, din <strong>rețetele salvate</strong> sau din <strong>toate rețetele</strong> disponibile.
+        </p>
+        <% if @recipe %>
+          <div class="selected-recipe-card">
+            <% if @recipe.photos.attached? && @recipe.photos.first.present? %>
+              <%= image_tag url_for(@recipe.photos.first.variant(resize_to_fill: [80, 80])), 
+                  class: "selected-recipe-image", 
+                  alt: @recipe.title %>
+            <% else %>
+              <div class="selected-recipe-placeholder">
+                <%= @recipe.title.first.upcase %>
+              </div>
+            <% end %>
+            <div>
+              <h3 class="font-semibold text-primary-content"><%= @recipe.title %></h3>
+              <p class="text-sm text-secondary-content"><%= @recipe.user.username %></p>
+            </div>
+          </div>
+          <%= f.hidden_field :recipe_id, value: @recipe.id %>
+        <% else %>
+          <!-- Recipe Source Tabs -->
+          <div class="recipe-source-tabs mb-4">
+            <button type="button" class="recipe-tab active" data-tab="my-recipes">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              Rețetele mele
+            </button>
+            <button type="button" class="recipe-tab" data-tab="favorites">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+              </svg>
+              Rețete salvate
+            </button>
+            <button type="button" class="recipe-tab" data-tab="all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              Toate rețetele
+            </button>
+          </div>
+
+          <!-- Recipe Selects -->
+          <div id="recipe-select-my-recipes" class="recipe-select-tab active">
+            <%= f.collection_select :recipe_id, 
+                current_user.recipes.includes(:user).order(:title), 
+                :id, 
+                :title, 
+                { prompt: "Selectează din rețetele tale" },
+                { class: "form-select" } %>
+            <% if current_user.recipes.empty? %>
+              <p class="text-sm text-secondary-content mt-2">
+                Nu ai rețete create încă. 
+                <%= link_to "Creează prima ta rețetă", new_recipe_path, class: "text-link" %>
+              </p>
+            <% end %>
+          </div>
+
+          <div id="recipe-select-favorites" class="recipe-select-tab">
+            <%= f.collection_select :recipe_id, 
+                current_user.favorite_recipes.includes(:user).order(:title), 
+                :id, 
+                :title, 
+                { prompt: "Selectează din rețetele salvate" },
+                { class: "form-select" } %>
+            <% if current_user.favorite_recipes.empty? %>
+              <p class="text-sm text-secondary-content mt-2">
+                Nu ai rețete salvate încă. 
+                <%= link_to "Explorează rețete", recipes_path, class: "text-link" %>
+              </p>
+            <% end %>
+          </div>
+
+          <div id="recipe-select-all" class="recipe-select-tab">
+            <%= f.collection_select :recipe_id, 
+                Recipe.includes(:user).order(:title), 
+                :id, 
+                :title, 
+                { prompt: "Selectează din toate rețetele" },
+                { class: "form-select" } %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="form-field">
+        <%= f.label :planned_for, "Data", class: "form-label" %>
+        <%= f.date_field :planned_for, class: "form-input" %>
+      </div>
+
+      <div class="form-field">
+        <%= f.label :meal_type, "Tip masă", class: "form-label" %>
+        <%= f.select :meal_type, 
+            options_for_select([
+              ['🍳 Mic dejun', 'breakfast'],
+              ['🍽️ Prânz', 'lunch'],
+              ['🌙 Cină', 'dinner'],
+              ['🍎 Gustare', 'snack']
+            ], @meal_plan.meal_type),
+            {},
+            { class: "form-select" } %>
+      </div>
+
+      <div class="form-field">
+        <%= f.label :servings, "Număr porții", class: "form-label" %>
+        <%= f.number_field :servings, min: 1, value: @meal_plan.servings || 1, class: "form-input" %>
+      </div>
+
+      <div class="form-field">
+        <%= f.label :notes, "Note (opțional)", class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Adaugă note despre această masă..." %>
+      </div>
+
+      <div class="flex gap-3">
+        <%= f.submit "Salvează", class: "btn-primary" %>
+        <%= link_to "Anulează", meal_plans_path, class: "btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.recipe-tab');
+    const tabContents = document.querySelectorAll('.recipe-select-tab');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        const targetTab = this.dataset.tab;
+        
+        // Remove active class from all tabs and contents
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        this.classList.add('active');
+        const targetContent = document.getElementById(`recipe-select-${targetTab}`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      });
+    });
+  });
+</script>

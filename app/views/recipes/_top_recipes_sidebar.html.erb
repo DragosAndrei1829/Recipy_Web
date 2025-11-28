@@ -1,355 +1,421 @@
-<div class="space-y-6">
-  <div class="bg-card rounded-3xl shadow-2xl border-2 border-default overflow-hidden animate-slide-in-right">
-    <!-- Header with animated gradient -->
-    <div class="bg-gradient-primary px-5 py-4 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
-      <%= link_to top_recipes_path(locale: I18n.locale), class: "block", data: { turbo_frame: "_top" } do %>
-        <h3 class="text-lg font-black text-white flex items-center gap-2 relative z-10 hover:opacity-90 transition-opacity cursor-pointer">
-          <svg class="h-5 w-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-          </svg>
-          <%= t('top_recipes.title') %>
-        </h3>
-      <% end %>
-    </div>
-
-    <!-- Tabs with improved design -->
-    <div class="flex border-b-2 border-default bg-card" id="top-recipes-tabs">
-      <button class="flex-1 px-3 py-2.5 text-xs font-bold text-secondary-content hover:text-primary border-b-2 border-transparent hover:border-primary transition-all duration-300 tab-button active relative group" data-tab="day">
-        <span class="relative z-10"><%= t('top_recipes.today') %></span>
-        <div class="absolute inset-0 bg-primary bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="top-recipes-sidebar-widget">
+  <!-- Period Tabs -->
+  <div class="top-recipes-tabs" id="top-recipes-tabs">
+    <button class="top-recipes-tab <%= 'active' if @current_period == 'day' %>" 
+            data-period="day" 
+            data-preview="true">
+      <%= t('top_recipes.today') %>
       </button>
-      <button class="flex-1 px-3 py-2.5 text-xs font-bold text-secondary-content hover:text-primary border-b-2 border-transparent hover:border-primary transition-all duration-300 tab-button relative group" data-tab="week">
-        <span class="relative z-10"><%= t('top_recipes.week') %></span>
-        <div class="absolute inset-0 bg-primary bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <button class="top-recipes-tab <%= 'active' if @current_period == 'week' %>" 
+            data-period="week" 
+            data-preview="true">
+      <%= t('top_recipes.week') %>
       </button>
-      <button class="flex-1 px-3 py-2.5 text-xs font-bold text-secondary-content hover:text-primary border-b-2 border-transparent hover:border-primary transition-all duration-300 tab-button relative group" data-tab="month">
-        <span class="relative z-10"><%= t('top_recipes.month') %></span>
-        <div class="absolute inset-0 bg-primary bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <button class="top-recipes-tab <%= 'active' if @current_period == 'month' %>" 
+            data-period="month" 
+            data-preview="true">
+      <%= t('top_recipes.month') %>
       </button>
-      <button class="flex-1 px-3 py-2.5 text-xs font-bold text-secondary-content hover:text-primary border-b-2 border-transparent hover:border-primary transition-all duration-300 tab-button relative group" data-tab="year">
-        <span class="relative z-10"><%= t('top_recipes.year') %></span>
-        <div class="absolute inset-0 bg-primary bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <button class="top-recipes-tab <%= 'active' if @current_period == 'year' %>" 
+            data-period="year" 
+            data-preview="true">
+      <%= t('top_recipes.year') %>
       </button>
     </div>
 
-    <!-- Content -->
-    <div class="p-4 space-y-4">
-      <div class="relative">
-        <svg class="h-4 w-4 text-secondary-content absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- Search -->
+  <div class="top-recipes-search">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input type="search"
                placeholder="<%= t('navigation.search_recipes') %>"
-               class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-default focus:border-primary focus:ring-2 focus:ring-primary/30"
+           class="top-recipes-search-input"
                data-top-recipes-search>
       </div>
-      <div class="max-h-[560px] overflow-y-auto custom-scrollbar" data-top-recipes-container>
-      <!-- Day -->
-      <div class="tab-content animate-fade-in" data-tab-content="day">
-        <% if @top_day.any? %>
-          <div class="space-y-2">
-            <% @top_day.each_with_index do |recipe, index| %>
-              <%= link_to recipe_path(recipe), data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" }, class: "block group top-recipe-item" do %>
-                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-primary hover:bg-opacity-10 transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-primary">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform duration-300 <%= 'ring-2 ring-accent' if index == 0 %>">
-                    <%= index + 1 %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start gap-2">
-                      <% if recipe.cover_photo.present? %>
-                        <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% elsif recipe.photos.attached? && recipe.photos.first.present? %>
-                        <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% else %>
-                        <div class="w-14 h-14 rounded-xl bg-primary bg-opacity-20 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                          <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+
+  <!-- Preview Container -->
+  <div id="top-recipes-preview-container" class="top-recipes-preview-container hidden">
+    <div class="top-recipes-preview-header">
+      <span>Preview</span>
+      <button onclick="closeTopRecipesPreview()" class="top-recipes-preview-close">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                           </svg>
+      </button>
                         </div>
-                      <% end %>
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-black text-primary-content truncate group-hover:text-primary transition-colors duration-300"><%= recipe.title %></h4>
-                        <div class="flex items-center gap-2 mt-1.5">
-                          <svg class="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                          </svg>
-                          <span class="text-xs text-primary-content font-bold"><%= recipe.likes_count %> <%= t('top_recipes.likes') %></span>
+    <div id="top-recipes-preview-content" class="top-recipes-preview-content">
+      <!-- Preview items loaded here -->
                         </div>
                       </div>
-                    </div>
-                  </div>
+
+  <!-- Default Content -->
+  <div class="top-recipes-default-content" data-top-recipes-container>
+    <!-- Day -->
+    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'day' %>" data-period="day">
+      <% if @top_day.any? %>
+        <div class="top-recipes-list">
+          <% @top_day.each do |recipe| %>
+            <%= link_to recipe_path(recipe, locale: I18n.locale), 
+                class: "top-recipes-list-item", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
+              <% 
+                begin
+                  cover_photo_obj = recipe.cover_photo
+                  has_cover = false
+                  if cover_photo_obj.present?
+                    begin
+                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
+                    rescue
+                      has_cover = false
+                    end
+                  end
+                rescue
+                  has_cover = false
+                end
+                begin
+                  if !has_cover && recipe.photos.attached?
+                    first_valid_photo = recipe.photos.find { |p| 
+                      begin
+                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                      rescue
+                        false
+                      end
+                    }
+                  else
+                    first_valid_photo = nil
+                  end
+                rescue
+                  first_valid_photo = nil
+                end
+              %>
+              <% if has_cover && cover_photo_obj %>
+                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% elsif first_valid_photo %>
+                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% else %>
+                <div class="top-recipes-list-placeholder"></div>
+              <% end %>
+              <div class="top-recipes-list-info">
+                <div class="top-recipes-list-title"><%= recipe.title %></div>
+                <div class="top-recipes-list-meta">
+                  <span>❤️ <%= recipe.likes_count %></span>
+                  <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+                    <span>⏱ <%= recipe.time_to_make %>m</span>
+                  <% end %>
                 </div>
+              </div>
               <% end %>
             <% end %>
           </div>
         <% else %>
-          <p class="text-sm text-secondary-content text-center py-4"><%= t('top_recipes.no_recipes') %> - <%= t('top_recipes.today') %></p>
+        <div class="bg-card rounded-2xl p-6 text-center">
+          <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+        </div>
         <% end %>
       </div>
 
       <!-- Week -->
-      <div class="tab-content hidden animate-fade-in" data-tab-content="week">
+    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'week' %>" data-period="week">
         <% if @top_week.any? %>
-          <div class="space-y-2">
-            <% @top_week.each_with_index do |recipe, index| %>
-              <%= link_to recipe_path(recipe), data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" }, class: "block group top-recipe-item" do %>
-                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-orange-50 transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-pink-200">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform duration-300 <%= 'ring-2 ring-yellow-400' if index == 0 %>">
-                    <%= index + 1 %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start gap-2">
-                      <% if recipe.cover_photo.present? %>
-                        <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% elsif recipe.photos.attached? && recipe.photos.first.present? %>
-                        <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% else %>
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-100 to-orange-100 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                          <svg class="h-7 w-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                          </svg>
-                        </div>
-                      <% end %>
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-black text-gray-900 truncate group-hover:text-pink-600 transition-colors duration-300"><%= recipe.title %></h4>
-                        <div class="flex items-center gap-2 mt-1.5">
-                          <svg class="h-3.5 w-3.5 text-pink-500 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                          </svg>
-                          <span class="text-xs text-gray-700 font-bold"><%= recipe.likes_count %> <%= t('top_recipes.likes') %></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div class="top-recipes-list">
+          <% @top_week.each do |recipe| %>
+            <%= link_to recipe_path(recipe, locale: I18n.locale), 
+                class: "top-recipes-list-item", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
+              <% 
+                begin
+                  cover_photo_obj = recipe.cover_photo
+                  has_cover = false
+                  if cover_photo_obj.present?
+                    begin
+                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
+                    rescue
+                      has_cover = false
+                    end
+                  end
+                rescue
+                  has_cover = false
+                end
+                begin
+                  if !has_cover && recipe.photos.attached?
+                    first_valid_photo = recipe.photos.find { |p| 
+                      begin
+                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                      rescue
+                        false
+                      end
+                    }
+                  else
+                    first_valid_photo = nil
+                  end
+                rescue
+                  first_valid_photo = nil
+                end
+              %>
+              <% if has_cover && cover_photo_obj %>
+                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% elsif first_valid_photo %>
+                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% else %>
+                <div class="top-recipes-list-placeholder"></div>
               <% end %>
+              <div class="top-recipes-list-info">
+                <div class="top-recipes-list-title"><%= recipe.title %></div>
+                <div class="top-recipes-list-meta">
+                  <span>❤️ <%= recipe.likes_count %></span>
+                  <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+                    <span>⏱ <%= recipe.time_to_make %>m</span>
+                      <% end %>
+                </div>
+              </div>
+            <% end %>
             <% end %>
           </div>
         <% else %>
-          <p class="text-sm text-gray-500 text-center py-4"><%= t('top_recipes.no_recipes') %> - <%= t('top_recipes.week') %></p>
+        <div class="bg-card rounded-2xl p-6 text-center">
+          <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+        </div>
         <% end %>
       </div>
 
       <!-- Month -->
-      <div class="tab-content hidden animate-fade-in" data-tab-content="month">
+    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'month' %>" data-period="month">
         <% if @top_month.any? %>
-          <div class="space-y-2">
-            <% @top_month.each_with_index do |recipe, index| %>
-              <%= link_to recipe_path(recipe), data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" }, class: "block group top-recipe-item" do %>
-                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-orange-50 transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-pink-200">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform duration-300 <%= 'ring-2 ring-yellow-400' if index == 0 %>">
-                    <%= index + 1 %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start gap-2">
-                      <% if recipe.cover_photo.present? %>
-                        <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% elsif recipe.photos.attached? && recipe.photos.first.present? %>
-                        <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% else %>
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-100 to-orange-100 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                          <svg class="h-7 w-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                          </svg>
-                        </div>
-                      <% end %>
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-black text-gray-900 truncate group-hover:text-pink-600 transition-colors duration-300"><%= recipe.title %></h4>
-                        <div class="flex items-center gap-2 mt-1.5">
-                          <svg class="h-3.5 w-3.5 text-pink-500 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                          </svg>
-                          <span class="text-xs text-gray-700 font-bold"><%= recipe.likes_count %> <%= t('top_recipes.likes') %></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div class="top-recipes-list">
+          <% @top_month.each do |recipe| %>
+            <%= link_to recipe_path(recipe, locale: I18n.locale), 
+                class: "top-recipes-list-item", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
+              <% 
+                begin
+                  cover_photo_obj = recipe.cover_photo
+                  has_cover = false
+                  if cover_photo_obj.present?
+                    begin
+                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
+                    rescue
+                      has_cover = false
+                    end
+                  end
+                rescue
+                  has_cover = false
+                end
+                begin
+                  if !has_cover && recipe.photos.attached?
+                    first_valid_photo = recipe.photos.find { |p| 
+                      begin
+                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                      rescue
+                        false
+                      end
+                    }
+                  else
+                    first_valid_photo = nil
+                  end
+                rescue
+                  first_valid_photo = nil
+                end
+              %>
+              <% if has_cover && cover_photo_obj %>
+                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% elsif first_valid_photo %>
+                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% else %>
+                <div class="top-recipes-list-placeholder"></div>
               <% end %>
+              <div class="top-recipes-list-info">
+                <div class="top-recipes-list-title"><%= recipe.title %></div>
+                <div class="top-recipes-list-meta">
+                  <span>❤️ <%= recipe.likes_count %></span>
+                  <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+                    <span>⏱ <%= recipe.time_to_make %>m</span>
+                      <% end %>
+                </div>
+              </div>
+            <% end %>
             <% end %>
           </div>
         <% else %>
-          <p class="text-sm text-gray-500 text-center py-4"><%= t('top_recipes.no_recipes') %> - <%= t('top_recipes.month') %></p>
+        <div class="bg-card rounded-2xl p-6 text-center">
+          <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+        </div>
         <% end %>
       </div>
 
       <!-- Year -->
-      <div class="tab-content hidden animate-fade-in" data-tab-content="year">
+    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'year' %>" data-period="year">
         <% if @top_year.any? %>
-          <div class="space-y-2">
-            <% @top_year.each_with_index do |recipe, index| %>
-              <%= link_to recipe_path(recipe), data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" }, class: "block group top-recipe-item" do %>
-                <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-orange-50 transition-all duration-300 hover:shadow-md hover:scale-[1.02] border border-transparent hover:border-pink-200">
-                  <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform duration-300 <%= 'ring-2 ring-yellow-400' if index == 0 %>">
-                    <%= index + 1 %>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-start gap-2">
-                      <% if recipe.cover_photo.present? %>
-                        <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% elsif recipe.photos.attached? && recipe.photos.first.present? %>
-                        <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [64,64])), class: "w-14 h-14 rounded-xl object-cover flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300" %>
-                      <% else %>
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-100 to-orange-100 flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                          <svg class="h-7 w-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                          </svg>
-                        </div>
-                      <% end %>
-                      <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-black text-gray-900 truncate group-hover:text-pink-600 transition-colors duration-300"><%= recipe.title %></h4>
-                        <div class="flex items-center gap-2 mt-1.5">
-                          <svg class="h-3.5 w-3.5 text-pink-500 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                          </svg>
-                          <span class="text-xs text-gray-700 font-bold"><%= recipe.likes_count %> <%= t('top_recipes.likes') %></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        <div class="top-recipes-list">
+          <% @top_year.each do |recipe| %>
+            <%= link_to recipe_path(recipe, locale: I18n.locale), 
+                class: "top-recipes-list-item", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
+              <% 
+                begin
+                  cover_photo_obj = recipe.cover_photo
+                  has_cover = false
+                  if cover_photo_obj.present?
+                    begin
+                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
+                    rescue
+                      has_cover = false
+                    end
+                  end
+                rescue
+                  has_cover = false
+                end
+                begin
+                  if !has_cover && recipe.photos.attached?
+                    first_valid_photo = recipe.photos.find { |p| 
+                      begin
+                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                      rescue
+                        false
+                      end
+                    }
+                  else
+                    first_valid_photo = nil
+                  end
+                rescue
+                  first_valid_photo = nil
+                end
+              %>
+              <% if has_cover && cover_photo_obj %>
+                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% elsif first_valid_photo %>
+                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
+                    class: "top-recipes-list-image", alt: recipe.title %>
+              <% else %>
+                <div class="top-recipes-list-placeholder"></div>
               <% end %>
+              <div class="top-recipes-list-info">
+                <div class="top-recipes-list-title"><%= recipe.title %></div>
+                <div class="top-recipes-list-meta">
+                  <span>❤️ <%= recipe.likes_count %></span>
+                  <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+                    <span>⏱ <%= recipe.time_to_make %>m</span>
+                      <% end %>
+                </div>
+              </div>
+            <% end %>
             <% end %>
           </div>
         <% else %>
-          <p class="text-sm text-gray-500 text-center py-4"><%= t('top_recipes.no_recipes') %> - <%= t('top_recipes.year') %></p>
+        <div class="bg-card rounded-2xl p-6 text-center">
+          <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+        </div>
         <% end %>
-      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Enhanced tab switching with animations - works with Turbo
-  function initializeTopRecipesTabs() {
-    const tabsContainer = document.getElementById('top-recipes-tabs');
-    if (!tabsContainer) return; // Not on this page
-    
-    const tabButtons = tabsContainer.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    // Remove old listeners by cloning
-    tabButtons.forEach(button => {
-      const newButton = button.cloneNode(true);
-      button.parentNode.replaceChild(newButton, button);
-    });
-    
-    // Get fresh references
-    const freshButtons = tabsContainer.querySelectorAll('.tab-button');
-    
-    freshButtons.forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const targetTab = this.dataset.tab;
-        
-        // Remove active class from all buttons with animation
-        freshButtons.forEach(btn => {
-          btn.classList.remove('active', 'border-pink-500', 'text-pink-600', 'bg-gradient-to-r', 'from-pink-50', 'to-orange-50');
-          btn.classList.add('text-secondary-content');
-        });
-        
-        // Hide all tab contents with fade out
-        tabContents.forEach(content => {
-          content.style.opacity = '0';
-          content.style.transform = 'translateY(-10px)';
-          setTimeout(() => {
-            content.classList.add('hidden');
-          }, 200);
-        });
-        
-        // Show selected tab content with fade in
-        const targetContent = document.querySelector(`[data-tab-content="${targetTab}"]`);
-        if (targetContent) {
-          setTimeout(() => {
-            targetContent.classList.remove('hidden');
-            setTimeout(() => {
-              targetContent.style.opacity = '1';
-              targetContent.style.transform = 'translateY(0)';
-            }, 10);
-          }, 200);
-        }
-        
-        // Add active class to clicked button with animation
-        this.classList.add('active', 'border-pink-500', 'text-pink-600', 'bg-gradient-to-r', 'from-pink-50', 'to-orange-50');
-        this.classList.remove('text-secondary-content');
-        
-        // Add click animation
-        this.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          this.style.transform = 'scale(1)';
-        }, 150);
-      });
-    });
-    
-    // Initialize first tab
-    const firstContent = document.querySelector('[data-tab-content="day"]');
-    if (firstContent) {
-      firstContent.style.opacity = '1';
-      firstContent.style.transform = 'translateY(0)';
-    }
+(function() {
+  'use strict';
+  
+  // Get current locale from URL
+  function getCurrentLocale() {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(ro|en)/);
+    return match ? match[1] : 'ro';
   }
   
-  // Initialize on both DOMContentLoaded and turbo:load
-  document.addEventListener('DOMContentLoaded', initializeTopRecipesTabs);
-  document.addEventListener('turbo:load', initializeTopRecipesTabs);
-
-  function initializeTopRecipesSearch() {
-    const searchField = document.querySelector('[data-top-recipes-search]');
-    const items = document.querySelectorAll('.top-recipe-item');
-    if (!searchField || items.length === 0) return;
-
-    const filterItems = () => {
-      const query = searchField.value.toLowerCase().trim();
+  // Handle period tab clicks
+  document.addEventListener('click', function(e) {
+    const tab = e.target.closest('.top-recipes-tab[data-preview="true"]');
+    if (!tab) return;
+    
+    e.preventDefault();
+    const period = tab.dataset.period;
+    
+    // Update active tab
+    document.querySelectorAll('.top-recipes-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    // Show preview container
+    const previewContainer = document.getElementById('top-recipes-preview-container');
+    const previewContent = document.getElementById('top-recipes-preview-content');
+    const defaultContent = document.querySelector('[data-top-recipes-container]');
+    
+    if (!previewContainer || !previewContent) return;
+    
+    previewContainer.classList.remove('hidden');
+    if (defaultContent) defaultContent.classList.add('hidden');
+    
+    // Show loading
+    previewContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><div style="display: inline-block; width: 24px; height: 24px; border: 3px solid #10b981; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div></div>';
+    
+    // Fetch preview
+    const locale = getCurrentLocale();
+    const url = `/${locale}/top_recipes?period=${period}&preview=sidebar`;
+    
+    fetch(url, {
+      headers: {
+        'Accept': 'text/html',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Network error');
+      return response.text();
+    })
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const items = doc.querySelectorAll('.top-recipe-preview-item');
+      
+      if (items.length > 0) {
+        previewContent.innerHTML = '';
+        items.forEach(item => previewContent.appendChild(item.cloneNode(true)));
+      } else {
+        previewContent.innerHTML = '<div class="bg-card rounded-2xl p-6 text-center"><p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p></div>';
+      }
+    })
+    .catch(error => {
+      console.error('Preview error:', error);
+      previewContent.innerHTML = '<p style="text-align: center; padding: 2rem; color: #ef4444;">Eroare la încărcare</p>';
+    });
+  });
+  
+  // Search functionality
+  const searchInput = document.querySelector('[data-top-recipes-search]');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      const items = document.querySelectorAll('.top-recipes-list-item');
+      
       items.forEach(item => {
         const text = (item.dataset.filterText || '').toLowerCase();
-        item.style.display = query === '' || text.includes(query) ? '' : 'none';
+        if (text.includes(query)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
       });
-    };
-
-    searchField.addEventListener('input', filterItems);
+    });
   }
-
-  document.addEventListener('DOMContentLoaded', initializeTopRecipesSearch);
-  document.addEventListener('turbo:load', initializeTopRecipesSearch);
+  
+  // Close preview function
+  window.closeTopRecipesPreview = function() {
+    const previewContainer = document.getElementById('top-recipes-preview-container');
+    const defaultContent = document.querySelector('[data-top-recipes-container]');
+    
+    if (previewContainer) previewContainer.classList.add('hidden');
+    if (defaultContent) defaultContent.classList.remove('hidden');
+  };
+  
+  // CSS animation
+  const style = document.createElement('style');
+  style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+})();
 </script>
-
-<style>
-  .tab-content {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #ec4899, #f97316);
-    border-radius: 10px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #db2777, #ea580c);
-  }
-  
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-  
-  .animate-shimmer {
-    animation: shimmer 3s infinite;
-  }
-</style>
-

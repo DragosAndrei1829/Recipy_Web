@@ -1,0 +1,122 @@
+<div class="group-sidebar-stack">
+  <!-- Chat -->
+  <div class="group-sidebar-card">
+    <div class="group-sidebar-header">
+      <h3 class="group-sidebar-title">Chat</h3>
+      <%= link_to chat_group_path(group), class: "group-sidebar-link" do %>
+        Vezi tot
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
+    </div>
+    
+    <%= turbo_stream_from "group_#{group.id}_messages" %>
+    
+    <div id="group-chat-messages" class="group-chat-messages">
+      <% if recent_messages.any? %>
+        <% recent_messages.each do |message| %>
+          <div class="group-chat-message">
+            <div class="group-chat-message-header">
+              <% if message.user.avatar.attached? && message.user.avatar.blob.present? %>
+                <%= image_tag url_for(message.user.avatar.variant(resize_to_fill: [24, 24])), class: "group-chat-avatar" %>
+              <% else %>
+                <div class="group-chat-avatar group-chat-avatar-placeholder">
+                  <%= message.user.username&.first&.upcase || "?" %>
+                </div>
+              <% end %>
+              <span class="group-chat-username"><%= message.user.username %></span>
+              <span class="group-chat-time"><%= time_ago_in_words(message.created_at) %> în urmă</span>
+            </div>
+            <p class="group-chat-content"><%= truncate(message.content, length: 100) %></p>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="group-chat-empty">
+          <span class="text-2xl">💬</span>
+          <p class="text-sm text-gray-500 text-secondary-content">Niciun mesaj încă</p>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="group-chat-input-container">
+      <%= form_with url: send_message_group_path(group), method: :post, local: false, id: "group-chat-form", class: "group-chat-form" do |f| %>
+        <%= f.text_field :content, placeholder: "Scrie un mesaj...", class: "group-chat-input", autocomplete: "off" %>
+        <button type="submit" class="group-chat-send">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="group-sidebar-card">
+    <div class="group-sidebar-header">
+      <h3 class="group-sidebar-title">Acțiuni rapide</h3>
+    </div>
+    
+    <div class="group-quick-actions">
+      <button type="button" onclick="document.getElementById('add-recipe-modal').classList.remove('hidden')" class="group-quick-action-btn">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Adaugă rețetă
+      </button>
+      
+      <% if group.admin?(current_user) %>
+        <%= link_to members_group_path(group), class: "group-quick-action-btn", data: { turbo_frame: "_top" } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          Gestionează membri
+        <% end %>
+      <% end %>
+      
+      <% if group.owner != current_user %>
+        <%= button_to leave_group_path(group), method: :delete, data: { turbo_confirm: "Ești sigur că vrei să părăsești acest grup?" }, class: "group-quick-action-btn group-quick-action-btn-danger" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Părăsește grupul
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.getElementById('group-chat-messages');
+    const chatForm = document.getElementById('group-chat-form');
+    const chatInput = chatForm?.querySelector('input[type="text"]');
+    
+    // Scroll to bottom
+    function scrollToBottom() {
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+    
+    scrollToBottom();
+    
+    // Observe for new messages
+    if (messagesContainer) {
+      const observer = new MutationObserver(scrollToBottom);
+      observer.observe(messagesContainer, { childList: true, subtree: true });
+    }
+    
+    // Clear input after submit
+    if (chatForm) {
+      chatForm.addEventListener('turbo:submit-end', function() {
+        if (chatInput) {
+          chatInput.value = '';
+          chatInput.focus();
+        }
+      });
+    }
+  });
+</script>
+

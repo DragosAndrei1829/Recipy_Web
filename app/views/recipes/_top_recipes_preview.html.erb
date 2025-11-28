@@ -1,0 +1,29 @@
+<div class="top-recipes-preview bg-card rounded-3xl shadow-2xl border-2 border-default p-6 mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-black text-primary-content flex items-center gap-2">
+      <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+      </svg>
+      <%= t('top_recipes.page_title') %> - <%= t("top_recipes.#{period}") %>
+    </h2>
+    <%= link_to top_recipes_path(locale: I18n.locale, period: period), class: "text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1", data: { turbo_frame: "_top" } do %>
+      <%= t('top_recipes.view_all') %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    <% end %>
+  </div>
+  
+  <% if recipes.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% recipes.first(5).each_with_index do |recipe, index| %>
+        <%= render 'recipes/card_inner', recipe: recipe, index: index %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-8 bg-card rounded-2xl p-6">
+      <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+    </div>
+  <% end %>
+</div>
+

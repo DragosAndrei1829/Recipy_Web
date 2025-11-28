@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,11 +48,80 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "challenge_participants", force: :cascade do |t|
+    t.bigint "challenge_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "rank"
+    t.bigint "recipe_id", null: false
+    t.decimal "score"
+    t.string "status"
+    t.datetime "submitted_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["challenge_id", "rank"], name: "index_challenge_participants_on_challenge_id_and_rank"
+    t.index ["challenge_id"], name: "index_challenge_participants_on_challenge_id"
+    t.index ["recipe_id"], name: "index_challenge_participants_on_recipe_id"
+    t.index ["user_id"], name: "index_challenge_participants_on_user_id"
+  end
+
+  create_table "challenges", force: :cascade do |t|
+    t.string "challenge_type"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.date "end_date"
+    t.decimal "min_avg_rating"
+    t.integer "min_likes"
+    t.integer "participants_count", default: 0, null: false
+    t.text "prize"
+    t.text "rules"
+    t.string "slug"
+    t.date "start_date"
+    t.string "status"
+    t.integer "submissions_count", default: 0, null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["slug"], name: "index_challenges_on_slug", unique: true
+    t.index ["user_id"], name: "index_challenges_on_user_id"
+  end
+
+  create_table "collection_recipes", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.datetime "created_at", null: false
+    t.text "note"
+    t.integer "position", default: 0
+    t.bigint "recipe_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_id", "recipe_id"], name: "index_collection_recipes_on_collection_id_and_recipe_id", unique: true
+    t.index ["collection_id"], name: "index_collection_recipes_on_collection_id"
+    t.index ["position"], name: "index_collection_recipes_on_position"
+    t.index ["recipe_id"], name: "index_collection_recipes_on_recipe_id"
+  end
+
+  create_table "collections", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.boolean "is_public", default: false, null: false
+    t.string "name", null: false
+    t.integer "recipes_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["is_public"], name: "index_collections_on_is_public"
+    t.index ["name"], name: "index_collections_on_name"
+    t.index ["user_id", "name"], name: "index_collections_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_collections_on_user_id"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.text "body"
+    t.integer "cost_rating"
     t.datetime "created_at", null: false
+    t.integer "difficulty_rating"
+    t.integer "helpful_count"
     t.integer "rating", default: 0, null: false
     t.bigint "recipe_id", null: false
+    t.integer "taste_rating"
+    t.integer "time_rating"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["recipe_id"], name: "index_comments_on_recipe_id"
@@ -150,10 +219,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.string "name", null: false
     t.bigint "owner_id", null: false
     t.integer "recipes_count", default: 0, null: false
+    t.string "slug"
     t.datetime "updated_at", null: false
     t.index ["invite_code"], name: "index_groups_on_invite_code", unique: true
     t.index ["name"], name: "index_groups_on_name"
     t.index ["owner_id"], name: "index_groups_on_owner_id"
+    t.index ["slug"], name: "index_groups_on_slug", unique: true
   end
 
   create_table "legal_contents", force: :cascade do |t|
@@ -179,6 +250,22 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.bigint "user_id", null: false
     t.index ["recipe_id"], name: "index_likes_on_recipe_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "meal_plans", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "meal_type", default: "dinner", null: false
+    t.text "notes"
+    t.date "planned_for", null: false
+    t.bigint "recipe_id", null: false
+    t.integer "servings", default: 1, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["meal_type"], name: "index_meal_plans_on_meal_type"
+    t.index ["planned_for"], name: "index_meal_plans_on_planned_for"
+    t.index ["recipe_id"], name: "index_meal_plans_on_recipe_id"
+    t.index ["user_id", "planned_for"], name: "index_meal_plans_on_user_id_and_planned_for"
+    t.index ["user_id"], name: "index_meal_plans_on_user_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -240,6 +327,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.boolean "quarantined", default: false, null: false
     t.datetime "quarantined_at"
     t.integer "reports_count", default: 0, null: false
+    t.string "slug"
     t.integer "time_to_make", default: 0, null: false
     t.string "title"
     t.datetime "updated_at", null: false
@@ -248,6 +336,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.index ["cuisine_id"], name: "index_recipes_on_cuisine_id"
     t.index ["food_type_id"], name: "index_recipes_on_food_type_id"
     t.index ["quarantined"], name: "index_recipes_on_quarantined"
+    t.index ["slug"], name: "index_recipes_on_slug", unique: true
     t.index ["user_id"], name: "index_recipes_on_user_id"
   end
 
@@ -270,6 +359,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.index ["status"], name: "index_reports_on_status"
   end
 
+  create_table "review_helpfuls", force: :cascade do |t|
+    t.bigint "comment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["comment_id"], name: "index_review_helpfuls_on_comment_id"
+    t.index ["user_id"], name: "index_review_helpfuls_on_user_id"
+  end
+
   create_table "shared_recipes", force: :cascade do |t|
     t.bigint "conversation_id", null: false
     t.datetime "created_at", null: false
@@ -286,6 +384,38 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.index ["recipient_id", "read", "created_at"], name: "index_shared_recipes_on_recipient_id_and_read_and_created_at"
     t.index ["recipient_id"], name: "index_shared_recipes_on_recipient_id"
     t.index ["sender_id"], name: "index_shared_recipes_on_sender_id"
+  end
+
+  create_table "shopping_list_items", force: :cascade do |t|
+    t.string "category"
+    t.boolean "checked", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "ingredient_name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "quantity"
+    t.bigint "recipe_id"
+    t.bigint "shopping_list_id", null: false
+    t.string "unit"
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_shopping_list_items_on_category"
+    t.index ["position"], name: "index_shopping_list_items_on_position"
+    t.index ["recipe_id"], name: "index_shopping_list_items_on_recipe_id"
+    t.index ["shopping_list_id", "checked"], name: "index_shopping_list_items_on_shopping_list_id_and_checked"
+    t.index ["shopping_list_id"], name: "index_shopping_list_items_on_shopping_list_id"
+  end
+
+  create_table "shopping_lists", force: :cascade do |t|
+    t.integer "checked_items_count", default: 0, null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.integer "items_count", default: 0, null: false
+    t.string "name", default: "Lista de cumpărături", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["status"], name: "index_shopping_lists_on_status"
+    t.index ["user_id", "status"], name: "index_shopping_lists_on_user_id_and_status"
+    t.index ["user_id"], name: "index_shopping_lists_on_user_id"
   end
 
   create_table "site_settings", force: :cascade do |t|
@@ -336,6 +466,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.string "warning_color", default: "#f59e0b"
   end
 
+  create_table "user_shortcuts", force: :cascade do |t|
+    t.string "color", default: "#3b82f6"
+    t.datetime "created_at", null: false
+    t.string "icon", default: "🔗"
+    t.string "name", null: false
+    t.integer "position", default: 0
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "position"], name: "index_user_shortcuts_on_user_id_and_position"
+    t.index ["user_id"], name: "index_user_shortcuts_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "account_type"
     t.boolean "admin", default: false, null: false
@@ -360,6 +503,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.integer "reports_count", default: 0, null: false
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.string "slug"
     t.integer "suspension_count", default: 0, null: false
     t.boolean "terms_accepted", default: false, null: false
     t.datetime "terms_accepted_at"
@@ -373,11 +517,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["slug"], name: "index_users_on_slug", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "challenge_participants", "challenges"
+  add_foreign_key "challenge_participants", "recipes"
+  add_foreign_key "challenge_participants", "users"
+  add_foreign_key "challenges", "users"
+  add_foreign_key "collection_recipes", "collections"
+  add_foreign_key "collection_recipes", "recipes"
+  add_foreign_key "collections", "users"
   add_foreign_key "comments", "recipes"
   add_foreign_key "comments", "users"
   add_foreign_key "conversations", "users", column: "recipient_id"
@@ -396,6 +548,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
   add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "recipes"
   add_foreign_key "likes", "users"
+  add_foreign_key "meal_plans", "recipes"
+  add_foreign_key "meal_plans", "users"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
   add_foreign_key "notifications", "users"
@@ -406,8 +560,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_190705) do
   add_foreign_key "recipes", "users"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "reports", "users", column: "reviewed_by_id"
+  add_foreign_key "review_helpfuls", "comments"
+  add_foreign_key "review_helpfuls", "users"
   add_foreign_key "shared_recipes", "conversations"
   add_foreign_key "shared_recipes", "recipes"
   add_foreign_key "shared_recipes", "users", column: "recipient_id"
   add_foreign_key "shared_recipes", "users", column: "sender_id"
+  add_foreign_key "shopping_list_items", "recipes"
+  add_foreign_key "shopping_list_items", "shopping_lists"
+  add_foreign_key "shopping_lists", "users"
+  add_foreign_key "user_shortcuts", "users"
 end

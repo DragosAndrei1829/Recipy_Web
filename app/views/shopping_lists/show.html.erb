@@ -1,0 +1,118 @@
+<% content_for :title, @shopping_list.name %>
+
+<div class="shopping-list-show-page">
+  <!-- Header -->
+  <div class="shopping-list-header">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <%= link_to shopping_lists_path, class: "btn-icon" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          <% end %>
+          <h1 class="text-2xl font-black text-primary-content"><%= @shopping_list.name %></h1>
+        </div>
+        <div class="flex items-center gap-4 mt-2">
+          <span class="text-sm text-secondary-content">
+            <%= @shopping_list.items_count %> iteme
+          </span>
+          <% if @shopping_list.items_count > 0 %>
+            <div class="shopping-list-progress-container">
+              <div class="shopping-list-progress-bar-full" style="width: <%= @shopping_list.progress_percentage %>%"></div>
+            </div>
+            <span class="text-sm font-semibold text-primary">
+              <%= @shopping_list.progress_percentage %>%
+            </span>
+          <% end %>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <% if @shopping_list.status == 'active' %>
+          <%= link_to complete_shopping_list_path(@shopping_list), method: :post, 
+                      class: "btn-secondary",
+                      data: { confirm: "Marchezi această listă ca finalizată?" } do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Finalizează
+          <% end %>
+        <% end %>
+        <%= link_to edit_shopping_list_path(@shopping_list), class: "btn-secondary" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Editează
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Item Form -->
+  <div class="shopping-list-add-item">
+    <%= form_with model: [@shopping_list, @shopping_list.shopping_list_items.build], 
+                  local: true, 
+                  class: "shopping-list-item-form" do |f| %>
+      <div class="flex gap-3 flex-wrap">
+        <%= f.text_field :ingredient_name, 
+            placeholder: "Nume ingredient", 
+            class: "form-input flex-1 min-w-[200px]",
+            required: true %>
+        <%= f.text_field :quantity, 
+            placeholder: "Cantitate", 
+            class: "form-input w-24" %>
+        <%= f.text_field :unit, 
+            placeholder: "Unitate", 
+            class: "form-input w-24" %>
+        <%= f.select :category,
+            options_for_select([
+              ['Legume', 'vegetables'],
+              ['Fructe', 'fruits'],
+              ['Carne', 'meat'],
+              ['Lactate', 'dairy'],
+              ['Cereale', 'grains'],
+              ['Condimente', 'spices'],
+              ['Altele', 'other']
+            ]),
+            { prompt: "Categorie" },
+            { class: "form-select w-32" } %>
+        <%= f.submit "Adaugă", class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Items by Category -->
+  <div class="shopping-list-items-container">
+    <% if @items_by_category.any? %>
+      <% @items_by_category.each do |category, items| %>
+        <div class="shopping-list-category">
+          <h3 class="shopping-list-category-title">
+            <%= case category
+                when 'vegetables' then '🥬 Legume'
+                when 'fruits' then '🍎 Fructe'
+                when 'meat' then '🥩 Carne'
+                when 'dairy' then '🥛 Lactate'
+                when 'grains' then '🌾 Cereale'
+                when 'spices' then '🧂 Condimente'
+                else '📦 Altele'
+                end %>
+            <span class="text-sm font-normal text-secondary-content">
+              (<%= items.count %>)
+            </span>
+          </h3>
+          <div class="shopping-list-items">
+            <% items.each do |item| %>
+              <%= render 'shopping_list_items/item', item: item, shopping_list: @shopping_list %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="shopping-list-empty">
+        <span class="text-5xl">📝</span>
+        <h3 class="text-xl font-bold text-primary-content mt-4">Listă goală</h3>
+        <p class="text-secondary-content mt-2">Adaugă iteme pentru a începe!</p>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+<% if @recipes.any? %>
+  <% @recipes.limit(5).each do |recipe| %>
+    <div class="top-recipe-preview-item">
+      <%= link_to recipe_path(recipe, locale: I18n.locale), 
+          class: "top-recipes-preview-link",
+          data: { turbo_frame: "_top" } do %>
+        <% 
+          begin
+            cover_photo_obj = recipe.cover_photo
+            has_cover = false
+            if cover_photo_obj.present?
+              begin
+                has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
+              rescue
+                has_cover = false
+              end
+            end
+          rescue
+            has_cover = false
+          end
+          begin
+            if !has_cover && recipe.photos.attached?
+              first_valid_photo = recipe.photos.find { |p| 
+                begin
+                  p.blob.present? && p.blob.service.exist?(p.blob.key)
+                rescue
+                  false
+                end
+              }
+            else
+              first_valid_photo = nil
+            end
+          rescue
+            first_valid_photo = nil
+          end
+        %>
+        <% if has_cover && cover_photo_obj %>
+          <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
+              class: "top-recipes-preview-image", alt: recipe.title %>
+        <% elsif first_valid_photo %>
+          <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
+              class: "top-recipes-preview-image", alt: recipe.title %>
+        <% else %>
+          <div class="top-recipes-preview-placeholder"></div>
+        <% end %>
+        <div class="top-recipes-preview-info">
+          <div class="top-recipes-preview-title"><%= recipe.title %></div>
+          <div class="top-recipes-preview-meta">
+            <span>❤️ <%= recipe.likes_count %></span>
+            <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+              <span>⏱ <%= recipe.time_to_make %>m</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <% if @recipes.count > 5 %>
+    <div class="top-recipes-preview-more">
+      <%= link_to top_recipes_path(locale: I18n.locale, period: @current_period), 
+          class: "top-recipes-preview-more-link",
+          data: { turbo_frame: "_top" } do %>
+        Vezi toate (<%= @recipes.count %>)
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <p class="top-recipes-preview-empty">Nu sunt rețete pentru această perioadă</p>
+<% end %>

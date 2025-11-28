@@ -1,0 +1,65 @@
+<div class="shopping-list-card">
+  <%= link_to shopping_list_path(list), class: "shopping-list-card-link" do %>
+    <div class="shopping-list-card-header">
+      <h3 class="font-bold text-primary-content"><%= list.name %></h3>
+      <% if list.status == 'active' %>
+        <span class="shopping-list-badge-active">Activă</span>
+      <% elsif list.status == 'completed' %>
+        <span class="shopping-list-badge-completed">Finalizată</span>
+      <% else %>
+        <span class="shopping-list-badge-archived">Arhivată</span>
+      <% end %>
+    </div>
+
+    <div class="shopping-list-card-stats">
+      <div class="shopping-list-stat">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <span><%= list.items_count %> iteme</span>
+      </div>
+      <div class="shopping-list-stat">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span><%= list.checked_items_count %> bifate</span>
+      </div>
+      <% if list.items_count > 0 %>
+        <div class="shopping-list-progress">
+          <div class="shopping-list-progress-bar" style="width: <%= list.progress_percentage %>%"></div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="shopping-list-card-footer">
+      <span class="text-xs text-secondary-content">
+        Creată <%= time_ago_in_words(list.created_at) %> în urmă
+      </span>
+      <% if list.completed_at %>
+        <span class="text-xs text-secondary-content">
+          Finalizată <%= time_ago_in_words(list.completed_at) %> în urmă
+        </span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="shopping-list-card-actions">
+    <% if list.status == 'active' %>
+      <%= link_to complete_shopping_list_path(list), method: :post, 
+                  class: "btn-icon-small",
+                  data: { confirm: "Marchezi această listă ca finalizată?" } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      <% end %>
+    <% end %>
+    <%= link_to shopping_list_path(list), method: :delete,
+                class: "btn-icon-small text-error",
+                data: { confirm: "Ești sigur că vrei să ștergi această listă?" } do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    <% end %>
+  </div>
+</div>
+

@@ -1,0 +1,59 @@
+<% content_for :title, "Colecțiile mele" %>
+
+<div class="collections-page">
+  <!-- Header -->
+  <div class="collections-header">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="collections-title">Colecțiile mele</h1>
+        <p class="collections-subtitle">Organizează-ți rețetele preferate în colecții</p>
+      </div>
+      <%= link_to new_collection_path, class: "collection-btn-primary" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Colecție nouă
+      <% end %>
+    </div>
+  </div>
+
+  <!-- My Collections -->
+  <div class="collections-section">
+    <h2 class="collections-section-title">Colecțiile tale</h2>
+    <% if @collections.any? %>
+      <div class="collections-grid">
+        <% @collections.each do |collection| %>
+          <%= render 'collections/collection_card', collection: collection %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="collections-empty">
+        <span class="text-5xl">📚</span>
+        <h3>Nu ai colecții încă</h3>
+        <p>Creează prima ta colecție pentru a organiza rețetele preferate!</p>
+        <%= link_to new_collection_path, class: "collection-btn-primary mt-4" do %>
+          Creează prima colecție
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Public Collections -->
+  <% if @public_collections.any? %>
+    <div class="collections-section">
+      <h2 class="collections-section-title">Colecții publice</h2>
+      <div class="collections-grid">
+        <% @public_collections.each do |collection| %>
+          <%= render 'collections/collection_card', collection: collection %>
+        <% end %>
+      </div>
+      <%= link_to public_index_collections_path, class: "collection-link-more" do %>
+        Vezi toate colecțiile publice
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+

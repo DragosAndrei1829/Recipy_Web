@@ -26,11 +26,20 @@ class User < ApplicationRecord
   validate :password_complexity, if: :password_required?
   has_one_attached :avatar
   attr_accessor :phone
+  
+  # Slug generation
+  before_validation :generate_slug, on: :create
+  before_validation :regenerate_slug, on: :update, if: :username_changed?
+  
+  def to_param
+    slug.presence || id.to_s
+  end
   has_many :likes, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :recipes, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :favorite_recipes, through: :favorites, source: :recipe
+  has_many :user_shortcuts, dependent: :destroy
 
   # Follow relationships
   has_many :follows, foreign_key: :follower_id, dependent: :destroy
@@ -64,6 +73,20 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
   has_many :group_messages, dependent: :destroy
+  
+  # Collections
+  has_many :collections, dependent: :destroy
+
+  # Meal Planning
+  has_many :meal_plans, dependent: :destroy
+  
+  # Shopping Lists
+  has_many :shopping_lists, dependent: :destroy
+
+  # Challenges
+  has_many :created_challenges, class_name: "Challenge", foreign_key: "user_id", dependent: :destroy
+  has_many :challenge_participants, dependent: :destroy
+  has_many :challenges, through: :challenge_participants
 
   # Theme preference
   belongs_to :theme, optional: true
@@ -278,6 +301,24 @@ class User < ApplicationRecord
   before_save :auto_confirm_existing_users
 
   private
+
+  def generate_slug
+    return if slug.present?
+    self.slug = username.parameterize if username.present?
+    # Ensure uniqueness
+    if slug.present? && User.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
+  end
+
+  def regenerate_slug
+    return unless username_changed?
+    self.slug = username.parameterize if username.present?
+    # Ensure uniqueness
+    if slug.present? && User.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
+  end
 
   def auto_confirm_existing_users
     # Auto-confirm existing users (created before confirmation system) and admins

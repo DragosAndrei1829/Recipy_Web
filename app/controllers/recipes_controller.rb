@@ -228,7 +228,58 @@ class RecipesController < ApplicationController
       end
     end
 
+    # Filter by protein (lower than)
+    if params[:max_protein].present? && params[:max_protein].to_s.strip.present?
+      protein = params[:max_protein].to_f
+      if protein > 0
+        @recipes = @recipes.where("(nutrition->>'protein')::float <= ?", protein)
+      end
+    end
+
+    # Filter by fat (lower than)
+    if params[:max_fat].present? && params[:max_fat].to_s.strip.present?
+      fat = params[:max_fat].to_f
+      if fat > 0
+        @recipes = @recipes.where("(nutrition->>'fat')::float <= ?", fat)
+      end
+    end
+
+    # Filter by carbs (lower than)
+    if params[:max_carbs].present? && params[:max_carbs].to_s.strip.present?
+      carbs = params[:max_carbs].to_f
+      if carbs > 0
+        @recipes = @recipes.where("(nutrition->>'carbs')::float <= ?", carbs)
+      end
+    end
+
+    # Filter by sugar (lower than)
+    if params[:max_sugar].present? && params[:max_sugar].to_s.strip.present?
+      sugar = params[:max_sugar].to_f
+      if sugar > 0
+        @recipes = @recipes.where("(nutrition->>'sugar')::float <= ?", sugar)
+      end
+    end
+
     @current_period = period
+    
+    # Set top recipes for each period (for sidebar)
+    @top_day = Recipe.includes(:user).created_today.top_by_likes.limit(10)
+    @top_week = Recipe.includes(:user).created_this_week.top_by_likes.limit(10)
+    @top_month = Recipe.includes(:user).created_this_month.top_by_likes.limit(10)
+    @top_year = Recipe.includes(:user).created_this_year.top_by_likes.limit(10)
+    
+    # If preview mode, render preview partial
+    if params[:preview] == 'sidebar'
+      # Only return recipes for the selected period, limit to 5
+      @recipes = @recipes.limit(5)
+      render partial: 'recipes/top_recipes_sidebar_preview', layout: false
+      return
+    elsif params[:preview] == 'true'
+      # Only return recipes for the selected period, limit to 5
+      @recipes = @recipes.limit(5)
+      render partial: 'recipes/top_recipes_preview', locals: { recipes: @recipes, period: period }, layout: false
+      return
+    end
   end
 
   def show; end
@@ -286,7 +337,8 @@ class RecipesController < ApplicationController
   private
 
   def set_recipe
-    @recipe = Recipe.includes(:user, :category, :cuisine, :food_type, comments: :user).find(params[:id])
+    @recipe = Recipe.includes(:user, :category, :cuisine, :food_type, comments: :user)
+                    .find_by(slug: params[:id]) || Recipe.find(params[:id])
   end
 
   def reload_recipe_schema

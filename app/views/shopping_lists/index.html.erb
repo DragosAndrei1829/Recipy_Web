@@ -1,0 +1,75 @@
+<% content_for :title, "Liste de cumpărături" %>
+
+<div class="shopping-lists-page">
+  <!-- Header -->
+  <div class="shopping-lists-header">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-primary-content">Liste de cumpărături</h1>
+        <p class="text-secondary-content mt-2">Gestionează-ți listele de cumpărături</p>
+      </div>
+      <%= link_to new_shopping_list_path, class: "btn-primary" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Listă nouă
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Active Lists -->
+  <% if @active_lists.any? %>
+    <div class="shopping-lists-section">
+      <h2 class="text-xl font-bold text-primary-content mb-4">Liste active</h2>
+      <div class="shopping-lists-grid">
+        <% @active_lists.each do |list| %>
+          <%= render 'shopping_lists/list_card', list: list %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Completed Lists -->
+  <% if @completed_lists.any? %>
+    <div class="shopping-lists-section mt-8">
+      <h2 class="text-xl font-bold text-primary-content mb-4">Finalizate</h2>
+      <div class="shopping-lists-grid">
+        <% @completed_lists.each do |list| %>
+          <%= render 'shopping_lists/list_card', list: list %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Archived Lists -->
+  <% if @archived_lists.any? %>
+    <div class="shopping-lists-section mt-8">
+      <details class="shopping-lists-archived">
+        <summary class="text-lg font-semibold text-secondary-content cursor-pointer">
+          Arhivate (<%= @archived_lists.count %>)
+        </summary>
+        <div class="shopping-lists-grid mt-4">
+          <% @archived_lists.each do |list| %>
+            <%= render 'shopping_lists/list_card', list: list %>
+          <% end %>
+        </div>
+      </details>
+    </div>
+  <% end %>
+
+  <% if @shopping_lists.empty? %>
+    <div class="shopping-lists-empty mt-12">
+      <span class="text-6xl">🛒</span>
+      <h3 class="text-2xl font-bold text-primary-content mt-4">Nu ai liste de cumpărături</h3>
+      <p class="text-secondary-content mt-2">Creează prima ta listă sau generează una din mesele planificate!</p>
+      <div class="flex gap-3 mt-6">
+        <%= link_to new_shopping_list_path, class: "btn-primary" do %>
+          Creează listă nouă
+        <% end %>
+        <%= link_to meal_plans_path, class: "btn-secondary" do %>
+          <%= t('modern_menu.meal_planning') %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

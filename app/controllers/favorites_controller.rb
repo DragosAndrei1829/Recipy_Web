@@ -36,6 +36,6 @@ class FavoritesController < ApplicationController
   private
 
   def set_recipe
-    @recipe = Recipe.find(params[:recipe_id])
+    @recipe = Recipe.find_by(slug: params[:recipe_id]) || Recipe.find(params[:recipe_id])
   end
 end

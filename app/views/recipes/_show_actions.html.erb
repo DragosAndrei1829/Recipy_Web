@@ -2,56 +2,48 @@
   <% if user_signed_in? %>
     <% liked = recipe.likes.exists?(user: current_user) %>
     <% if liked %>
-      <%= form_with url: recipe_like_path(recipe, format: :turbo_stream),
-                    method: :delete, data: { turbo: true }, class: "inline like-button" do %>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-primary bg-opacity-20 px-5 py-2.5 text-sm font-semibold text-primary hover:bg-opacity-30 hover:border-primary transition-smooth like-active"
-                data-disable-with="Unlike">
-          <svg class="h-5 w-5 fill-current animate-heart-beat" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-          <span><%= t('recipes.show.liked') %></span>
-        </button>
+      <%= button_to recipe_like_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                    method: :delete,
+                    form: { data: { turbo: true } },
+                    class: "inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-primary bg-opacity-20 px-5 py-2.5 text-sm font-semibold text-primary hover:bg-opacity-30 hover:border-primary transition-smooth like-active" do %>
+        <svg class="h-5 w-5 fill-current animate-heart-beat" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span><%= t('recipes.show.liked') %></span>
       <% end %>
     <% else %>
-      <%= form_with url: recipe_like_path(recipe, format: :turbo_stream),
-                    method: :post, data: { turbo: true }, class: "inline like-button" do %>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-xl border-2 border-default bg-card px-5 py-2.5 text-sm font-semibold text-primary-content hover:bg-opacity-80 hover:border-primary transition-smooth"
-                data-disable-with="<%= t('recipes.show.like') %>">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-          </svg>
-          <span><%= t('recipes.show.like') %></span>
-        </button>
+      <%= button_to recipe_like_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                    method: :post,
+                    form: { data: { turbo: true } },
+                    class: "inline-flex items-center gap-2 rounded-xl border-2 border-default bg-card px-5 py-2.5 text-sm font-semibold text-primary-content hover:bg-opacity-80 hover:border-primary transition-smooth" do %>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span><%= t('recipes.show.like') %></span>
       <% end %>
     <% end %>
 
     <!-- Favorite Button -->
     <% favorited = current_user.favorites.exists?(recipe: recipe) %>
     <% if favorited %>
-      <%= form_with url: recipe_favorite_path(recipe, format: :turbo_stream),
-                    method: :delete, data: { turbo: true }, class: "inline favorite-button" do %>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-xl border-2 border-accent bg-accent bg-opacity-20 px-5 py-2.5 text-sm font-semibold text-accent hover:bg-opacity-30 hover:border-accent transition-smooth"
-                data-disable-with="<%= t('favorites.remove') %>">
-          <svg class="h-5 w-5 fill-current" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-          </svg>
-          <span><%= t('favorites.saved') %></span>
-        </button>
+      <%= button_to recipe_favorite_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                    method: :delete,
+                    form: { data: { turbo: true } },
+                    class: "inline-flex items-center gap-2 rounded-xl border-2 border-accent bg-accent bg-opacity-20 px-5 py-2.5 text-sm font-semibold text-accent hover:bg-opacity-30 hover:border-accent transition-smooth" do %>
+        <svg class="h-5 w-5 fill-current" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        <span><%= t('favorites.saved') %></span>
       <% end %>
     <% else %>
-      <%= form_with url: recipe_favorite_path(recipe, format: :turbo_stream),
-                    method: :post, data: { turbo: true }, class: "inline favorite-button" do %>
-        <button type="submit"
-                class="inline-flex items-center gap-2 rounded-xl border-2 border-default bg-card px-5 py-2.5 text-sm font-semibold text-primary-content hover:bg-opacity-80 hover:border-primary transition-smooth"
-                data-disable-with="<%= t('favorites.save') %>">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-          </svg>
-          <span><%= t('favorites.save') %></span>
-        </button>
+      <%= button_to recipe_favorite_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                    method: :post,
+                    form: { data: { turbo: true } },
+                    class: "inline-flex items-center gap-2 rounded-xl border-2 border-default bg-card px-5 py-2.5 text-sm font-semibold text-primary-content hover:bg-opacity-80 hover:border-primary transition-smooth" do %>
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        <span><%= t('favorites.save') %></span>
       <% end %>
     <% end %>
   <% else %>

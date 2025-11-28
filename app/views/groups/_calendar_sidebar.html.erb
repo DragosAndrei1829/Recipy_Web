@@ -1,0 +1,90 @@
+<div class="group-sidebar-card">
+  <div class="group-sidebar-header">
+    <h3 class="group-sidebar-title">Calendar</h3>
+  </div>
+  
+  <div class="group-calendar-sidebar">
+    <div id="group-calendar-sidebar" class="group-calendar-compact" data-dates-with-recipes="<%= dates_with_recipes.to_json %>"></div>
+    <input type="hidden" id="selected-date-sidebar" value="<%= params[:date] %>">
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('group-calendar-sidebar');
+    const selectedDateInput = document.getElementById('selected-date-sidebar');
+    
+    if (calendarEl) {
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      
+      function renderCalendar(month, year) {
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const selectedDate = selectedDateInput.value ? new Date(selectedDateInput.value) : null;
+        const datesWithRecipes = JSON.parse(calendarEl.dataset.datesWithRecipes || '[]');
+        
+        let calendarHTML = '<div class="calendar-header-compact">';
+        calendarHTML += '<button type="button" onclick="changeMonthSidebar(-1)" class="calendar-nav-btn-compact">‹</button>';
+        calendarHTML += `<span class="calendar-month-year-compact">${new Date(year, month).toLocaleDateString('ro-RO', { month: 'short', year: 'numeric' })}</span>`;
+        calendarHTML += '<button type="button" onclick="changeMonthSidebar(1)" class="calendar-nav-btn-compact">›</button>';
+        calendarHTML += '</div>';
+        
+        calendarHTML += '<div class="calendar-weekdays-compact">';
+        const weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+        weekdays.forEach(day => {
+          calendarHTML += `<div class="calendar-weekday-compact">${day}</div>`;
+        });
+        calendarHTML += '</div>';
+        
+        calendarHTML += '<div class="calendar-days-compact">';
+        
+        // Empty cells for days before month starts
+        for (let i = 0; i < firstDay; i++) {
+          calendarHTML += '<div class="calendar-day-compact empty"></div>';
+        }
+        
+        // Days of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(year, month, day);
+          const dateStr = date.toISOString().split('T')[0];
+          const isToday = date.toDateString() === today.toDateString();
+          const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+          const hasRecipes = datesWithRecipes.includes(dateStr);
+          
+          calendarHTML += `<button type="button" class="calendar-day-compact ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasRecipes ? 'has-recipes' : ''}" data-date="${dateStr}" onclick="selectDateSidebar('${dateStr}')" title="${dateStr}">${day}</button>`;
+        }
+        
+        calendarHTML += '</div>';
+        
+        calendarEl.innerHTML = calendarHTML;
+      }
+      
+      window.changeMonthSidebar = function(delta) {
+        const currentMonth = parseInt(calendarEl.dataset.month || today.getMonth());
+        const currentYear = parseInt(calendarEl.dataset.year || today.getFullYear());
+        const newDate = new Date(currentYear, currentMonth + delta, 1);
+        calendarEl.dataset.month = newDate.getMonth();
+        calendarEl.dataset.year = newDate.getFullYear();
+        renderCalendar(newDate.getMonth(), newDate.getFullYear());
+      };
+      
+      window.selectDateSidebar = function(date) {
+        selectedDateInput.value = date;
+        // Reload page with date filter
+        const url = new URL(window.location);
+        url.searchParams.set('date', date);
+        window.location.href = url.toString();
+      };
+      
+      // Initialize
+      const initialMonth = selectedDateInput.value ? new Date(selectedDateInput.value).getMonth() : currentMonth;
+      const initialYear = selectedDateInput.value ? new Date(selectedDateInput.value).getFullYear() : currentYear;
+      calendarEl.dataset.month = initialMonth;
+      calendarEl.dataset.year = initialYear;
+      renderCalendar(initialMonth, initialYear);
+    }
+  });
+</script>
+

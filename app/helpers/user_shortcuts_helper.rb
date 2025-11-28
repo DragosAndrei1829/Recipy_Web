@@ -1,0 +1,2 @@
+module UserShortcutsHelper
+end

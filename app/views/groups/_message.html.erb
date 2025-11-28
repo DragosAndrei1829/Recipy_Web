@@ -14,7 +14,7 @@
     <% end %>
     
     <!-- Message Bubble -->
-    <div class="<%= is_own_message ? 'bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-2xl rounded-br-md' : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-2xl rounded-bl-md shadow-sm' %> px-4 py-2">
+    <div class="<%= is_own_message ? 'bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-2xl rounded-br-md' : 'bg-card text-primary-content rounded-2xl rounded-bl-md shadow-sm' %> px-4 py-2">
       <% unless is_own_message %>
         <p class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1"><%= message.user.username %></p>
       <% end %>

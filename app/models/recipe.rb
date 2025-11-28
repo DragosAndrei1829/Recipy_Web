@@ -7,6 +7,8 @@ class Recipe < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :favorites, dependent: :destroy
+  has_many :collection_recipes, dependent: :destroy
+  has_many :collections, through: :collection_recipes
   has_many :reports, as: :reportable, dependent: :destroy
   has_one_attached :video
   has_many_attached :photos
@@ -15,8 +17,16 @@ class Recipe < ApplicationRecord
   validates :ingredients, presence: true, length: { minimum: 10 }
   validates :preparation, presence: true, length: { minimum: 10 }
   
+  # Slug generation
+  before_validation :generate_slug, on: :create
+  before_validation :regenerate_slug, on: :update, if: :title_changed?
+  
   # Video validation - max 100MB, only video formats
   validate :video_format_and_size
+  
+  def to_param
+    slug.presence || id.to_s
+  end
 
   # Moderation scopes
   scope :visible, -> { where(quarantined: false) }
@@ -100,5 +110,59 @@ class Recipe < ApplicationRecord
 
   def self.top_of_year(limit = 10)
     created_this_year.top_by_likes.limit(limit)
+  end
+
+  # Calculate and update average rating from comments
+  def update_average_rating
+    ratings = comments.where.not(rating: nil).pluck(:rating)
+    return if ratings.empty?
+    
+    avg_rating = (ratings.sum.to_f / ratings.size).round(1)
+    update_column(:rating, avg_rating) if respond_to?(:rating)
+  end
+
+  # Get average advanced ratings
+  def average_taste_rating
+    ratings = comments.where.not(taste_rating: nil).pluck(:taste_rating)
+    return nil if ratings.empty?
+    (ratings.sum.to_f / ratings.size).round(1)
+  end
+
+  def average_difficulty_rating
+    ratings = comments.where.not(difficulty_rating: nil).pluck(:difficulty_rating)
+    return nil if ratings.empty?
+    (ratings.sum.to_f / ratings.size).round(1)
+  end
+
+  def average_time_rating
+    ratings = comments.where.not(time_rating: nil).pluck(:time_rating)
+    return nil if ratings.empty?
+    (ratings.sum.to_f / ratings.size).round(1)
+  end
+
+  def average_cost_rating
+    ratings = comments.where.not(cost_rating: nil).pluck(:cost_rating)
+    return nil if ratings.empty?
+    (ratings.sum.to_f / ratings.size).round(1)
+  end
+
+  private
+
+  def generate_slug
+    return if slug.present?
+    self.slug = title.parameterize if title.present?
+    # Ensure uniqueness
+    if slug.present? && Recipe.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
+  end
+
+  def regenerate_slug
+    return unless title_changed?
+    self.slug = title.parameterize if title.present?
+    # Ensure uniqueness
+    if slug.present? && Recipe.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
   end
 end

@@ -1,0 +1,38 @@
+<div id="<%= dom_id(item) %>" class="shopping-list-item <%= 'checked' if item.checked %>">
+  <div class="shopping-list-item-content">
+    <%= form_with url: toggle_checked_shopping_list_shopping_list_item_path(shopping_list, item),
+                  method: :post,
+                  data: { turbo: true },
+                  class: "shopping-list-item-checkbox" do |f| %>
+      <label class="shopping-list-item-checkbox-label">
+        <%= check_box_tag :checked, "1", item.checked, 
+            onchange: "this.form.requestSubmit()",
+            class: "shopping-list-item-checkbox-input" %>
+        <span class="shopping-list-item-name">
+          <%= item.ingredient_name %>
+        </span>
+      </label>
+    <% end %>
+
+    <div class="shopping-list-item-details">
+      <% if item.quantity.present? || item.unit.present? %>
+        <span class="shopping-list-item-quantity">
+          <%= [item.quantity, item.unit].compact.join(' ') %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="shopping-list-item-actions">
+    <%= link_to shopping_list_shopping_list_item_path(shopping_list, item),
+                method: :delete,
+                class: "btn-icon-small text-error",
+                data: { confirm: "Ești sigur că vrei să ștergi acest item?" },
+                remote: true do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    <% end %>
+  </div>
+</div>
+

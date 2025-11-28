@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-all">
+<div class="bg-card rounded-xl border border-default overflow-hidden hover:shadow-lg transition-all">
   <% recipe = group_recipe.recipe %>
   
   <%= link_to recipe_path(recipe), class: "block" do %>
@@ -15,16 +15,16 @@
     
     <!-- Content -->
     <div class="p-4">
-      <h3 class="font-bold text-gray-800 dark:text-white truncate"><%= recipe.title %></h3>
+      <h3 class="font-bold text-primary-content truncate"><%= recipe.title %></h3>
       
-      <div class="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
+      <div class="flex items-center gap-2 mt-2 text-xs text-gray-500 text-secondary-content">
         <span>⏱️ <%= recipe.time_to_make %> min</span>
         <span>•</span>
         <span>❤️ <%= recipe.likes_count %></span>
       </div>
       
       <% if group_recipe.note.present? %>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-700 rounded-lg p-2">
+        <p class="mt-2 text-sm text-secondary-content italic bg-gray-50 bg-card rounded-lg p-2">
           "<%= truncate(group_recipe.note, length: 80) %>"
         </p>
       <% end %>
@@ -33,7 +33,7 @@
   
   <!-- Footer -->
   <div class="px-4 pb-4 flex items-center justify-between">
-    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+    <div class="flex items-center gap-2 text-xs text-gray-500 text-secondary-content">
       <% if group_recipe.added_by.avatar.attached? %>
         <%= image_tag group_recipe.added_by.avatar.variant(resize_to_fill: [20, 20]), class: "w-5 h-5 rounded-full object-cover" %>
       <% else %>

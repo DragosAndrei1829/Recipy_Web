@@ -3,7 +3,7 @@
 <div class="max-w-4xl mx-auto px-4 py-8">
   <!-- Back Link -->
   <div class="mb-6">
-    <%= link_to group_path(@group), class: "inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 transition-colors" do %>
+    <%= link_to group_path(@group), class: "inline-flex items-center gap-2 text-secondary-content hover:text-emerald-600 transition-colors" do %>
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
@@ -11,12 +11,12 @@
     <% end %>
   </div>
 
-  <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+  <div class="bg-card rounded-2xl border border-default overflow-hidden">
     <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+    <div class="px-6 py-4 border-b border-default flex justify-between items-center">
       <div>
-        <h1 class="text-xl font-bold text-gray-800 dark:text-white">Membri</h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm"><%= @group.members_count %> membri în grup</p>
+        <h1 class="text-xl font-bold text-primary-content">Membri</h1>
+        <p class="text-secondary-content text-sm"><%= @group.members_count %> membri în grup</p>
       </div>
       
       <!-- Invite Code -->
@@ -48,7 +48,7 @@
             <!-- Info -->
             <div>
               <div class="flex items-center gap-2">
-                <%= link_to membership.user.username, user_path(membership.user), class: "font-medium text-gray-800 dark:text-white hover:text-emerald-600 transition-colors" %>
+                <%= link_to membership.user.username, user_path(membership.user), class: "font-medium text-primary-content hover:text-emerald-600 transition-colors" %>
                 
                 <% if membership.user == @group.owner %>
                   <span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-xs">
@@ -64,7 +64,7 @@
                   </span>
                 <% end %>
               </div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
+              <p class="text-sm text-gray-500 text-secondary-content">
                 S-a alăturat <%= time_ago_in_words(membership.joined_at || membership.created_at) %> în urmă
               </p>
             </div>
@@ -75,7 +75,7 @@
             <div class="flex items-center gap-2">
               <!-- Role Selector -->
               <%= form_with url: update_member_role_group_path(@group, user_id: membership.user.id), method: :patch, local: true, class: "inline" do |f| %>
-                <%= f.select :role, [['Membru', 'member'], ['Moderator', 'moderator'], ['Admin', 'admin']], { selected: membership.role }, class: "px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300", onchange: "this.form.submit()" %>
+                <%= f.select :role, [['Membru', 'member'], ['Moderator', 'moderator'], ['Admin', 'admin']], { selected: membership.role }, class: "px-3 py-1 border border-default rounded-lg bg-card text-sm text-gray-700 dark:text-gray-300", onchange: "this.form.submit()" %>
               <% end %>
               
               <!-- Remove -->

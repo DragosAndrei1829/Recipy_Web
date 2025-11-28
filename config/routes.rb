@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
-  get "confirmations/show"
-  get "confirmations/verify"
+  # Removed duplicate GET routes that were interfering with proper RESTful routes
 
   # API v1 routes
   namespace :api do
@@ -29,7 +28,11 @@ Rails.application.routes.draw do
           post :favorite, to: "favorites#create"
           delete :favorite, to: "favorites#destroy"
         end
-        resources :comments, only: [ :index, :create, :destroy ]
+        resources :comments, only: [ :index, :create, :destroy ] do
+          member do
+            post :toggle_helpful
+          end
+        end
       end
 
       # Favorites
@@ -95,6 +98,17 @@ Rails.application.routes.draw do
       # Contact/Support
       post "contact", to: "contact#create"
 
+      # Collections
+      resources :collections, only: [:index, :show, :create, :update, :destroy] do
+        collection do
+          get :public_index
+        end
+        member do
+          post :add_recipe
+          delete :remove_recipe
+        end
+      end
+
       # Groups
       resources :groups, only: [:index, :show, :create, :update, :destroy] do
         collection do
@@ -119,6 +133,27 @@ Rails.application.routes.draw do
         get "conversations/:id", to: "ai_assistant#show_conversation", as: :conversation
         delete "conversations/:id", to: "ai_assistant#destroy_conversation"
         post "save_recipe", to: "ai_assistant#save_recipe"
+      end
+
+      # Meal Plans
+      resources :meal_plans, only: [:index, :show, :create, :update, :destroy] do
+        collection do
+          get :week_view
+          get :generate_shopping_list
+        end
+      end
+
+      # Shopping Lists
+      resources :shopping_lists, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :complete
+          post :archive
+        end
+        resources :shopping_list_items, only: [:create, :update, :destroy] do
+          member do
+            post :toggle_checked
+          end
+        end
       end
 
       # OAuth for mobile
@@ -218,7 +253,11 @@ Rails.application.routes.draw do
     resources :recipes do
       resource  :like,     only: [ :create, :destroy ]
       resource  :favorite, only: [ :create, :destroy ]
-      resources :comments, only: [ :create, :destroy ]
+      resources :comments, only: [ :create, :destroy ] do
+        member do
+          post :toggle_helpful
+        end
+      end
       resources :reports, only: [ :new, :create ], controller: 'reports'
     end
 
@@ -231,6 +270,19 @@ Rails.application.routes.draw do
     get "/top_recipes", to: "recipes#top_recipes", as: :top_recipes
 
     # Groups
+    # Collections
+    get "/collections/new", to: "collections#new", as: :new_collection
+    resources :collections do
+      collection do
+        get :public_index
+      end
+      member do
+        post :add_recipe
+        delete :remove_recipe
+        patch :reorder
+      end
+    end
+
     resources :groups do
       member do
         get :chat
@@ -247,6 +299,35 @@ Rails.application.routes.draw do
       end
       collection do
         post :join
+      end
+    end
+
+    # Meal Plans
+    resources :meal_plans do
+      collection do
+        get :week_view
+        post :generate_shopping_list
+      end
+    end
+
+    # Shopping Lists
+    resources :shopping_lists do
+      member do
+        post :complete
+        post :archive
+      end
+      resources :shopping_list_items, only: [:create, :update, :destroy] do
+        member do
+          post :toggle_checked
+        end
+      end
+    end
+
+    # Challenges
+    resources :challenges do
+      member do
+        post :join
+        post :submit_recipe
       end
     end
 
@@ -272,6 +353,13 @@ Rails.application.routes.draw do
 
     # Theme switching
     post "/users/change_theme", to: "users#change_theme", as: :change_theme
+
+    # User Shortcuts
+    resources :user_shortcuts, except: [:show] do
+      collection do
+        patch :reorder
+      end
+    end
 
     # AI Assistant
     get "/chef-ai", to: "ai_assistant#index", as: :ai_assistant

@@ -1,75 +1,237 @@
-<div class="flex items-center justify-between mb-4">
-  <h3 class="text-xl font-bold text-primary-content"><%= t('recipes.show.comments') %></h3>
-  <% if recipe.comments.where("rating > 0").any? %>
-    <% avg_rating = recipe.comments.where("rating > 0").average(:rating).to_f.round(1) %>
-    <div class="flex items-center gap-2">
-      <span class="text-sm font-semibold text-primary-content"><%= t('recipes.show.average_rating') %>:</span>
-      <span class="text-lg font-black text-primary"><%= avg_rating %>/10</span>
-    </div>
-  <% end %>
-</div>
-
-<% if user_signed_in? %>
-  <%= form_with model: [:recipe, Comment.new],
-                url: recipe_comments_path(recipe, format: :turbo_stream),
-                method: :post, data: { turbo: true }, class: "mb-4 space-y-3" do |f| %>
-    <div>
-      <label class="block mb-2 text-sm font-bold text-primary-content"><%= t('recipes.show.rating') %></label>
-      <div class="flex items-center gap-2">
-        <%= f.number_field :rating, 
-            in: 0..10, 
-            step: 1,
-            placeholder: "0",
-            class: "w-20 px-3 py-2 rounded-lg border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 bg-card text-primary-content" %>
-        <span class="text-sm text-secondary-content">/ 10</span>
-      </div>
-    </div>
-    <div class="flex gap-2">
-      <%= f.text_field :body, placeholder: t('recipes.show.write_comment'), class: "flex-1 rounded-lg border-2 border-default px-4 py-2 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 bg-card text-primary-content" %>
-      <%= f.submit t('recipes.show.send'), data: { disable_with: false }, class: "rounded-lg bg-gradient-primary px-6 py-2 text-white font-semibold hover:opacity-90 transition-all" %>
-    </div>
-  <% end %>
-<% end %>
-
-<ul class="space-y-4">
-  <% recipe.comments.includes(:user).order(created_at: :desc).each do |comment| %>
-    <li class="border-b pb-4 last:border-0">
-      <div class="flex items-start gap-3">
-        <% if comment.user&.avatar&.attached? %>
-          <%= image_tag url_for(comment.user.avatar.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover" %>
-        <% else %>
-          <div class="h-8 w-8 rounded-full bg-card border border-default flex items-center justify-center">
-            <svg class="h-4 w-4 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          </div>
-        <% end %>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 mb-1">
-            <strong class="text-sm font-bold text-primary-content"><%= comment.user&.username || comment.user&.email || "Anonim" %></strong>
-            <span class="text-xs text-secondary-content"><%= time_ago_in_words(comment.created_at) %> <%= t('time.ago') %></span>
-            <% if comment.rating && comment.rating > 0 %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary bg-opacity-20 text-primary text-xs font-bold">
-                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <%= comment.rating %>/10
-              </span>
-            <% end %>
-          </div>
-          <p class="text-primary-content">
-            <%= comment.body.present? ? comment.body : t('comments.rating_only') %>
-          </p>
-          <% if user_signed_in? && comment.user == current_user %>
-            <%= form_with url: recipe_comment_path(recipe, comment, format: :turbo_stream),
-                          method: :delete, data: { turbo: true, confirm: "Ești sigur că vrei să ștergi acest comentariu?" }, class: "inline mt-2" do %>
-              <button type="submit" class="text-xs text-error hover:opacity-80">Șterge</button>
-            <% end %>
-          <% end %>
+<div class="recipe-comments-section-full">
+  <div class="flex items-center justify-between mb-6">
+    <h3 class="text-2xl font-black text-primary-content"><%= t('recipes.show.comments') %> (<%= recipe.comments_count %>)</h3>
+    <% if recipe.comments.where("rating > 0").any? %>
+      <% avg_rating = recipe.comments.where("rating > 0").average(:rating).to_f.round(1) %>
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-semibold text-secondary-content"><%= t('recipes.show.average_rating') %>:</span>
+        <div class="flex items-center gap-1">
+          <span class="text-2xl font-black text-primary"><%= avg_rating %></span>
+          <span class="text-sm text-secondary-content">/10</span>
         </div>
       </div>
-    </li>
-  <% end %>
-  <% if recipe.comments.empty? %>
-      <li class="text-secondary-content text-center py-8"><%= t('recipes.show.no_comments') %></li>
-  <% end %>
-</ul>
+    <% end %>
+  </div>
 
+  <% if user_signed_in? %>
+    <div class="recipe-review-form-extended mb-8">
+      <h4 class="text-xl font-bold text-primary-content mb-4">Adaugă o recenzie</h4>
+      
+      <%= form_with model: [:recipe, Comment.new],
+                    url: recipe_comments_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                    method: :post, data: { turbo: true }, class: "space-y-6" do |f| %>
+        
+        <!-- Overall Rating -->
+        <div class="review-field-extended">
+          <label class="review-label-extended">
+            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Rating general
+          </label>
+          <div class="review-input-group">
+            <%= f.number_field :rating, 
+                in: 0..10, 
+                step: 1,
+                placeholder: "0",
+                class: "review-input-extended" %>
+            <span class="review-input-suffix">/ 10</span>
+          </div>
+          <p class="review-help-text">Evaluează rețeta în general (0 = foarte slab, 10 = excelent)</p>
+        </div>
+
+        <!-- Advanced Ratings - Always Visible, Extended -->
+        <div class="review-advanced-section">
+          <h5 class="review-section-title">Rating-uri detaliate</h5>
+          <div class="review-advanced-grid">
+            <div class="review-advanced-field">
+              <label class="review-advanced-label">
+                <span class="review-icon">👅</span>
+                <span>Gust</span>
+              </label>
+              <%= f.number_field :taste_rating, 
+                  in: 1..5, 
+                  step: 1,
+                  placeholder: "1-5",
+                  class: "review-advanced-input" %>
+              <p class="review-advanced-help">1 = foarte slab, 5 = excelent</p>
+            </div>
+            
+            <div class="review-advanced-field">
+              <label class="review-advanced-label">
+                <span class="review-icon">⚙️</span>
+                <span>Dificultate</span>
+              </label>
+              <%= f.number_field :difficulty_rating, 
+                  in: 1..5, 
+                  step: 1,
+                  placeholder: "1-5",
+                  class: "review-advanced-input" %>
+              <p class="review-advanced-help">1 = foarte ușor, 5 = foarte dificil</p>
+            </div>
+            
+            <div class="review-advanced-field">
+              <label class="review-advanced-label">
+                <span class="review-icon">⏱️</span>
+                <span>Timp</span>
+              </label>
+              <%= f.number_field :time_rating, 
+                  in: 1..5, 
+                  step: 1,
+                  placeholder: "1-5",
+                  class: "review-advanced-input" %>
+              <p class="review-advanced-help">1 = foarte rapid, 5 = foarte lent</p>
+            </div>
+            
+            <div class="review-advanced-field">
+              <label class="review-advanced-label">
+                <span class="review-icon">💰</span>
+                <span>Cost</span>
+              </label>
+              <%= f.number_field :cost_rating, 
+                  in: 1..5, 
+                  step: 1,
+                  placeholder: "1-5",
+                  class: "review-advanced-input" %>
+              <p class="review-advanced-help">1 = foarte ieftin, 5 = foarte scump</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment Body -->
+        <div class="review-field-extended">
+          <label class="review-label-extended">Comentariu (opțional)</label>
+          <%= f.text_area :body, 
+              rows: 4,
+              placeholder: t('recipes.show.write_comment'), 
+              class: "review-textarea-extended" %>
+        </div>
+
+        <div class="flex justify-end">
+          <%= f.submit t('recipes.show.send'), 
+              data: { disable_with: false }, 
+              class: "review-submit-btn" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Comments List -->
+  <div id="comments-list" class="recipe-comments-list">
+    <% recipe.comments.includes(:user, :review_helpfuls).order(created_at: :desc).each do |comment| %>
+      <div class="recipe-comment-card" data-comment-id="<%= comment.id %>" data-rating="<%= comment.rating || 0 %>" data-helpful="<%= comment.helpful_count %>">
+        <div class="flex items-start gap-4">
+          <!-- Avatar -->
+          <% if comment.user&.avatar&.attached? %>
+            <%= image_tag url_for(comment.user.avatar.variant(resize_to_fill: [56,56])), class: "recipe-comment-avatar" %>
+          <% else %>
+            <div class="recipe-comment-avatar-placeholder">
+              <%= comment.user&.username&.first&.upcase || 'U' %>
+            </div>
+          <% end %>
+          
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 mb-3">
+              <strong class="text-base font-bold text-primary-content"><%= comment.user&.username || comment.user&.email || "Anonim" %></strong>
+              <span class="text-sm text-secondary-content"><%= time_ago_in_words(comment.created_at) %> <%= t('time.ago') %></span>
+              
+              <!-- Overall Rating Badge -->
+              <% if comment.rating && comment.rating > 0 %>
+                <span class="recipe-rating-badge">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  <%= comment.rating %>/10
+                </span>
+              <% end %>
+            </div>
+
+            <!-- Advanced Ratings Display -->
+            <% if comment.has_advanced_ratings? %>
+              <div class="recipe-advanced-ratings-display mb-3">
+                <% if comment.taste_rating.present? %>
+                  <div class="recipe-rating-item">
+                    <span class="recipe-rating-icon">👅</span>
+                    <span class="recipe-rating-value"><%= comment.taste_rating %></span>
+                    <span class="recipe-rating-max">/5</span>
+                    <span class="recipe-rating-label">Gust</span>
+                  </div>
+                <% end %>
+                <% if comment.difficulty_rating.present? %>
+                  <div class="recipe-rating-item">
+                    <span class="recipe-rating-icon">⚙️</span>
+                    <span class="recipe-rating-value"><%= comment.difficulty_rating %></span>
+                    <span class="recipe-rating-max">/5</span>
+                    <span class="recipe-rating-label">Dificultate</span>
+                  </div>
+                <% end %>
+                <% if comment.time_rating.present? %>
+                  <div class="recipe-rating-item">
+                    <span class="recipe-rating-icon">⏱️</span>
+                    <span class="recipe-rating-value"><%= comment.time_rating %></span>
+                    <span class="recipe-rating-max">/5</span>
+                    <span class="recipe-rating-label">Timp</span>
+                  </div>
+                <% end %>
+                <% if comment.cost_rating.present? %>
+                  <div class="recipe-rating-item">
+                    <span class="recipe-rating-icon">💰</span>
+                    <span class="recipe-rating-value"><%= comment.cost_rating %></span>
+                    <span class="recipe-rating-max">/5</span>
+                    <span class="recipe-rating-label">Cost</span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <!-- Comment Body -->
+            <p class="recipe-comment-text">
+              <%= comment.body.present? ? comment.body : t('comments.rating_only') %>
+            </p>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4 mt-4">
+              <!-- Helpful Button -->
+              <div id="<%= dom_id(comment, :helpful) %>">
+                <% if user_signed_in? %>
+                  <%= form_with url: toggle_helpful_recipe_comment_path(recipe, comment, locale: I18n.locale, format: :turbo_stream),
+                                method: :post, data: { turbo: true }, class: "inline" do %>
+                    <button type="submit" 
+                            class="recipe-helpful-btn <%= 'recipe-helpful-btn-active' if comment.helpful_by?(current_user) %>">
+                      <svg class="w-4 h-4" fill="<%= comment.helpful_by?(current_user) ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                      </svg>
+                      Util (<%= comment.helpful_count %>)
+                    </button>
+                  <% end %>
+                <% else %>
+                  <span class="recipe-helpful-btn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                    </svg>
+                    Util (<%= comment.helpful_count %>)
+                  </span>
+                <% end %>
+              </div>
+
+              <!-- Delete Button -->
+              <% if user_signed_in? && comment.user == current_user %>
+                <%= form_with url: recipe_comment_path(recipe, comment, locale: I18n.locale, format: :turbo_stream),
+                              method: :delete, data: { turbo: true, confirm: "Ești sigur că vrei să ștergi acest comentariu?" }, class: "inline" do %>
+                  <button type="submit" class="recipe-delete-btn">Șterge</button>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <% if recipe.comments.empty? %>
+      <div class="text-center py-12">
+        <p class="text-secondary-content"><%= t('recipes.show.no_comments') %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

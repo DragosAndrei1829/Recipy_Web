@@ -1,0 +1,166 @@
+<% content_for :title, @collection.name %>
+
+<div class="collection-view-page">
+  <!-- Header -->
+  <div class="collection-view-header">
+    <div class="collection-view-cover">
+      <% if @collection.cover_image.attached? && @collection.cover_image.blob.present? %>
+        <%= image_tag url_for(@collection.cover_image), class: "collection-cover-image" %>
+      <% else %>
+        <div class="collection-cover-placeholder">
+          <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+      <% end %>
+      
+      <div class="collection-view-overlay">
+        <div class="collection-view-info">
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="collection-view-title"><%= @collection.name %></h1>
+            <% unless @collection.is_public? %>
+              <span class="collection-badge-private">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                </svg>
+                Privat
+              </span>
+            <% end %>
+          </div>
+          
+          <% if @collection.description.present? %>
+            <p class="collection-view-description"><%= @collection.description %></p>
+          <% end %>
+          
+          <div class="collection-view-meta">
+            <span class="collection-meta-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+              <%= @collection.recipes_count %> <%= @collection.recipes_count == 1 ? 'rețetă' : 'rețete' %>
+            </span>
+            <% unless @collection.user == current_user %>
+              <span class="collection-meta-item">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                de <%= link_to @collection.user.username, user_path(@collection.user), class: "text-white hover:underline" %>
+              </span>
+            <% end %>
+            <span class="collection-meta-item">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              Creat <%= time_ago_in_words(@collection.created_at) %> în urmă
+            </span>
+          </div>
+        </div>
+        
+        <% if @can_edit %>
+          <div class="collection-view-actions">
+            <%= link_to edit_collection_path(@collection), class: "collection-action-btn" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Editează
+            <% end %>
+            <%= link_to collection_path(@collection), method: :delete, 
+                data: { turbo_confirm: "Ești sigur că vrei să ștergi această colecție?" }, 
+                class: "collection-action-btn collection-action-btn-danger" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Șterge
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recipes Grid -->
+  <div class="collection-recipes-section">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="collection-recipes-title">Rețete în colecție</h2>
+      <% if @can_edit %>
+        <button type="button" onclick="document.getElementById('add-recipe-modal').classList.remove('hidden')" class="collection-btn-primary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Adaugă rețetă
+        </button>
+      <% end %>
+    </div>
+    
+    <% if @collection_recipes.any? %>
+      <div class="collection-recipes-grid">
+        <% @collection_recipes.each do |collection_recipe| %>
+          <%= render 'collections/recipe_card', collection_recipe: collection_recipe, collection: @collection, can_edit: @can_edit %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="collection-empty-state">
+        <span class="text-5xl">📭</span>
+        <h3>Colecția este goală</h3>
+        <p>Adaugă rețete pentru a începe să construiești această colecție!</p>
+        <% if @can_edit %>
+          <button type="button" onclick="document.getElementById('add-recipe-modal').classList.remove('hidden')" class="collection-btn-primary mt-4">
+            Adaugă prima rețetă
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Add Recipe Modal -->
+<% if @can_edit %>
+  <div id="add-recipe-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-card rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+      <h3 class="text-xl font-bold text-primary-content mb-4">Adaugă o rețetă în colecție</h3>
+      
+      <div class="mb-4">
+        <input type="text" id="recipe-search" placeholder="Caută rețete..." class="w-full px-4 py-3 border border-default rounded-xl bg-card text-primary-content">
+      </div>
+      
+      <div id="recipes-list" class="space-y-2 max-h-96 overflow-y-auto">
+        <% current_user.recipes.order(created_at: :desc).limit(50).each do |recipe| %>
+          <% unless @collection.recipes.include?(recipe) %>
+            <%= form_with url: add_recipe_collection_path(@collection), method: :post, local: true, class: "flex items-center justify-between p-3 bg-gray-50 bg-card rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors" do |f| %>
+              <%= f.hidden_field :recipe_id, value: recipe.id %>
+              <div class="flex items-center gap-3">
+                <% if recipe.cover_photo.present? && recipe.cover_photo.blob.present? %>
+                  <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [48, 48])), class: "w-12 h-12 rounded-lg object-cover" %>
+                <% else %>
+                  <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white">
+                    🍽️
+                  </div>
+                <% end %>
+                <div>
+                  <h4 class="font-medium text-primary-content"><%= recipe.title %></h4>
+                  <p class="text-xs text-gray-500 text-secondary-content"><%= recipe.category&.name %></p>
+                </div>
+              </div>
+              <%= f.submit "Adaugă", class: "px-3 py-1 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors cursor-pointer" %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+      
+      <div class="mt-4 flex justify-end">
+        <button type="button" onclick="document.getElementById('add-recipe-modal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 bg-card text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+          Închide
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('add-recipe-modal')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.add('hidden');
+      }
+    });
+  </script>
+<% end %>
+

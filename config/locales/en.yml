@@ -20,8 +20,8 @@ en:
     show: "View Recipe"
     delete: "Delete"
     index:
-      title: "All-Day Flavor Studio"
-      description: "Browse every Recipy creation—speedy bowls, slow roasts, and bold experiments curated for any mood."
+      title: "Culinary Explorer"
+      description: "Discover the Recipy universe — from quick meals to elaborate dishes, creative experiments and inspiration for every moment."
       empty: "No recipes found"
       empty_description: "Be the first to post a healthy recipe!"
       create_first: "Post First Recipe"
@@ -111,6 +111,9 @@ en:
     unprocessable: "We could not save your data. Please review the details and try again."
     internal: "Something unexpected happened. This error will be fixed."
   activerecord:
+    attributes:
+      challenge:
+        status: "Status"
     errors:
       models:
         user:
@@ -123,6 +126,11 @@ en:
               blank: "Please add a comment or at least a rating."
             rating:
               invalid: "Rating must be an integer between 0 and 10."
+        challenge:
+          attributes:
+            status:
+              blank: "is required."
+              inclusion: "must be one of: upcoming, active, completed, cancelled."
       difficulty_label: "Difficulty:"
       healthiness_label: "Healthiness:"
   users:
@@ -152,6 +160,30 @@ en:
     only_you: "Only you"
     unread_notifications: "Unread notifications"
     conversations: "Conversations"
+  user_shortcuts:
+    title: "Custom Shortcuts"
+    description: "Create and manage your custom shortcuts for quick access to your favorite pages."
+    new: "New Shortcut"
+    edit: "Edit Shortcut"
+    add_new: "Add Shortcut"
+    add_first: "Add first shortcut"
+    empty: "You don't have any custom shortcuts yet. Create one for quick access!"
+    name: "Name"
+    name_placeholder: "e.g: My Recipes"
+    url: "URL"
+    url_placeholder: "e.g: /en/recipes or /en/users/username"
+    url_hint: "Can be an internal link (e.g: /en/recipes) or external (e.g: https://example.com)"
+    color: "Color"
+    icon: "Icon"
+    icon_hint: "Use an emoji or symbol (e.g: 🔗, ⭐, 📝)"
+    create: "Create"
+    update: "Update"
+    created: "Shortcut created successfully!"
+    updated: "Shortcut updated successfully!"
+    destroyed: "Shortcut deleted successfully!"
+    confirm_delete: "Are you sure you want to delete this shortcut?"
+    manage: "Manage Shortcuts"
+
   navigation:
     explore: "Explore"
     add_recipe: "Add Recipe"
@@ -254,6 +286,7 @@ en:
     cancel: "Cancel"
     delete: "Delete"
     edit: "Edit"
+    close: "Close"
     back: "Back"
     back_to_profile: "Back to Profile"
     next: "Next"
@@ -358,6 +391,10 @@ en:
     all_cuisines: "All Cuisines"
     all_food_types: "All Food Types"
     apply_filters: "Apply Filters"
+    view_all: "View All"
+    clear_filters: "Clear Filters"
+    no_results: "No Results"
+    no_results_description: "Try adjusting your filters"
     clear_filters: "Clear Filters"
     no_results: "No recipes found"
     no_results_description: "Try adjusting your filters to see more results"

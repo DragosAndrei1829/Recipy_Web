@@ -1,7 +1,42 @@
 <% rating_scope = recipe.comments.where.not(rating: nil) %>
 <% avg_rating = rating_scope.any? ? rating_scope.average(:rating).to_f.round(1) : nil %>
 
-<article class="feed-card relative">
+<article id="<%= dom_id(recipe, :inner) %>" class="feed-card relative">
+  <%# Top Ranking Badge - Top Left Corner (only on top recipes page) %>
+  <% if defined?(index) && index.present? %>
+    <div class="absolute top-3 left-3 z-20">
+      <% case index
+         when 0 %>
+        <!-- Gold Crown for #1 -->
+        <div class="relative">
+          <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 shadow-2xl ring-4 ring-yellow-300/60">
+            <svg class="w-8 h-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm-2 4h18v2H3v-2z"/>
+            </svg>
+          </div>
+          <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-yellow-300 flex items-center justify-center text-yellow-900 font-black text-xs shadow-lg">
+            1
+          </div>
+        </div>
+      <% when 1 %>
+        <!-- Silver Badge for #2 -->
+        <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 shadow-2xl ring-4 ring-gray-100/60">
+          <span class="text-2xl font-black text-gray-700">#2</span>
+        </div>
+      <% when 2 %>
+        <!-- Bronze Badge for #3 -->
+        <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 shadow-2xl ring-4 ring-amber-300/60">
+          <span class="text-2xl font-black text-white">#3</span>
+        </div>
+      <% else %>
+        <!-- Standard Badge for others -->
+        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl">
+          <span class="text-lg font-black text-white">#<%= index + 1 %></span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
   <%# Report Flag - Top Right Corner %>
   <% if user_signed_in? && recipe.user != current_user %>
     <% already_reported = recipe.reports.exists?(reporter: current_user) %>
@@ -127,16 +162,28 @@
           <% favorited = current_user.favorites.exists?(recipe: recipe) %>
 
           <%# Like Button - Icon + Count %>
-          <%= form_with url: recipe_like_path(recipe, format: :turbo_stream),
-                        method: liked ? :delete : :post, data: { turbo: true }, class: "inline" do %>
-            <button type="submit"
-                    class="flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all <%= liked ? 'text-rose-500 bg-rose-50 dark:bg-rose-900/20' : 'text-gray-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20' %>"
-                    title="<%= liked ? 'Nu mai aprecia' : 'Apreciază' %>">
-              <svg class="w-5 h-5" fill="<%= liked ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+          <% if liked %>
+            <%= button_to recipe_like_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                          method: :delete, 
+                          form: { data: { turbo: true } },
+                          class: "inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all text-rose-500 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30",
+                          title: "Nu mai aprecia" do %>
+              <svg class="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
               </svg>
               <span class="text-xs font-bold"><%= defined?(recipe.likes_count) ? recipe.likes_count : recipe.likes.count %></span>
-            </button>
+            <% end %>
+          <% else %>
+            <%= button_to recipe_like_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                          method: :post,
+                          form: { data: { turbo: true } },
+                          class: "inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20",
+                          title: "Apreciază" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+              </svg>
+              <span class="text-xs font-bold"><%= defined?(recipe.likes_count) ? recipe.likes_count : recipe.likes.count %></span>
+            <% end %>
           <% end %>
 
           <%# Comments - Icon + Count (toggle inline comments) %>
@@ -151,16 +198,37 @@
           </button>
 
           <%# Save/Favorite Button - Icon only %>
-          <%= form_with url: recipe_favorite_path(recipe, format: :turbo_stream),
-                        method: favorited ? :delete : :post, data: { turbo: true }, class: "inline" do %>
-            <button type="submit"
-                    class="flex items-center justify-center w-8 h-8 rounded-lg transition-all <%= favorited ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20' %>"
-                    title="<%= favorited ? 'Elimină din salvate' : 'Salvează' %>">
-              <svg class="w-5 h-5" fill="<%= favorited ? 'currentColor' : 'none' %>" stroke="currentColor" viewBox="0 0 24 24">
+          <% if favorited %>
+            <%= button_to recipe_favorite_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                          method: :delete,
+                          form: { data: { turbo: true } },
+                          class: "flex items-center justify-center w-8 h-8 rounded-lg transition-all text-blue-500 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30",
+                          title: "Elimină din salvate" do %>
+              <svg class="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
               </svg>
-            </button>
+            <% end %>
+          <% else %>
+            <%= button_to recipe_favorite_path(recipe, locale: I18n.locale, format: :turbo_stream),
+                          method: :post,
+                          form: { data: { turbo: true } },
+                          class: "flex items-center justify-center w-8 h-8 rounded-lg transition-all text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20",
+                          title: "Salvează" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+              </svg>
+            <% end %>
           <% end %>
+
+          <%# Add to Collection Button %>
+          <button type="button"
+                  onclick="openAddToCollectionModal(<%= recipe.id %>)"
+                  class="flex items-center justify-center w-8 h-8 rounded-lg transition-all text-gray-500 hover:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                  title="Adaugă în colecție">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </button>
         <% else %>
           <%# Not logged in - show counts only %>
           <span class="flex items-center gap-1 px-2 py-1.5 text-gray-400">
@@ -223,8 +291,8 @@
 
       <%# Quick comment form %>
       <% if user_signed_in? %>
-        <%= form_with url: recipe_comments_path(recipe), method: :post, 
-                      data: { turbo_frame: "inline-comments-#{recipe.id}" },
+        <%= form_with url: recipe_comments_path(recipe, locale: I18n.locale, format: :turbo_stream), method: :post, 
+                      data: { turbo: true },
                       class: "flex items-center gap-2" do |f| %>
           <% if current_user.avatar&.attached? %>
             <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [28,28])), class: "w-7 h-7 rounded-full flex-shrink-0" %>
@@ -236,7 +304,8 @@
           <%= f.text_field :body, 
                            placeholder: "Scrie un comentariu...",
                            class: "flex-1 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 border-0 rounded-full focus:ring-2 focus:ring-emerald-500/30 focus:bg-white dark:focus:bg-gray-700 transition-all",
-                           autocomplete: "off" %>
+                           autocomplete: "off",
+                           required: true %>
           <button type="submit" class="p-2 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-full transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>

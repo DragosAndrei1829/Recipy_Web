@@ -1,0 +1,154 @@
+<% content_for :title, "Planificare mese" %>
+
+<div class="meal-plans-page">
+  <!-- Header -->
+  <div class="meal-plans-header">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-primary-content">Planificare mese</h1>
+        <p class="text-secondary-content mt-2">Planifică-ți mesele pentru săptămâna aceasta</p>
+      </div>
+      <div class="flex gap-3">
+        <%= link_to new_meal_plan_path, class: "btn-primary" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Adaugă masă
+        <% end %>
+        <% if @meal_plans.any? %>
+          <%= button_to "Generează listă cumpărături",
+                      generate_shopping_list_meal_plans_path,
+                      method: :post,
+                      params: { start_date: @start_date, end_date: @end_date },
+                      class: "btn-secondary",
+                      data: { confirm: "Vrei să generezi o listă de cumpărături pentru mesele planificate?" } do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+            Generează listă cumpărături
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="meal-plans-week-nav mt-6">
+      <div class="flex items-center justify-between">
+        <%= link_to meal_plans_path(start_date: @start_date - 7.days), class: "btn-nav-week" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Săptămâna anterioară
+        <% end %>
+        
+        <div class="text-center">
+          <h2 class="text-xl font-bold text-primary-content">
+            <%= @start_date.strftime('%d %B') %> - <%= @end_date.strftime('%d %B %Y') %>
+          </h2>
+          <%= link_to meal_plans_path, class: "text-sm text-link hover:text-primary" do %>
+            Săptămâna curentă
+          <% end %>
+        </div>
+
+        <%= link_to meal_plans_path(start_date: @start_date + 7.days), class: "btn-nav-week" do %>
+          Săptămâna următoare
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week Calendar View -->
+  <div class="meal-plans-calendar mt-8">
+    <% (@start_date..@end_date).each do |date| %>
+      <div class="meal-plan-day-card">
+        <div class="meal-plan-day-header">
+          <h3 class="text-lg font-bold text-primary-content">
+            <%= date.strftime('%A') %>
+          </h3>
+          <span class="text-sm text-secondary-content">
+            <%= date.strftime('%d %B') %>
+            <% if date == Date.current %>
+              <span class="ml-2 px-2 py-0.5 bg-primary text-white rounded-full text-xs">Astăzi</span>
+            <% end %>
+          </span>
+        </div>
+
+        <div class="meal-plan-day-meals">
+          <% %w[breakfast lunch dinner snack].each do |meal_type| %>
+            <div class="meal-plan-meal-slot" data-meal-type="<%= meal_type %>">
+              <div class="meal-plan-meal-label">
+                <%= case meal_type
+                    when 'breakfast' then '🍳 Mic dejun'
+                    when 'lunch' then '🍽️ Prânz'
+                    when 'dinner' then '🌙 Cină'
+                    when 'snack' then '🍎 Gustare'
+                    end %>
+              </div>
+              
+              <% meal_plan = @meal_plans_by_date[date]&.find { |mp| mp.meal_type == meal_type } %>
+              <% if meal_plan %>
+                <div class="meal-plan-item">
+                  <%= link_to recipe_path(meal_plan.recipe), class: "meal-plan-recipe-link", data: { turbo_frame: "_top" } do %>
+                    <% if meal_plan.recipe.photos.attached? && meal_plan.recipe.photos.first.present? %>
+                      <%= image_tag url_for(meal_plan.recipe.photos.first.variant(resize_to_fill: [100, 100])), 
+                          class: "meal-plan-recipe-image", 
+                          alt: meal_plan.recipe.title %>
+                    <% else %>
+                      <div class="meal-plan-recipe-placeholder">
+                        <%= meal_plan.recipe.title.first.upcase %>
+                      </div>
+                    <% end %>
+                    <div class="meal-plan-recipe-info">
+                      <h4 class="font-semibold text-primary-content"><%= meal_plan.recipe.title %></h4>
+                      <p class="text-xs text-secondary-content">
+                        <%= meal_plan.servings %> <%= meal_plan.servings == 1 ? 'porție' : 'porții' %>
+                        <% if meal_plan.notes.present? %>
+                          • <%= truncate(meal_plan.notes, length: 30) %>
+                        <% end %>
+                      </p>
+                    </div>
+                  <% end %>
+                  <div class="meal-plan-actions">
+                    <%= link_to edit_meal_plan_path(meal_plan), class: "btn-icon" do %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    <% end %>
+                    <%= link_to meal_plan_path(meal_plan), method: :delete, 
+                                class: "btn-icon text-error",
+                                data: { confirm: "Ești sigur că vrei să ștergi această masă?" } do %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    <% end %>
+                  </div>
+                </div>
+              <% else %>
+                <%= link_to new_meal_plan_path(date: date, meal_type: meal_type), class: "meal-plan-empty-slot" do %>
+                  <svg class="w-6 h-6 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  <span class="text-sm text-secondary-content">Adaugă rețetă</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @meal_plans.empty? %>
+    <div class="meal-plans-empty mt-12">
+      <span class="text-6xl">📅</span>
+      <h3 class="text-2xl font-bold text-primary-content mt-4">Nu ai mese planificate</h3>
+      <p class="text-secondary-content mt-2">Începe să planifici mesele pentru săptămâna aceasta!</p>
+      <%= link_to new_meal_plan_path, class: "btn-primary mt-6" do %>
+        Planifică prima masă
+      <% end %>
+    </div>
+  <% end %>
+</div>

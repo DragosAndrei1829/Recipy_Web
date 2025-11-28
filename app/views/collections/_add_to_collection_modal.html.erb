@@ -1,0 +1,89 @@
+<div id="add-to-collection-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-card rounded-2xl p-6 max-w-md w-full shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-primary-content">Adaugă în colecție</h3>
+      <button type="button" onclick="closeAddToCollectionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div id="collections-list" class="space-y-2 max-h-96 overflow-y-auto mb-4">
+      <% if user_signed_in? && current_user.collections.any? %>
+        <% current_user.collections.order(created_at: :desc).each do |collection| %>
+          <div class="collection-modal-item" data-collection-id="<%= collection.id %>">
+            <%= form_with url: add_recipe_collection_path(collection), method: :post, local: true, class: "w-full" do |f| %>
+              <%= f.hidden_field :recipe_id, id: "modal-recipe-id" %>
+              <button type="submit" class="w-full flex items-center gap-3 p-3 bg-gray-50 bg-card rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-left">
+                <% if collection.cover_image.attached? && collection.cover_image.blob.present? %>
+                  <%= image_tag url_for(collection.cover_image.variant(resize_to_fill: [48, 48])), class: "w-12 h-12 rounded-lg object-cover flex-shrink-0" %>
+                <% else %>
+                  <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                  </div>
+                <% end %>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-medium text-primary-content truncate"><%= collection.name %></h4>
+                  <p class="text-xs text-gray-500 text-secondary-content">
+                    <%= collection.recipes_count %> <%= collection.recipes_count == 1 ? 'rețetă' : 'rețete' %>
+                    <% unless collection.is_public? %>
+                      • Privat
+                    <% end %>
+                  </p>
+                </div>
+                <% if collection.recipes.exists?(id: nil) %>
+                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                <% end %>
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-8">
+          <span class="text-4xl">📚</span>
+          <p class="text-secondary-content mt-2">Nu ai colecții încă</p>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="flex gap-3">
+      <button type="button" onclick="closeAddToCollectionModal()" class="flex-1 px-4 py-2 bg-gray-100 bg-card text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+        Anulează
+      </button>
+      <%= link_to new_collection_path, class: "flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-500 text-white rounded-xl hover:from-purple-700 hover:to-indigo-600 transition-all text-center" do %>
+        <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Colecție nouă
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openAddToCollectionModal(recipeId) {
+    const modal = document.getElementById('add-to-collection-modal');
+    const recipeIdInputs = modal.querySelectorAll('#modal-recipe-id');
+    recipeIdInputs.forEach(input => {
+      input.value = recipeId;
+    });
+    modal.classList.remove('hidden');
+  }
+
+  function closeAddToCollectionModal() {
+    document.getElementById('add-to-collection-modal').classList.add('hidden');
+  }
+
+  // Close modal on outside click
+  document.getElementById('add-to-collection-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeAddToCollectionModal();
+    }
+  });
+</script>
+

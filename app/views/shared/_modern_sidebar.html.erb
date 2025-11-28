@@ -1,0 +1,253 @@
+<!-- Modern Sidebar Menu -->
+<aside id="modern-sidebar" class="fixed left-0 top-0 z-50 h-full w-80 -translate-x-full transition-transform duration-300 ease-in-out bg-card border-r-2 border-default shadow-2xl overflow-hidden">
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b-2 border-default">
+      <h2 class="text-2xl font-black bg-clip-text-primary text-transparent">Recipy</h2>
+      <button id="close-sidebar" class="p-2 rounded-lg hover:bg-primary/10 transition" aria-label="<%= t('common.close') %>">
+        <svg class="w-6 h-6 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+      <% if user_signed_in? %>
+        <!-- Quick Actions -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-content px-2"><%= t('modern_menu.quick_actions') %></h3>
+          <%= link_to new_recipe_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-emerald-500 to-teal-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('navigation.add_recipe') %></span>
+            <span class="modern-menu-badge bg-emerald-500/20 text-emerald-600">NEW</span>
+          <% end %>
+
+          <%= link_to recipes_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-blue-500 to-cyan-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('navigation.trending', default: 'În tendințe') %></span>
+          <% end %>
+
+          <%= link_to top_recipes_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-amber-500 to-orange-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('modern_menu.top_recipes') %></span>
+          <% end %>
+        </div>
+
+        <!-- AI & Smart Features -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-content px-2">🤖 <%= t('modern_menu.ai_smart') %></h3>
+          <%= link_to ai_assistant_path(locale: I18n.locale), class: "modern-menu-item group modern-menu-featured" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 animate-pulse">
+              <span class="text-xl">🤖</span>
+            </div>
+            <div class="flex-1">
+              <span class="modern-menu-text font-bold"><%= t('modern_menu.chef_ai') %></span>
+              <p class="text-xs text-secondary-content"><%= t('modern_menu.chef_ai_description') %></p>
+            </div>
+            <span class="modern-menu-badge bg-emerald-500 text-white animate-bounce">HOT</span>
+          <% end %>
+        </div>
+
+        <!-- Organize & Plan -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-content px-2">📋 <%= t('modern_menu.organize_plan') %></h3>
+          
+          <%= link_to meal_plans_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-green-500 to-emerald-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('modern_menu.meal_planning') %></span>
+            <span class="modern-menu-badge bg-green-500/20 text-green-600">NEW</span>
+          <% end %>
+
+          <%= link_to shopping_lists_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-orange-500 to-amber-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('modern_menu.shopping_list') %></span>
+            <span class="modern-menu-badge bg-orange-500/20 text-orange-600">NEW</span>
+          <% end %>
+
+          <%= link_to collections_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-blue-500 to-cyan-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('modern_menu.collections') %></span>
+            <span class="modern-menu-badge bg-blue-500/20 text-blue-600">NEW</span>
+          <% end %>
+
+          <%= link_to favorites_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-rose-500 to-pink-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('favorites.title') %></span>
+          <% end %>
+        </div>
+
+        <!-- Compete & Social -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-content px-2">🏆 <%= t('modern_menu.compete_social') %></h3>
+          
+          <%= link_to challenges_path(locale: I18n.locale), class: "modern-menu-item group modern-menu-featured" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <span class="modern-menu-text font-bold"><%= t('modern_menu.challenges') %></span>
+              <p class="text-xs text-secondary-content"><%= t('modern_menu.challenges_description') %></p>
+            </div>
+            <span class="modern-menu-badge bg-yellow-500/20 text-yellow-600">NEW</span>
+          <% end %>
+
+          <%= link_to groups_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-purple-500 to-indigo-500">
+              <span class="text-xl">👥</span>
+            </div>
+            <span class="modern-menu-text"><%= t('modern_menu.groups') %></span>
+            <span class="modern-menu-badge bg-purple-500/20 text-purple-600">NEW</span>
+          <% end %>
+
+          <%= link_to conversations_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-pink-500 to-rose-500 relative">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              <% if current_user.unread_messages_count > 0 %>
+                <span class="absolute -top-1 -right-1 w-3 h-3 bg-error rounded-full border-2 border-card"></span>
+              <% end %>
+            </div>
+            <span class="modern-menu-text"><%= t('conversations.title') %></span>
+            <% if current_user.unread_messages_count > 0 %>
+              <span class="modern-menu-badge bg-error text-white"><%= current_user.unread_messages_count > 9 ? '9+' : current_user.unread_messages_count %></span>
+            <% end %>
+          <% end %>
+
+          <%= link_to notifications_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-cyan-500 to-blue-500 relative">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              <% if current_user.unread_notifications.count > 0 %>
+                <span class="absolute -top-1 -right-1 w-3 h-3 bg-error rounded-full border-2 border-card"></span>
+              <% end %>
+            </div>
+            <span class="modern-menu-text"><%= t('notifications.title') %></span>
+            <% if current_user.unread_notifications.count > 0 %>
+              <span class="modern-menu-badge bg-error text-white"><%= current_user.unread_notifications.count > 9 ? '9+' : current_user.unread_notifications.count %></span>
+            <% end %>
+          <% end %>
+
+          <%= link_to shared_recipes_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-violet-500 to-purple-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('shared_recipes.title') %></span>
+          <% end %>
+        </div>
+
+        <!-- Customization -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-secondary-content px-2">⚙️ <%= t('modern_menu.customization') %></h3>
+          <%= link_to user_shortcuts_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-indigo-500 to-blue-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('user_shortcuts.manage') %></span>
+          <% end %>
+        </div>
+      <% else %>
+        <!-- Guest Menu -->
+        <div class="space-y-3">
+          <%= link_to new_user_session_path(locale: I18n.locale), class: "modern-menu-item group modern-menu-featured" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-primary to-secondary">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text font-bold"><%= t('navigation.login') %></span>
+          <% end %>
+
+          <%= link_to recipes_path(locale: I18n.locale), class: "modern-menu-item group" do %>
+            <div class="modern-menu-icon bg-gradient-to-br from-blue-500 to-cyan-500">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <span class="modern-menu-text"><%= t('navigation.trending', default: 'În tendințe') %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-4 border-t-2 border-default bg-card/50">
+      <p class="text-xs text-center text-secondary-content">
+        © <%= Time.current.year %> Recipy
+      </p>
+    </div>
+  </div>
+</aside>
+
+<!-- Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm hidden transition-opacity duration-300"></div>
+
+<script>
+  // Sidebar toggle functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-sidebar');
+    const sidebar = document.getElementById('modern-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    if (menuBtn) menuBtn.addEventListener('click', openSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+        closeSidebar();
+      }
+    });
+  });
+</script>
+

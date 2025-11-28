@@ -14,9 +14,16 @@ class Group < ApplicationRecord
   validates :name, presence: true, length: { minimum: 3, maximum: 100 }
   validates :description, length: { maximum: 1000 }
   validates :invite_code, presence: true, uniqueness: true
+  validate :cover_image_size
 
   # Callbacks
   before_validation :generate_invite_code, on: :create
+  before_validation :generate_slug, on: :create
+  before_validation :regenerate_slug, on: :update, if: :name_changed?
+  
+  def to_param
+    slug.presence || id.to_s
+  end
   after_create :add_owner_as_admin
 
   # Scopes
@@ -50,8 +57,11 @@ class Group < ApplicationRecord
 
   # Add owner as admin when group is created
   def add_owner_as_admin
-    group_memberships.create!(user: owner, role: "admin", joined_at: Time.current)
-    update_members_count!
+    membership = group_memberships.build(user: owner, role: "admin", joined_at: Time.current)
+    membership.save!
+    # Counter cache will update automatically, but ensure it's correct
+    reload
+    update_column(:members_count, group_memberships.count) if members_count != group_memberships.count
   end
 
   # Check if user is a member
@@ -74,6 +84,8 @@ class Group < ApplicationRecord
 
   # Check if user can view the group
   def viewable_by?(user)
+    return false unless user
+    return true if owner == user # Owner can always view
     return true unless is_private?
     member?(user)
   end
@@ -168,5 +180,40 @@ class Group < ApplicationRecord
   # Get recent messages
   def recent_messages(limit = 50)
     group_messages.includes(:user).order(created_at: :desc).limit(limit).reverse
+  end
+
+  private
+
+  def generate_slug
+    return if slug.present?
+    self.slug = name.parameterize if name.present?
+    # Ensure uniqueness
+    if slug.present? && Group.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
+  end
+
+  def regenerate_slug
+    return unless name_changed?
+    self.slug = name.parameterize if name.present?
+    # Ensure uniqueness
+    if slug.present? && Group.where(slug: slug).where.not(id: id).exists?
+      self.slug = "#{slug}-#{SecureRandom.hex(4)}"
+    end
+  end
+
+  def cover_image_size
+    return unless cover_image.attached?
+    
+    if cover_image.blob.byte_size > 5.megabytes
+      errors.add(:cover_image, "trebuie să fie mai mică de 5MB")
+    end
+    
+    unless cover_image.blob.content_type.start_with?('image/')
+      errors.add(:cover_image, "trebuie să fie o imagine")
+    end
+  rescue => e
+    Rails.logger.error "Error validating cover image: #{e.message}"
+    errors.add(:cover_image, "eroare la validarea imaginii")
   end
 end

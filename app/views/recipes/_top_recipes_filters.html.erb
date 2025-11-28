@@ -1,0 +1,235 @@
+<% filters = params.to_unsafe_h.symbolize_keys %>
+<div class="filters-card-modern animate-slide-in-right">
+  <div class="filters-card-modern__head">
+    <div>
+      <p class="filters-card-modern__eyebrow"><%= t('filters.title') %></p>
+      <h3><%= t('top_recipes.filters') %></h3>
+    </div>
+    <div class="flex items-center gap-2">
+      <% if filters.except(:search, :period).any? { |_k, v| v.present? } %>
+        <%= link_to top_recipes_path(locale: I18n.locale, period: @current_period), class: "filters-card-modern__link" do %>
+          <%= t('filters.clear') %>
+        <% end %>
+      <% end %>
+      <button type="button" class="filters-card-modern__toggle" id="top-recipes-advanced-toggle" aria-expanded="false" data-filter-toggle>
+        <span>Advanced</span>
+        <svg class="h-4 w-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <%= form_with url: top_recipes_path(locale: I18n.locale), method: :get, local: true, id: "top-recipes-filter-form", class: "space-y-5" do |f| %>
+    <!-- Period Selection -->
+    <div>
+      <label class="filters-card-modern__label">
+        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <%= t('top_recipes.period') %>
+      </label>
+      <div class="grid grid-cols-2 gap-2">
+        <%= f.radio_button :period, 'day', checked: @current_period == 'day', class: "hidden peer", id: "period_day" %>
+        <%= f.label :period_day, t('top_recipes.today'), for: "period_day", class: "period-btn px-3 py-2.5 text-xs font-bold text-center rounded-xl border-2 cursor-pointer transition-all duration-200 peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-500 peer-checked:text-white peer-checked:border-emerald-600 peer-checked:shadow-lg hover:bg-primary/10 hover:border-primary #{@current_period == 'day' ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-emerald-600 shadow-lg' : 'border-default text-primary-content'}" %>
+        
+        <%= f.radio_button :period, 'week', checked: @current_period == 'week', class: "hidden peer", id: "period_week" %>
+        <%= f.label :period_week, t('top_recipes.week'), for: "period_week", class: "period-btn px-3 py-2.5 text-xs font-bold text-center rounded-xl border-2 cursor-pointer transition-all duration-200 peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-500 peer-checked:text-white peer-checked:border-emerald-600 peer-checked:shadow-lg hover:bg-primary/10 hover:border-primary #{@current_period == 'week' ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-emerald-600 shadow-lg' : 'border-default text-primary-content'}" %>
+        
+        <%= f.radio_button :period, 'month', checked: @current_period == 'month', class: "hidden peer", id: "period_month" %>
+        <%= f.label :period_month, t('top_recipes.month'), for: "period_month", class: "period-btn px-3 py-2.5 text-xs font-bold text-center rounded-xl border-2 cursor-pointer transition-all duration-200 peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-500 peer-checked:text-white peer-checked:border-emerald-600 peer-checked:shadow-lg hover:bg-primary/10 hover:border-primary #{@current_period == 'month' ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-emerald-600 shadow-lg' : 'border-default text-primary-content'}" %>
+        
+        <%= f.radio_button :period, 'year', checked: @current_period == 'year', class: "hidden peer", id: "period_year" %>
+        <%= f.label :period_year, t('top_recipes.year'), for: "period_year", class: "period-btn px-3 py-2.5 text-xs font-bold text-center rounded-xl border-2 cursor-pointer transition-all duration-200 peer-checked:bg-gradient-to-r peer-checked:from-emerald-600 peer-checked:to-teal-500 peer-checked:text-white peer-checked:border-emerald-600 peer-checked:shadow-lg hover:bg-primary/10 hover:border-primary #{@current_period == 'year' ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-emerald-600 shadow-lg' : 'border-default text-primary-content'}" %>
+      </div>
+    </div>
+
+    <div class="filters-card-modern__grid">
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+          </svg>
+          <%= t('filters.rating') %>
+        </label>
+        <%= number_field_tag :min_rating, filters[:min_rating],
+            min: 0, max: 10, step: 0.5,
+            placeholder: "8.5",
+            class: "filters-card-modern__input" %>
+      </div>
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <%= t('filters.time') %>
+        </label>
+        <div class="filters-card-modern__split">
+          <%= number_field_tag :min_time, filters[:min_time],
+              placeholder: t('filters.min_time'),
+              min: 0,
+              class: "filters-card-modern__input" %>
+          <%= number_field_tag :max_time, filters[:max_time],
+              placeholder: t('filters.max_time'),
+              min: 0,
+              class: "filters-card-modern__input" %>
+        </div>
+      </div>
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+          <%= t('filters.difficulty') %>
+        </label>
+        <%= select_tag :min_difficulty,
+            options_for_select([["—", ""], ["1 ★", 1], ["2 ★", 2], ["3 ★", 3], ["4 ★", 4], ["5 ★", 5]], filters[:min_difficulty]),
+            class: "filters-card-modern__input" %>
+      </div>
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <%= t('filters.healthiness') %>
+        </label>
+        <%= select_tag :min_healthiness,
+            options_for_select([["—", ""], ["1 ★", 1], ["2 ★", 2], ["3 ★", 3], ["4 ★", 4], ["5 ★", 5]], filters[:min_healthiness]),
+            class: "filters-card-modern__input" %>
+      </div>
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <%= t('recipes.form.cuisine') %>
+        </label>
+        <%= select_tag :cuisine_id,
+            options_from_collection_for_select(@cuisines, :id, :display_name, filters[:cuisine_id]),
+            { include_blank: t('filters.all_cuisines'),
+              class: "filters-card-modern__input" } %>
+      </div>
+      <div>
+        <label class="filters-card-modern__label">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+          </svg>
+          <%= t('recipes.form.food_type') %>
+        </label>
+        <%= select_tag :food_type_id,
+            options_from_collection_for_select(@food_types, :id, :display_name, filters[:food_type_id]),
+            { include_blank: t('filters.all_food_types'),
+              class: "filters-card-modern__input" } %>
+      </div>
+    </div>
+
+    <div class="filters-card-modern__advanced hidden" id="top-recipes-advanced-section" data-filter-advanced>
+      <div class="filters-card-modern__advanced-header">
+        <span class="filters-card-modern__advanced-title">Advanced Filters</span>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="filters-card-modern__label">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <%= t('recipes.form.calories') %> (<%= t('filters.max') %>)
+          </label>
+          <%= number_field_tag :max_calories, filters[:max_calories],
+              min: 0,
+              placeholder: "500",
+              class: "filters-card-modern__input" %>
+        </div>
+
+        <div class="filters-card-modern__grid">
+          <div>
+            <label class="filters-card-modern__label"><%= t('recipes.form.protein') %></label>
+            <%= number_field_tag :max_protein, filters[:max_protein],
+                step: 0.1, min: 0,
+                class: "filters-card-modern__input" %>
+          </div>
+          <div>
+            <label class="filters-card-modern__label"><%= t('recipes.form.fat') %></label>
+            <%= number_field_tag :max_fat, filters[:max_fat],
+                step: 0.1, min: 0,
+                class: "filters-card-modern__input" %>
+          </div>
+          <div>
+            <label class="filters-card-modern__label"><%= t('recipes.form.carbs') %></label>
+            <%= number_field_tag :max_carbs, filters[:max_carbs],
+                step: 0.1, min: 0,
+                class: "filters-card-modern__input" %>
+          </div>
+          <div>
+            <label class="filters-card-modern__label"><%= t('recipes.form.sugar') %></label>
+            <%= number_field_tag :max_sugar, filters[:max_sugar],
+                step: 0.1, min: 0,
+                class: "filters-card-modern__input" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= submit_tag t('filters.apply'), class: "filters-card-modern__submit" %>
+  <% end %>
+</div>
+
+<script>
+  // Robust event delegation for Advanced filter toggle
+  (function() {
+    function initAdvancedToggle() {
+      document.removeEventListener('click', handleAdvancedToggle);
+      document.addEventListener('click', handleAdvancedToggle);
+    }
+    
+    function handleAdvancedToggle(e) {
+      const toggle = e.target.closest('[data-filter-toggle]');
+      if (!toggle || toggle.id !== 'top-recipes-advanced-toggle') return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const section = document.getElementById('top-recipes-advanced-section');
+      if (!section) return;
+      
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+      const svg = toggle.querySelector('svg');
+      
+      section.classList.toggle('hidden');
+      toggle.setAttribute('aria-expanded', (!isExpanded).toString());
+      
+      if (svg) {
+        svg.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAdvancedToggle);
+    } else {
+      initAdvancedToggle();
+    }
+    
+    document.addEventListener('turbo:load', initAdvancedToggle);
+    document.addEventListener('turbo:frame-load', initAdvancedToggle);
+  })();
+
+  // Auto-submit form when period changes
+  document.addEventListener('DOMContentLoaded', function() {
+    const periodInputs = document.querySelectorAll('#top-recipes-filter-form input[name="period"]');
+    periodInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        this.closest('form').submit();
+      });
+    });
+  });
+  
+  document.addEventListener('turbo:load', function() {
+    const periodInputs = document.querySelectorAll('#top-recipes-filter-form input[name="period"]');
+    periodInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        this.closest('form').submit();
+      });
+    });
+  });
+</script>
+

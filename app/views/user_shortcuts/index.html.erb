@@ -1,0 +1,64 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="bg-card rounded-2xl shadow-xl border-2 border-default p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-primary-content"><%= t('user_shortcuts.title') %></h1>
+      <%= link_to new_user_shortcut_path(locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <%= t('user_shortcuts.add_new') %>
+      <% end %>
+    </div>
+
+    <p class="text-secondary-content mb-6"><%= t('user_shortcuts.description') %></p>
+
+    <% if @user_shortcuts.any? %>
+      <div id="shortcuts-list" class="space-y-3" data-controller="sortable">
+        <% @user_shortcuts.each do |shortcut| %>
+          <div class="flex items-center gap-4 p-4 bg-card border-2 border-default rounded-xl hover:border-primary transition cursor-move" data-id="<%= shortcut.id %>">
+            <div class="flex-shrink-0 cursor-move">
+              <svg class="w-6 h-6 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+              </svg>
+            </div>
+            <div class="flex-1 flex items-center gap-4">
+              <div class="flex items-center gap-3 flex-1">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl" style="background-color: <%= shortcut.color %>20; color: <%= shortcut.color %>;">
+                  <%= shortcut.icon %>
+                </div>
+                <div class="flex-1">
+                  <div class="font-semibold text-primary-content"><%= shortcut.name %></div>
+                  <div class="text-sm text-secondary-content"><%= shortcut.url %></div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= link_to edit_user_shortcut_path(shortcut, locale: I18n.locale), class: "p-2 text-primary hover:bg-primary/10 rounded-lg transition" do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                <% end %>
+                <%= button_to user_shortcut_path(shortcut, locale: I18n.locale), method: :delete, 
+                    class: "p-2 text-error hover:bg-error/10 rounded-lg transition",
+                    data: { confirm: t('user_shortcuts.confirm_delete') } do %>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-secondary-content mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+        </svg>
+        <p class="text-secondary-content mb-4"><%= t('user_shortcuts.empty') %></p>
+        <%= link_to new_user_shortcut_path(locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition" do %>
+          <%= t('user_shortcuts.add_first') %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

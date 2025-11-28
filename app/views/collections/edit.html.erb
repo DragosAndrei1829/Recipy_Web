@@ -1,0 +1,108 @@
+<% content_for :title, "Editează colecție" %>
+
+<div class="collection-form-page">
+  <div class="collection-form-container">
+    <div class="collection-form-header">
+      <h1 class="collection-form-title">Editează colecția</h1>
+      <p class="collection-form-subtitle"><%= @collection.name %></p>
+    </div>
+
+    <%= form_with model: @collection, local: true, class: "collection-form" do |f| %>
+      <% if @collection.errors.any? %>
+        <div class="collection-form-errors">
+          <ul>
+            <% @collection.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="collection-form-field">
+        <%= f.label :name, "Nume colecție *", class: "collection-form-label" %>
+        <%= f.text_field :name, 
+            placeholder: "ex: Rețete de Crăciun", 
+            class: "collection-form-input",
+            required: true %>
+      </div>
+
+      <div class="collection-form-field">
+        <%= f.label :description, "Descriere", class: "collection-form-label" %>
+        <%= f.text_area :description, 
+            placeholder: "Descrie ce conține această colecție...", 
+            rows: 4,
+            class: "collection-form-input collection-form-textarea" %>
+      </div>
+
+      <div class="collection-form-field">
+        <%= f.label :cover_image, "Imagine de copertă", class: "collection-form-label" %>
+        <div class="collection-form-image-upload">
+          <%= f.file_field :cover_image, 
+              accept: "image/*", 
+              class: "hidden", 
+              id: "cover-image-input",
+              data: { action: "change->collection-form#previewImage" } %>
+          <label for="cover-image-input" class="collection-form-image-label">
+            <div id="image-preview" class="collection-form-image-preview <%= 'hidden' unless @collection.cover_image.attached? %>">
+              <% if @collection.cover_image.attached? %>
+                <%= image_tag url_for(@collection.cover_image), class: "collection-form-preview-img" %>
+              <% end %>
+            </div>
+            <p id="image-upload-text" class="collection-form-image-text <%= 'hidden' if @collection.cover_image.attached? %>">
+              Click pentru a încărca o imagine
+            </p>
+          </label>
+          <% if @collection.cover_image.attached? %>
+            <button type="button" id="remove-image-button" class="collection-form-remove-image" onclick="removeImage()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="collection-form-field">
+        <label class="collection-form-checkbox-label">
+          <%= f.check_box :is_public, class: "collection-form-checkbox" %>
+          <span>Face colecția publică (vizibilă pentru toți utilizatorii)</span>
+        </label>
+        <p class="collection-form-help">Colecțiile publice pot fi descoperite și vizualizate de alți utilizatori</p>
+      </div>
+
+      <div class="collection-form-actions">
+        <%= link_to collection_path(@collection), class: "collection-form-cancel" do %>
+          Anulează
+        <% end %>
+        <%= f.submit "Salvează modificările", class: "collection-form-submit" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  function removeImage() {
+    document.getElementById('cover-image-input').value = '';
+    document.getElementById('image-preview').classList.add('hidden');
+    document.getElementById('image-upload-text').classList.remove('hidden');
+    const removeBtn = document.getElementById('remove-image-button');
+    if (removeBtn) removeBtn.classList.add('hidden');
+  }
+
+  document.getElementById('cover-image-input')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('image-preview');
+        preview.innerHTML = `<img src="${e.target.result}" class="collection-form-preview-img">`;
+        preview.classList.remove('hidden');
+        document.getElementById('image-upload-text').classList.add('hidden');
+        const removeBtn = document.getElementById('remove-image-button');
+        if (removeBtn) removeBtn.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+

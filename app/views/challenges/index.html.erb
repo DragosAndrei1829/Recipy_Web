@@ -1,0 +1,91 @@
+<% content_for :title, "Challenge-uri și competiții" %>
+
+<div class="challenges-page">
+  <!-- Header -->
+  <div class="challenges-header">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-black text-primary-content">Challenge-uri și competiții</h1>
+        <p class="text-secondary-content mt-2">Participă în challenge-uri și câștigă premii!</p>
+      </div>
+      <% if user_signed_in? %>
+        <% if @user_can_create %>
+          <%= link_to new_challenge_path, class: "btn-primary" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Creează challenge
+          <% end %>
+        <% else %>
+          <div class="challenge-eligibility-info">
+            <p class="text-sm text-secondary-content">
+              Pentru a crea challenge-uri ai nevoie de:
+              <br>
+              <strong><%= Challenge::MIN_LIKES_TO_CREATE %>+ like-uri totale</strong> și <strong>medie rating ≥ <%= Challenge::MIN_AVG_RATING_TO_CREATE %>/10</strong>
+            </p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Active Challenges -->
+  <% if @active_challenges.any? %>
+    <div class="challenges-section">
+      <h2 class="text-2xl font-bold text-primary-content mb-4 flex items-center gap-2">
+        <span class="challenge-status-badge active">Active</span>
+        Challenge-uri active
+      </h2>
+      <div class="challenges-grid">
+        <% @active_challenges.each do |challenge| %>
+          <%= render 'challenges/challenge_card', challenge: challenge %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Upcoming Challenges -->
+  <% if @upcoming_challenges.any? %>
+    <div class="challenges-section mt-8">
+      <h2 class="text-2xl font-bold text-primary-content mb-4 flex items-center gap-2">
+        <span class="challenge-status-badge upcoming">În curând</span>
+        Challenge-uri viitoare
+      </h2>
+      <div class="challenges-grid">
+        <% @upcoming_challenges.each do |challenge| %>
+          <%= render 'challenges/challenge_card', challenge: challenge %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Completed Challenges -->
+  <% if @completed_challenges.any? %>
+    <div class="challenges-section mt-8">
+      <details class="challenges-archived">
+        <summary class="text-xl font-semibold text-primary-content cursor-pointer">
+          Challenge-uri finalizate (<%= @completed_challenges.count %>)
+        </summary>
+        <div class="challenges-grid mt-4">
+          <% @completed_challenges.each do |challenge| %>
+            <%= render 'challenges/challenge_card', challenge: challenge %>
+          <% end %>
+        </div>
+      </details>
+    </div>
+  <% end %>
+
+  <% if @challenges.empty? && @active_challenges.empty? && @upcoming_challenges.empty? %>
+    <div class="challenges-empty mt-12">
+      <span class="text-6xl">🏆</span>
+      <h3 class="text-2xl font-bold text-primary-content mt-4">Nu există challenge-uri momentan</h3>
+      <p class="text-secondary-content mt-2">Fii primul care creează un challenge!</p>
+      <% if user_signed_in? && @user_can_create %>
+        <%= link_to new_challenge_path, class: "btn-primary mt-6" do %>
+          Creează primul challenge
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+

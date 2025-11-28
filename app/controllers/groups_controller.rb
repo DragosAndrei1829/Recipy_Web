@@ -12,7 +12,27 @@ class GroupsController < ApplicationController
   end
 
   def show
-    @group_recipes = @group.group_recipes.includes(recipe: [:user, :category, :cuisine]).order(created_at: :desc).page(params[:page]).per(12)
+    @group_recipes = @group.group_recipes.includes(recipe: [:user, :category, :cuisine]).order(created_at: :desc).limit(50)
+    
+    # Get dates with recipes for calendar (before filtering)
+    base_recipes = @group.group_recipes
+    @dates_with_recipes = base_recipes.select("DATE(group_recipes.created_at) as recipe_date").distinct.map { |gr| gr.recipe_date.to_s if gr.recipe_date }.compact
+    
+    # Filter by date if provided
+    if params[:date].present?
+      selected_date = Date.parse(params[:date]) rescue nil
+      if selected_date
+        @group_recipes = @group_recipes.where("DATE(group_recipes.created_at) = ?", selected_date)
+      end
+    end
+    
+    # Filter by category, cuisine, etc.
+    @group_recipes = @group_recipes.joins(:recipe)
+    @group_recipes = @group_recipes.where(recipes: { category_id: params[:category_id] }) if params[:category_id].present?
+    @group_recipes = @group_recipes.where(recipes: { cuisine_id: params[:cuisine_id] }) if params[:cuisine_id].present?
+    @group_recipes = @group_recipes.where("recipes.time_to_make <= ?", params[:max_time]) if params[:max_time].present?
+    @group_recipes = @group_recipes.where("recipes.rating >= ?", params[:min_rating]) if params[:min_rating].present?
+    
     @recent_messages = @group.recent_messages(20)
     @membership = @group.group_memberships.find_by(user: current_user)
   end
@@ -25,10 +45,21 @@ class GroupsController < ApplicationController
     @group = current_user.owned_groups.build(group_params)
 
     if @group.save
+      # Ensure owner is added as member (in case callback failed)
+      unless @group.member?(current_user)
+        @group.group_memberships.create!(user: current_user, role: "admin", joined_at: Time.current)
+        @group.reload
+      end
+      
       redirect_to group_path(@group), notice: "Grupul a fost creat cu succes! Codul de invitație: #{@group.invite_code}"
     else
       render :new, status: :unprocessable_entity
     end
+  rescue => e
+    Rails.logger.error "Error creating group: #{e.message}\n#{e.backtrace.join("\n")}"
+    @group ||= current_user.owned_groups.build(group_params)
+    @group.errors.add(:base, "A apărut o eroare la crearea grupului. Te rugăm să încerci din nou.")
+    render :new, status: :unprocessable_entity
   end
 
   def edit
@@ -174,7 +205,7 @@ class GroupsController < ApplicationController
   private
 
   def set_group
-    @group = Group.find(params[:id])
+    @group = Group.find_by(slug: params[:id]) || Group.find(params[:id])
   end
 
   def group_params

@@ -2,14 +2,15 @@ class UsersController < ApplicationController
   before_action :authenticate_user!, only: [ :search ]
 
   def show
-    @user = User.find(params[:id])
+    @user = User.find_by(slug: params[:id]) || User.find(params[:id])
     @recipes = @user.recipes.includes(:category, :cuisine, :food_type, photos_attachments: :blob)
                     .order(created_at: :desc)
+    @collections = @user.collections.includes(:recipes).recent.limit(6)
     @is_following = user_signed_in? && current_user.following.include?(@user)
   end
 
   def followers
-    @user = User.find(params[:id])
+    @user = User.find_by(slug: params[:id]) || User.find(params[:id])
     @followers = @user.followers.includes(:avatar_attachment)
 
     # Only allow viewing followers list if it's the current user's profile

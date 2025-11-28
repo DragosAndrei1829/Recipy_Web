@@ -1,0 +1,271 @@
+<% content_for :title, @challenge.title %>
+
+<div class="challenge-show-page">
+  <!-- Header -->
+  <div class="challenge-show-header">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <%= link_to challenges_path, class: "btn-icon" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          <% end %>
+          <h1 class="text-3xl font-black text-primary-content"><%= @challenge.title %></h1>
+          <span class="challenge-status-badge <%= @challenge.status %>">
+            <%= case @challenge.status
+                when 'active' then '🟢 Activ'
+                when 'upcoming' then '⏰ În curând'
+                when 'completed' then '✅ Finalizat'
+                when 'cancelled' then '❌ Anulat'
+                end %>
+          </span>
+        </div>
+        <p class="text-secondary-content">
+          Creat de <%= link_to @challenge.user.username, user_path(@challenge.user), class: "text-link" %>
+          • <%= @challenge.start_date.strftime('%d %B %Y') %> - <%= @challenge.end_date.strftime('%d %B %Y') %>
+        </p>
+      </div>
+      
+      <% if user_signed_in? %>
+        <% if @challenge.user == current_user || current_user.admin? %>
+          <div class="flex gap-2">
+            <%= link_to edit_challenge_path(@challenge), class: "btn-secondary" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Editează
+            <% end %>
+          </div>
+        <% elsif @challenge.user_can_join?(current_user) %>
+          <%= form_with url: join_challenge_path(@challenge), method: :post, local: true, class: "inline" do |f| %>
+            <%= f.submit "Participă", class: "btn-primary" %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="challenge-description-section">
+    <h2 class="text-xl font-bold text-primary-content mb-3">Despre challenge</h2>
+    <div class="challenge-description">
+      <%= simple_format(@challenge.description) %>
+    </div>
+
+    <% if @challenge.rules.present? %>
+      <div class="challenge-rules mt-4">
+        <h3 class="text-lg font-semibold text-primary-content mb-2">Reguli</h3>
+        <%= simple_format(@challenge.rules) %>
+      </div>
+    <% end %>
+
+    <% if @challenge.prize.present? %>
+      <div class="challenge-prize-section mt-4">
+        <h3 class="text-lg font-semibold text-primary-content mb-2 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Premiu
+        </h3>
+        <p class="text-primary-content"><%= @challenge.prize %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Participation Section -->
+  <% if user_signed_in? %>
+    <% if @user_participation %>
+      <div class="challenge-participation-section">
+        <h2 class="text-xl font-bold text-primary-content mb-3">Participarea ta</h2>
+        
+        <% if @user_participation.status == "joined" && @challenge.can_submit?(current_user) %>
+          <div class="challenge-submit-section">
+            <h3 class="text-lg font-semibold text-primary-content mb-3">Trimite rețeta ta</h3>
+            <% if @user_recipes.any? %>
+              <%= form_with url: submit_recipe_challenge_path(@challenge), method: :post, local: true, class: "challenge-submit-form" do |f| %>
+                <%= f.select :recipe_id, 
+                    options_from_collection_for_select(@user_recipes, :id, :title),
+                    { prompt: "Selectează o rețetă" },
+                    { class: "form-select", required: true } %>
+                <%= f.submit "Trimite rețeta", class: "btn-primary mt-3" %>
+              <% end %>
+            <% else %>
+              <p class="text-secondary-content">
+                Nu ai rețete create. 
+                <%= link_to "Creează o rețetă", new_recipe_path, class: "text-link" %> pentru a participa.
+              </p>
+            <% end %>
+          </div>
+        <% elsif @user_participation.status == "submitted" %>
+          <div class="challenge-submitted">
+            <p class="text-success">
+              ✅ Rețetă trimisă: 
+              <%= link_to @user_participation.recipe.title, recipe_path(@user_participation.recipe), class: "text-link font-semibold" %>
+            </p>
+            <% if @user_participation.rank.present? %>
+              <p class="text-primary-content mt-2">
+                <strong>Poziție:</strong> #<%= @user_participation.rank %>
+                <% if @user_participation.score.present? %>
+                  • <strong>Scor:</strong> <%= @user_participation.score.round(2) %>
+                <% end %>
+              </p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% elsif @challenge.user == current_user %>
+      <div class="challenge-participation-section">
+        <div class="alert-info">
+          <p class="text-primary-content font-semibold">Tu deții acest challenge. Nu poți participa la propriul tău challenge.</p>
+        </div>
+      </div>
+    <% elsif @challenge.user_can_join?(current_user) %>
+      <div class="challenge-participation-section">
+        <h2 class="text-xl font-bold text-primary-content mb-3">Participă în challenge</h2>
+        <p class="text-secondary-content mb-4">Orice user poate participa în acest challenge!</p>
+        <%= form_with url: join_challenge_path(@challenge), method: :post, local: true, class: "inline" do |f| %>
+          <%= f.submit "Participă", class: "btn-primary" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <!-- Leaderboard -->
+  <% if @submissions.any? %>
+    <div class="challenge-leaderboard-section">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-primary-content">Clasament</h2>
+        
+        <% if @is_owner_or_admin %>
+          <div class="challenge-sorting-controls">
+            <%= form_with url: challenge_path(@challenge), method: :get, local: true, class: "flex items-center gap-3" do |f| %>
+              <%= f.select :sort_by,
+                  options_for_select([
+                    ['Scor', 'score'],
+                    ['Like-uri', 'likes'],
+                    ['Comentarii', 'comments'],
+                    ['Rating', 'rating'],
+                    ['Atractivitate', 'attractiveness'],
+                    ['Data trimiterii', 'submitted_at']
+                  ], @sort_by),
+                  {},
+                  { class: "form-select text-sm", onchange: "this.form.submit()" } %>
+              
+              <%= f.select :sort_order,
+                  options_for_select([
+                    ['Descrescător', 'desc'],
+                    ['Crescător', 'asc']
+                  ], @sort_order),
+                  {},
+                  { class: "form-select text-sm", onchange: "this.form.submit()" } %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="challenge-leaderboard">
+        <% @submissions.each_with_index do |submission, index| %>
+          <div class="leaderboard-item <%= 'leaderboard-top' if index < 3 && @sort_by == 'score' && @sort_order == 'desc' %>">
+            <div class="leaderboard-rank">
+              <% if index < 3 && @sort_by == 'score' && @sort_order == 'desc' %>
+                <% if index == 0 %>
+                  🥇
+                <% elsif index == 1 %>
+                  🥈
+                <% elsif index == 2 %>
+                  🥉
+                <% end %>
+              <% else %>
+                #<%= index + 1 %>
+              <% end %>
+            </div>
+            <div class="leaderboard-user">
+              <%= link_to user_path(submission.user), class: "flex items-center gap-2" do %>
+                <% if submission.user.avatar.attached? %>
+                  <%= image_tag url_for(submission.user.avatar.variant(resize_to_fill: [40, 40])), 
+                      class: "rounded-full", alt: submission.user.username %>
+                <% else %>
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                    <%= submission.user.username.first.upcase %>
+                  </div>
+                <% end %>
+                <span class="font-semibold text-primary-content"><%= submission.user.username %></span>
+              <% end %>
+            </div>
+            <div class="leaderboard-recipe">
+              <%= link_to recipe_path(submission.recipe), class: "text-link" do %>
+                <%= submission.recipe.title %>
+              <% end %>
+            </div>
+            <div class="leaderboard-stats">
+              <% if @is_owner_or_admin %>
+                <div class="flex items-center gap-4 text-sm text-secondary-content">
+                  <span>❤️ <%= submission.recipe.likes_count %></span>
+                  <span>💬 <%= submission.recipe.comments_count %></span>
+                  <% avg_rating = submission.recipe.comments.where.not(rating: nil).average(:rating) %>
+                  <% if avg_rating %>
+                    <span>⭐ <%= avg_rating.round(1) %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <div class="leaderboard-score">
+              <% if @sort_by == 'score' %>
+                <strong><%= submission.score&.round(2) || 0 %></strong>
+              <% elsif @sort_by == 'likes' %>
+                <strong><%= submission.recipe.likes_count %></strong>
+              <% elsif @sort_by == 'comments' %>
+                <strong><%= submission.recipe.comments_count %></strong>
+              <% elsif @sort_by == 'rating' %>
+                <% avg_rating = submission.recipe.comments.where.not(rating: nil).average(:rating) %>
+                <strong><%= avg_rating ? avg_rating.round(1) : 'N/A' %></strong>
+              <% elsif @sort_by == 'attractiveness' %>
+                <% if submission.respond_to?(:attractiveness_score) %>
+                  <strong><%= submission.attractiveness_score&.round(2) || 0 %></strong>
+                <% else %>
+                  <strong>N/A</strong>
+                <% end %>
+              <% else %>
+                <strong><%= submission.score&.round(2) || 0 %></strong>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Participants List -->
+  <div class="challenge-participants-section">
+    <h2 class="text-xl font-bold text-primary-content mb-4">
+      Participanți (<%= @challenge.participants_count %>)
+    </h2>
+    <div class="challenge-participants-grid">
+      <% @participants.limit(20).each do |participant| %>
+        <div class="participant-card">
+          <%= link_to user_path(participant.user), class: "flex items-center gap-3" do %>
+            <% if participant.user.avatar.attached? %>
+              <%= image_tag url_for(participant.user.avatar.variant(resize_to_fill: [48, 48])), 
+                  class: "rounded-full", alt: participant.user.username %>
+            <% else %>
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                <%= participant.user.username.first.upcase %>
+              </div>
+            <% end %>
+            <div>
+              <p class="font-semibold text-primary-content"><%= participant.user.username %></p>
+              <p class="text-sm text-secondary-content">
+                <%= case participant.status
+                    when 'joined' then 'Înscris'
+                    when 'submitted' then 'Rețetă trimisă'
+                    when 'winner' then '🏆 Câștigător'
+                    else participant.status
+                    end %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
