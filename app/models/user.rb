@@ -40,6 +40,7 @@ class User < ApplicationRecord
   has_many :favorites, dependent: :destroy
   has_many :favorite_recipes, through: :favorites, source: :recipe
   has_many :user_shortcuts, dependent: :destroy
+  has_many :live_sessions, dependent: :destroy
 
   # Follow relationships
   has_many :follows, foreign_key: :follower_id, dependent: :destroy

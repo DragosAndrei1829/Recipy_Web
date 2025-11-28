@@ -259,6 +259,7 @@ Rails.application.routes.draw do
         end
       end
       resources :reports, only: [ :new, :create ], controller: 'reports'
+      resources :video_timestamps, only: [ :create, :update, :destroy ]
     end
 
     # User reports
@@ -368,6 +369,14 @@ Rails.application.routes.draw do
     post "/chef-ai/save_recipe", to: "ai_assistant#save_recipe", as: :ai_assistant_save_recipe
     post "/chef-ai/set_provider", to: "ai_assistant#set_provider", as: :set_ai_provider
     post "/chef-ai/generate", to: "ai_assistant#generate", as: :ai_assistant_generate
+
+    # Live Sessions
+    resources :live_sessions, except: [:edit] do
+      member do
+        post :start
+        post :end
+      end
+    end
   end
 
 

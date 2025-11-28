@@ -1,22 +1,22 @@
 <div class="top-recipes-sidebar-widget">
+  <!-- Title -->
+  <div class="top-recipes-sidebar-title">
+    <h3><%= t('top_recipes.title', default: 'Top Recipes') %></h3>
+  </div>
+  
   <!-- Period Tabs -->
   <div class="top-recipes-tabs" id="top-recipes-tabs">
-    <button class="top-recipes-tab <%= 'active' if @current_period == 'day' %>" 
-            data-period="day" 
-            data-preview="true">
-      <%= t('top_recipes.today') %>
-      </button>
-    <button class="top-recipes-tab <%= 'active' if @current_period == 'week' %>" 
+    <button class="top-recipes-tab" 
             data-period="week" 
             data-preview="true">
       <%= t('top_recipes.week') %>
       </button>
-    <button class="top-recipes-tab <%= 'active' if @current_period == 'month' %>" 
+    <button class="top-recipes-tab" 
             data-period="month" 
             data-preview="true">
       <%= t('top_recipes.month') %>
       </button>
-    <button class="top-recipes-tab <%= 'active' if @current_period == 'year' %>" 
+    <button class="top-recipes-tab active" 
             data-period="year" 
             data-preview="true">
       <%= t('top_recipes.year') %>
@@ -49,133 +49,105 @@
                         </div>
                       </div>
 
-  <!-- Default Content -->
+  <!-- Default Content (shown by default with year selected) -->
   <div class="top-recipes-default-content" data-top-recipes-container>
-    <!-- Day -->
-    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'day' %>" data-period="day">
-      <% if @top_day.any? %>
-        <div class="top-recipes-list">
-          <% @top_day.each do |recipe| %>
+      <!-- Week -->
+    <div class="top-recipes-period-content hidden" data-period="week">
+        <% if @top_week.any? %>
+        <div class="top-recipes-list-modern">
+          <% @top_week.each_with_index do |recipe, index| %>
+            <% rank = index + 1 %>
             <%= link_to recipe_path(recipe, locale: I18n.locale), 
-                class: "top-recipes-list-item", 
-                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
-              <% 
-                begin
-                  cover_photo_obj = recipe.cover_photo
-                  has_cover = false
-                  if cover_photo_obj.present?
-                    begin
-                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
-                    rescue
-                      has_cover = false
-                    end
-                  end
-                rescue
-                  has_cover = false
-                end
-                begin
-                  if !has_cover && recipe.photos.attached?
-                    first_valid_photo = recipe.photos.find { |p| 
+                class: "top-recipes-card-modern #{'rank-first' if rank == 1} #{'rank-second' if rank == 2} #{'rank-third' if rank == 3}", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}", rank: rank } do %>
+              <!-- Rank Badge -->
+              <div class="top-recipes-rank-badge">
+                <% if rank == 1 %>
+                  <div class="rank-crown">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-1h8.6l.9-6.4-2.1 2.1L12 8l-3.1 2.6L6.8 8.6L7.7 15z"/>
+                    </svg>
+                  </div>
+                  <span class="rank-number rank-1">1</span>
+                <% elsif rank == 2 %>
+                  <span class="rank-number rank-2">2</span>
+                <% elsif rank == 3 %>
+                  <span class="rank-number rank-3">3</span>
+                <% else %>
+                  <span class="rank-number rank-other"><%= rank %></span>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Image -->
+              <div class="top-recipes-card-image">
+                <% 
+                  begin
+                    cover_photo_obj = recipe.cover_photo
+                    has_cover = false
+                    if cover_photo_obj.present?
                       begin
-                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
                       rescue
-                        false
+                        has_cover = false
                       end
-                    }
-                  else
+                    end
+                  rescue
+                    has_cover = false
+                  end
+                  begin
+                    if !has_cover && recipe.photos.attached?
+                      first_valid_photo = recipe.photos.find { |p| 
+                        begin
+                          p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        rescue
+                          false
+                        end
+                      }
+                    else
+                      first_valid_photo = nil
+                    end
+                  rescue
                     first_valid_photo = nil
                   end
-                rescue
-                  first_valid_photo = nil
-                end
-              %>
-              <% if has_cover && cover_photo_obj %>
-                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% elsif first_valid_photo %>
-                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% else %>
-                <div class="top-recipes-list-placeholder"></div>
-              <% end %>
-              <div class="top-recipes-list-info">
-                <div class="top-recipes-list-title"><%= recipe.title %></div>
-                <div class="top-recipes-list-meta">
-                  <span>❤️ <%= recipe.likes_count %></span>
+                %>
+                <% if has_cover && cover_photo_obj %>
+                  <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% elsif first_valid_photo %>
+                  <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% else %>
+                  <div class="top-recipes-card-placeholder">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Info -->
+              <div class="top-recipes-card-info">
+                <h4 class="top-recipes-card-title"><%= recipe.title %></h4>
+                <div class="top-recipes-card-meta">
+                  <div class="top-recipes-meta-item">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span><%= recipe.likes_count %></span>
+                  </div>
                   <% if recipe.time_to_make && recipe.time_to_make > 0 %>
-                    <span>⏱ <%= recipe.time_to_make %>m</span>
+                    <div class="top-recipes-meta-item">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span><%= recipe.time_to_make %>m</span>
+                    </div>
                   <% end %>
                 </div>
               </div>
-              <% end %>
             <% end %>
-          </div>
-        <% else %>
-        <div class="bg-card rounded-2xl p-6 text-center">
-          <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
+          <% end %>
         </div>
-        <% end %>
-      </div>
-
-      <!-- Week -->
-    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'week' %>" data-period="week">
-        <% if @top_week.any? %>
-        <div class="top-recipes-list">
-          <% @top_week.each do |recipe| %>
-            <%= link_to recipe_path(recipe, locale: I18n.locale), 
-                class: "top-recipes-list-item", 
-                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
-              <% 
-                begin
-                  cover_photo_obj = recipe.cover_photo
-                  has_cover = false
-                  if cover_photo_obj.present?
-                    begin
-                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
-                    rescue
-                      has_cover = false
-                    end
-                  end
-                rescue
-                  has_cover = false
-                end
-                begin
-                  if !has_cover && recipe.photos.attached?
-                    first_valid_photo = recipe.photos.find { |p| 
-                      begin
-                        p.blob.present? && p.blob.service.exist?(p.blob.key)
-                      rescue
-                        false
-                      end
-                    }
-                  else
-                    first_valid_photo = nil
-                  end
-                rescue
-                  first_valid_photo = nil
-                end
-              %>
-              <% if has_cover && cover_photo_obj %>
-                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% elsif first_valid_photo %>
-                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% else %>
-                <div class="top-recipes-list-placeholder"></div>
-              <% end %>
-              <div class="top-recipes-list-info">
-                <div class="top-recipes-list-title"><%= recipe.title %></div>
-                <div class="top-recipes-list-meta">
-                  <span>❤️ <%= recipe.likes_count %></span>
-                  <% if recipe.time_to_make && recipe.time_to_make > 0 %>
-                    <span>⏱ <%= recipe.time_to_make %>m</span>
-                      <% end %>
-                </div>
-              </div>
-            <% end %>
-            <% end %>
-          </div>
         <% else %>
         <div class="bg-card rounded-2xl p-6 text-center">
           <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
@@ -184,64 +156,102 @@
       </div>
 
       <!-- Month -->
-    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'month' %>" data-period="month">
+    <div class="top-recipes-period-content hidden" data-period="month">
         <% if @top_month.any? %>
-        <div class="top-recipes-list">
-          <% @top_month.each do |recipe| %>
+        <div class="top-recipes-list-modern">
+          <% @top_month.each_with_index do |recipe, index| %>
+            <% rank = index + 1 %>
             <%= link_to recipe_path(recipe, locale: I18n.locale), 
-                class: "top-recipes-list-item", 
-                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
-              <% 
-                begin
-                  cover_photo_obj = recipe.cover_photo
-                  has_cover = false
-                  if cover_photo_obj.present?
-                    begin
-                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
-                    rescue
-                      has_cover = false
-                    end
-                  end
-                rescue
-                  has_cover = false
-                end
-                begin
-                  if !has_cover && recipe.photos.attached?
-                    first_valid_photo = recipe.photos.find { |p| 
+                class: "top-recipes-card-modern #{'rank-first' if rank == 1} #{'rank-second' if rank == 2} #{'rank-third' if rank == 3}", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}", rank: rank } do %>
+              <!-- Rank Badge -->
+              <div class="top-recipes-rank-badge">
+                <% if rank == 1 %>
+                  <div class="rank-crown">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-1h8.6l.9-6.4-2.1 2.1L12 8l-3.1 2.6L6.8 8.6L7.7 15z"/>
+                    </svg>
+                  </div>
+                  <span class="rank-number rank-1">1</span>
+                <% elsif rank == 2 %>
+                  <span class="rank-number rank-2">2</span>
+                <% elsif rank == 3 %>
+                  <span class="rank-number rank-3">3</span>
+                <% else %>
+                  <span class="rank-number rank-other"><%= rank %></span>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Image -->
+              <div class="top-recipes-card-image">
+                <% 
+                  begin
+                    cover_photo_obj = recipe.cover_photo
+                    has_cover = false
+                    if cover_photo_obj.present?
                       begin
-                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
                       rescue
-                        false
+                        has_cover = false
                       end
-                    }
-                  else
+                    end
+                  rescue
+                    has_cover = false
+                  end
+                  begin
+                    if !has_cover && recipe.photos.attached?
+                      first_valid_photo = recipe.photos.find { |p| 
+                        begin
+                          p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        rescue
+                          false
+                        end
+                      }
+                    else
+                      first_valid_photo = nil
+                    end
+                  rescue
                     first_valid_photo = nil
                   end
-                rescue
-                  first_valid_photo = nil
-                end
-              %>
-              <% if has_cover && cover_photo_obj %>
-                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% elsif first_valid_photo %>
-                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% else %>
-                <div class="top-recipes-list-placeholder"></div>
-              <% end %>
-              <div class="top-recipes-list-info">
-                <div class="top-recipes-list-title"><%= recipe.title %></div>
-                <div class="top-recipes-list-meta">
-                  <span>❤️ <%= recipe.likes_count %></span>
+                %>
+                <% if has_cover && cover_photo_obj %>
+                  <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% elsif first_valid_photo %>
+                  <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% else %>
+                  <div class="top-recipes-card-placeholder">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Info -->
+              <div class="top-recipes-card-info">
+                <h4 class="top-recipes-card-title"><%= recipe.title %></h4>
+                <div class="top-recipes-card-meta">
+                  <div class="top-recipes-meta-item">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span><%= recipe.likes_count %></span>
+                  </div>
                   <% if recipe.time_to_make && recipe.time_to_make > 0 %>
-                    <span>⏱ <%= recipe.time_to_make %>m</span>
-                      <% end %>
+                    <div class="top-recipes-meta-item">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span><%= recipe.time_to_make %>m</span>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             <% end %>
-            <% end %>
-          </div>
+          <% end %>
+        </div>
         <% else %>
         <div class="bg-card rounded-2xl p-6 text-center">
           <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
@@ -250,64 +260,102 @@
       </div>
 
       <!-- Year -->
-    <div class="top-recipes-period-content <%= 'hidden' unless @current_period == 'year' %>" data-period="year">
+    <div class="top-recipes-period-content" data-period="year" style="display: block;">
         <% if @top_year.any? %>
-        <div class="top-recipes-list">
-          <% @top_year.each do |recipe| %>
+        <div class="top-recipes-list-modern">
+          <% @top_year.each_with_index do |recipe, index| %>
+            <% rank = index + 1 %>
             <%= link_to recipe_path(recipe, locale: I18n.locale), 
-                class: "top-recipes-list-item", 
-                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}" } do %>
-              <% 
-                begin
-                  cover_photo_obj = recipe.cover_photo
-                  has_cover = false
-                  if cover_photo_obj.present?
-                    begin
-                      has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
-                    rescue
-                      has_cover = false
-                    end
-                  end
-                rescue
-                  has_cover = false
-                end
-                begin
-                  if !has_cover && recipe.photos.attached?
-                    first_valid_photo = recipe.photos.find { |p| 
+                class: "top-recipes-card-modern #{'rank-first' if rank == 1} #{'rank-second' if rank == 2} #{'rank-third' if rank == 3}", 
+                data: { turbo_frame: "_top", filter_text: "#{recipe.title} #{recipe.user&.username}", rank: rank } do %>
+              <!-- Rank Badge -->
+              <div class="top-recipes-rank-badge">
+                <% if rank == 1 %>
+                  <div class="rank-crown">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-1h8.6l.9-6.4-2.1 2.1L12 8l-3.1 2.6L6.8 8.6L7.7 15z"/>
+                    </svg>
+                  </div>
+                  <span class="rank-number rank-1">1</span>
+                <% elsif rank == 2 %>
+                  <span class="rank-number rank-2">2</span>
+                <% elsif rank == 3 %>
+                  <span class="rank-number rank-3">3</span>
+                <% else %>
+                  <span class="rank-number rank-other"><%= rank %></span>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Image -->
+              <div class="top-recipes-card-image">
+                <% 
+                  begin
+                    cover_photo_obj = recipe.cover_photo
+                    has_cover = false
+                    if cover_photo_obj.present?
                       begin
-                        p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        has_cover = cover_photo_obj.blob.present? && cover_photo_obj.blob.service.exist?(cover_photo_obj.blob.key)
                       rescue
-                        false
+                        has_cover = false
                       end
-                    }
-                  else
+                    end
+                  rescue
+                    has_cover = false
+                  end
+                  begin
+                    if !has_cover && recipe.photos.attached?
+                      first_valid_photo = recipe.photos.find { |p| 
+                        begin
+                          p.blob.present? && p.blob.service.exist?(p.blob.key)
+                        rescue
+                          false
+                        end
+                      }
+                    else
+                      first_valid_photo = nil
+                    end
+                  rescue
                     first_valid_photo = nil
                   end
-                rescue
-                  first_valid_photo = nil
-                end
-              %>
-              <% if has_cover && cover_photo_obj %>
-                <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% elsif first_valid_photo %>
-                <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [50, 50])), 
-                    class: "top-recipes-list-image", alt: recipe.title %>
-              <% else %>
-                <div class="top-recipes-list-placeholder"></div>
-              <% end %>
-              <div class="top-recipes-list-info">
-                <div class="top-recipes-list-title"><%= recipe.title %></div>
-                <div class="top-recipes-list-meta">
-                  <span>❤️ <%= recipe.likes_count %></span>
+                %>
+                <% if has_cover && cover_photo_obj %>
+                  <%= image_tag url_for(cover_photo_obj.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% elsif first_valid_photo %>
+                  <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [120, 120])), 
+                      class: "top-recipes-card-img", alt: recipe.title %>
+                <% else %>
+                  <div class="top-recipes-card-placeholder">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              
+              <!-- Recipe Info -->
+              <div class="top-recipes-card-info">
+                <h4 class="top-recipes-card-title"><%= recipe.title %></h4>
+                <div class="top-recipes-card-meta">
+                  <div class="top-recipes-meta-item">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span><%= recipe.likes_count %></span>
+                  </div>
                   <% if recipe.time_to_make && recipe.time_to_make > 0 %>
-                    <span>⏱ <%= recipe.time_to_make %>m</span>
-                      <% end %>
+                    <div class="top-recipes-meta-item">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span><%= recipe.time_to_make %>m</span>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             <% end %>
-            <% end %>
-          </div>
+          <% end %>
+        </div>
         <% else %>
         <div class="bg-card rounded-2xl p-6 text-center">
           <p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p>
@@ -328,6 +376,63 @@
     return match ? match[1] : 'ro';
   }
   
+  // Initialize default state on page load
+  function initializeTopRecipes() {
+    const defaultContent = document.querySelector('[data-top-recipes-container]');
+    if (!defaultContent) {
+      // Retry after a short delay if container not found
+      setTimeout(initializeTopRecipes, 100);
+      return;
+    }
+    
+    // Hide ALL period contents first (force hide)
+    const allPeriodContents = defaultContent.querySelectorAll('.top-recipes-period-content');
+    allPeriodContents.forEach(content => {
+      content.classList.add('hidden');
+      content.style.display = 'none';
+    });
+    
+    // Show year content by default
+    const yearContent = defaultContent.querySelector('[data-period="year"]');
+    if (yearContent) {
+      yearContent.classList.remove('hidden');
+      yearContent.style.display = '';
+    } else {
+      console.warn('Year content not found');
+    }
+    
+    // Ensure year tab is active
+    const yearTab = document.querySelector('.top-recipes-tab[data-period="year"]');
+    if (yearTab) {
+      document.querySelectorAll('.top-recipes-tab').forEach(t => t.classList.remove('active'));
+      yearTab.classList.add('active');
+    }
+    
+    // Ensure default content is visible
+    defaultContent.classList.remove('hidden');
+  }
+  
+  // Initialize immediately and also on DOM ready and window load as fallback
+  // Try multiple times to ensure it works
+  function runInitialization() {
+    initializeTopRecipes();
+  }
+  
+  // Run immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runInitialization);
+  } else {
+    runInitialization();
+  }
+  
+  // Also run on window load as fallback
+  window.addEventListener('load', function() {
+    setTimeout(runInitialization, 50);
+  });
+  
+  // One more fallback with a longer delay
+  setTimeout(runInitialization, 200);
+  
   // Handle period tab clicks
   document.addEventListener('click', function(e) {
     const tab = e.target.closest('.top-recipes-tab[data-preview="true"]');
@@ -340,50 +445,30 @@
     document.querySelectorAll('.top-recipes-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     
-    // Show preview container
+    // Hide preview container (we'll use default content instead)
     const previewContainer = document.getElementById('top-recipes-preview-container');
-    const previewContent = document.getElementById('top-recipes-preview-content');
     const defaultContent = document.querySelector('[data-top-recipes-container]');
     
-    if (!previewContainer || !previewContent) return;
+    if (previewContainer) previewContainer.classList.add('hidden');
     
-    previewContainer.classList.remove('hidden');
-    if (defaultContent) defaultContent.classList.add('hidden');
-    
-    // Show loading
-    previewContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><div style="display: inline-block; width: 24px; height: 24px; border: 3px solid #10b981; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div></div>';
-    
-    // Fetch preview
-    const locale = getCurrentLocale();
-    const url = `/${locale}/top_recipes?period=${period}&preview=sidebar`;
-    
-    fetch(url, {
-      headers: {
-        'Accept': 'text/html',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: 'same-origin'
-    })
-    .then(response => {
-      if (!response.ok) throw new Error('Network error');
-      return response.text();
-    })
-    .then(html => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const items = doc.querySelectorAll('.top-recipe-preview-item');
+    // Show default content and the selected period
+    if (defaultContent) {
+      defaultContent.classList.remove('hidden');
       
-      if (items.length > 0) {
-        previewContent.innerHTML = '';
-        items.forEach(item => previewContent.appendChild(item.cloneNode(true)));
-      } else {
-        previewContent.innerHTML = '<div class="bg-card rounded-2xl p-6 text-center"><p class="text-secondary-content font-medium">Nu s-a postat în această perioadă</p></div>';
+      // Hide ALL period contents first (force hide with both class and style)
+      const allPeriodContents = defaultContent.querySelectorAll('.top-recipes-period-content');
+      allPeriodContents.forEach(content => {
+        content.classList.add('hidden');
+        content.style.display = 'none';
+      });
+      
+      // Show ONLY selected period content
+      const selectedPeriodContent = defaultContent.querySelector(`[data-period="${period}"]`);
+      if (selectedPeriodContent) {
+        selectedPeriodContent.classList.remove('hidden');
+        selectedPeriodContent.style.display = '';
       }
-    })
-    .catch(error => {
-      console.error('Preview error:', error);
-      previewContent.innerHTML = '<p style="text-align: center; padding: 2rem; color: #ef4444;">Eroare la încărcare</p>';
-    });
+    }
   });
   
   // Search functionality

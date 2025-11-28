@@ -1,0 +1,8 @@
+<%= turbo_stream.append "video-timestamps-list" do %>
+  <%= render partial: "video_timestamps/timestamp_item", locals: { timestamp: @video_timestamp } %>
+<% end %>
+
+<%= turbo_stream.replace "timestamp-form" do %>
+  <%= render partial: "video_timestamps/form", locals: { recipe: @recipe, timestamp: @recipe.video_timestamps.build } %>
+<% end %>
+

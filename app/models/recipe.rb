@@ -10,6 +10,8 @@ class Recipe < ApplicationRecord
   has_many :collection_recipes, dependent: :destroy
   has_many :collections, through: :collection_recipes
   has_many :reports, as: :reportable, dependent: :destroy
+  has_many :video_timestamps, dependent: :destroy
+  has_many :live_sessions, dependent: :destroy
   has_one_attached :video
   has_many_attached :photos
 

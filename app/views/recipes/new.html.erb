@@ -48,6 +48,25 @@
       </div>
     </div>
 
+    <!-- Error Messages -->
+    <% if @recipe.errors.any? %>
+      <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="flex-1">
+            <h3 class="font-bold text-red-800 dark:text-red-200 mb-2"><%= t('errors.template.header', count: @recipe.errors.count) %></h3>
+            <ul class="list-disc list-inside space-y-1 text-sm text-red-700 dark:text-red-300">
+              <% @recipe.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <!-- Form Card -->
     <%= form_with model: @recipe, multipart: true, id: "recipe-form", class: "bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden" do |form| %>
       
@@ -225,6 +244,23 @@
                   </svg>
                 </button>
               </div>
+            </div>
+            
+            <!-- Video Timestamps (only shown if video is uploaded) -->
+            <div id="video-timestamps-section" class="mt-4 hidden">
+              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                <%= t('recipes.form.video_timestamps', default: 'Timestamps Video (opțional)') %>
+                <span class="text-xs font-normal text-gray-400 ml-2"><%= t('recipes.form.video_timestamps_help', default: 'Adaugă timestamps pentru pașii din video') %></span>
+              </label>
+              <div id="timestamps-list" class="space-y-2 mb-3"></div>
+              <button type="button" id="add-timestamp-btn" class="w-full px-4 py-2 text-sm font-semibold text-purple-600 dark:text-purple-400 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <%= t('recipes.form.add_timestamp', default: 'Adaugă Timestamp') %>
+              </button>
+              <!-- Hidden field to store timestamps as JSON -->
+              <%= form.hidden_field :video_timestamps_json, id: 'video_timestamps_json', value: '' %>
             </div>
           </div>
         </div>
@@ -424,14 +460,49 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', initRecipeWizard);
-document.addEventListener('turbo:load', initRecipeWizard);
+let wizardInitialized = false;
 
 function initRecipeWizard() {
   const form = document.getElementById('recipe-form');
-  if (!form) return;
+  if (!form || wizardInitialized) return;
+  
+  wizardInitialized = true;
 
-  let currentStep = 1;
+  // ALWAYS start at step 1 for new recipe forms
+  // Only check for server-side validation errors if form was submitted and returned with errors
+  let hasServerErrors = false;
+  let errorStep = 1;
+  
+  // Check if this is a form re-render after validation failure
+  // Look for Rails error messages (only if form was actually submitted)
+  const errorDiv = document.querySelector('.bg-red-50, .bg-red-900\\/20');
+  if (errorDiv) {
+    const errorList = errorDiv.querySelector('ul');
+    const hasErrorItems = errorList && errorList.querySelectorAll('li').length > 0;
+    
+    // Only treat as server error if we have actual error list items
+    if (hasErrorItems) {
+      hasServerErrors = true;
+      
+      // Check which specific fields have errors
+      const titleField = form.querySelector('#recipe_title');
+      const ingredientsField = form.querySelector('#recipe_ingredients');
+      const preparationField = form.querySelector('#recipe_preparation');
+      
+      // Rails wraps fields with errors in a div with 'field_with_errors' class
+      const titleWrapper = titleField?.closest('.field_with_errors') || titleField?.parentElement?.closest('.field_with_errors');
+      const ingredientsWrapper = ingredientsField?.closest('.field_with_errors') || ingredientsField?.parentElement?.closest('.field_with_errors');
+      const preparationWrapper = preparationField?.closest('.field_with_errors') || preparationField?.parentElement?.closest('.field_with_errors');
+      
+      if (titleWrapper) errorStep = 1;
+      else if (ingredientsWrapper) errorStep = 2;
+      else if (preparationWrapper) errorStep = 3;
+      else errorStep = 1; // Default to step 1
+    }
+  }
+  
+  // FORCE step 1 for new forms (no errors)
+  let currentStep = hasServerErrors ? errorStep : 1;
   const totalSteps = 6;
   
   const stepContents = document.querySelectorAll('.step-content');
@@ -470,6 +541,109 @@ function initRecipeWizard() {
   const videoUploadArea = document.getElementById('video-upload-area');
   const removeVideoBtn = document.getElementById('remove-video');
 
+  // Video timestamps management
+  let timestamps = [];
+  let timestampCounter = 1;
+  const timestampsList = document.getElementById('timestamps-list');
+  const addTimestampBtn = document.getElementById('add-timestamp-btn');
+  const timestampsSection = document.getElementById('video-timestamps-section');
+  const timestampsJsonField = document.getElementById('video_timestamps_json');
+
+  function updateTimestampsJson() {
+    timestampsJsonField.value = JSON.stringify(timestamps);
+  }
+
+  function addTimestamp() {
+    const timestamp = {
+      id: timestampCounter++,
+      step_number: timestamps.length + 1,
+      timestamp_seconds: 0,
+      title: '',
+      description: ''
+    };
+    timestamps.push(timestamp);
+    renderTimestamps();
+    updateTimestampsJson();
+  }
+
+  function removeTimestamp(id) {
+    timestamps = timestamps.filter(t => t.id !== id);
+    // Reorder step numbers
+    timestamps.forEach((t, index) => {
+      t.step_number = index + 1;
+    });
+    renderTimestamps();
+    updateTimestampsJson();
+  }
+
+  function renderTimestamps() {
+    if (!timestampsList) return;
+    
+    timestampsList.innerHTML = '';
+    timestamps.forEach(timestamp => {
+      const div = document.createElement('div');
+      div.className = 'bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700';
+      div.innerHTML = `
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-12 sm:col-span-3">
+            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Pas #${timestamp.step_number}</label>
+            <input type="number" min="0" step="1" value="${timestamp.timestamp_seconds}" 
+                   class="timestamp-seconds w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm"
+                   data-id="${timestamp.id}" placeholder="0" />
+            <span class="text-xs text-gray-500 mt-1 block">secunde</span>
+          </div>
+          <div class="col-span-12 sm:col-span-6">
+            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Titlu</label>
+            <input type="text" value="${timestamp.title}" 
+                   class="timestamp-title w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm"
+                   data-id="${timestamp.id}" placeholder="Ex: Amestecă ingredientele" />
+          </div>
+          <div class="col-span-12 sm:col-span-2">
+            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">&nbsp;</label>
+            <button type="button" class="remove-timestamp w-full px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" data-id="${timestamp.id}">
+              Șterge
+            </button>
+          </div>
+        </div>
+      `;
+      timestampsList.appendChild(div);
+    });
+
+    // Add event listeners
+    timestampsList.querySelectorAll('.timestamp-seconds').forEach(input => {
+      input.addEventListener('input', function() {
+        const id = parseInt(this.dataset.id);
+        const timestamp = timestamps.find(t => t.id === id);
+        if (timestamp) {
+          timestamp.timestamp_seconds = parseInt(this.value) || 0;
+          updateTimestampsJson();
+        }
+      });
+    });
+
+    timestampsList.querySelectorAll('.timestamp-title').forEach(input => {
+      input.addEventListener('input', function() {
+        const id = parseInt(this.dataset.id);
+        const timestamp = timestamps.find(t => t.id === id);
+        if (timestamp) {
+          timestamp.title = this.value;
+          updateTimestampsJson();
+        }
+      });
+    });
+
+    timestampsList.querySelectorAll('.remove-timestamp').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = parseInt(this.dataset.id);
+        removeTimestamp(id);
+      });
+    });
+  }
+
+  if (addTimestampBtn) {
+    addTimestampBtn.addEventListener('click', addTimestamp);
+  }
+
   if (videoUpload) {
     videoUpload.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -483,6 +657,8 @@ function initRecipeWizard() {
         document.getElementById('video-filesize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
         videoPreview.classList.remove('hidden');
         videoUploadArea.classList.add('hidden');
+        // Show timestamps section when video is uploaded
+        if (timestampsSection) timestampsSection.classList.remove('hidden');
       }
     });
 
@@ -491,6 +667,12 @@ function initRecipeWizard() {
         videoUpload.value = '';
         videoPreview.classList.add('hidden');
         videoUploadArea.classList.remove('hidden');
+        // Hide timestamps section when video is removed
+        if (timestampsSection) timestampsSection.classList.add('hidden');
+        timestamps = [];
+        timestampCounter = 1;
+        updateTimestampsJson();
+        renderTimestamps();
       });
     }
   }
@@ -529,10 +711,14 @@ function initRecipeWizard() {
   });
 
   function updateStep(step) {
-    // Update content visibility
+    // Update content visibility - ensure only current step is visible
     stepContents.forEach(content => {
       const s = parseInt(content.dataset.step);
-      content.classList.toggle('hidden', s !== step);
+      if (s === step) {
+        content.classList.remove('hidden');
+      } else {
+        content.classList.add('hidden');
+      }
     });
 
     // Update step indicators
@@ -560,7 +746,8 @@ function initRecipeWizard() {
     if (step === totalSteps) {
       nextBtn.classList.add('hidden');
       submitBtn.classList.remove('hidden');
-      updateReview();
+      // Always update review when showing step 6
+      setTimeout(() => updateReview(), 100);
     } else {
       nextBtn.classList.remove('hidden');
       submitBtn.classList.add('hidden');
@@ -570,49 +757,133 @@ function initRecipeWizard() {
   function validateStep(step) {
     if (step === 1) {
       const title = document.getElementById('recipe_title');
-      if (!title.value.trim()) {
-        title.focus();
-        title.classList.add('border-red-400', 'ring-red-100');
-        setTimeout(() => title.classList.remove('border-red-400', 'ring-red-100'), 2000);
+      const titleValue = title.value.trim();
+      if (!titleValue) {
+        showFieldError(title, '<%= t("recipes.form.title_required", default: "Titlul este obligatoriu") %>');
         return false;
       }
+      if (titleValue.length < 3) {
+        showFieldError(title, '<%= t("recipes.form.title_too_short", default: "Titlul trebuie să aibă minim 3 caractere") %>');
+        return false;
+      }
+      if (titleValue.length > 200) {
+        showFieldError(title, '<%= t("recipes.form.title_too_long", default: "Titlul nu poate depăși 200 de caractere") %>');
+        return false;
+      }
+      clearFieldError(title);
     }
     if (step === 2) {
       const ingredients = document.getElementById('recipe_ingredients');
-      if (!ingredients.value.trim()) {
-        ingredients.focus();
-        ingredients.classList.add('border-red-400');
-        setTimeout(() => ingredients.classList.remove('border-red-400'), 2000);
+      const ingredientsValue = ingredients.value.trim();
+      if (!ingredientsValue) {
+        showFieldError(ingredients, '<%= t("recipes.form.ingredients_required", default: "Ingredientele sunt obligatorii") %>');
         return false;
       }
+      if (ingredientsValue.length < 10) {
+        showFieldError(ingredients, '<%= t("recipes.form.ingredients_too_short", default: "Ingredientele trebuie să aibă minim 10 caractere") %>');
+        return false;
+      }
+      clearFieldError(ingredients);
     }
     if (step === 3) {
       const preparation = document.getElementById('recipe_preparation');
-      if (!preparation.value.trim()) {
-        preparation.focus();
-        preparation.classList.add('border-red-400');
-        setTimeout(() => preparation.classList.remove('border-red-400'), 2000);
+      const preparationValue = preparation.value.trim();
+      if (!preparationValue) {
+        showFieldError(preparation, '<%= t("recipes.form.preparation_required", default: "Modul de preparare este obligatoriu") %>');
         return false;
       }
+      if (preparationValue.length < 10) {
+        showFieldError(preparation, '<%= t("recipes.form.preparation_too_short", default: "Modul de preparare trebuie să aibă minim 10 caractere") %>');
+        return false;
+      }
+      clearFieldError(preparation);
     }
     return true;
   }
 
-  function updateReview() {
-    const title = document.getElementById('recipe_title')?.value || '-';
-    const desc = document.getElementById('recipe_description')?.value || '-';
-    const ingredients = document.getElementById('recipe_ingredients')?.value || '-';
-    const preparation = document.getElementById('recipe_preparation')?.value || '-';
-    const photoCount = document.getElementById('photo-upload')?.files?.length || 0;
-    const hasVideo = document.getElementById('video-upload')?.files?.length > 0;
-    const time = document.getElementById('recipe_time_to_make')?.value || '0';
+  function showFieldError(field, message) {
+    field.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+    field.focus();
+    
+    // Remove existing error message
+    const existingError = field.parentElement.querySelector('.field-error-message');
+    if (existingError) existingError.remove();
+    
+    // Add error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error-message mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1';
+    errorDiv.innerHTML = `
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      ${message}
+    `;
+    field.parentElement.appendChild(errorDiv);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      clearFieldError(field);
+    }, 5000);
+  }
 
-    document.getElementById('review-title').textContent = title;
-    document.getElementById('review-description').textContent = desc.substring(0, 100) + (desc.length > 100 ? '...' : '');
-    document.getElementById('review-ingredients').textContent = ingredients.split('\n').length + ' ingrediente';
-    document.getElementById('review-preparation').textContent = preparation.split('\n').filter(l => l.trim()).length + ' pași';
-    document.getElementById('review-media').textContent = `${photoCount} foto${hasVideo ? ' + video' : ''}`;
-    document.getElementById('review-time').textContent = time > 0 ? time + ' minute' : 'Nespecificat';
+  function clearFieldError(field) {
+    field.classList.remove('border-red-400', 'ring-2', 'ring-red-100');
+    const errorMsg = field.parentElement.querySelector('.field-error-message');
+    if (errorMsg) errorMsg.remove();
+  }
+
+  function updateReview() {
+    const titleEl = document.getElementById('recipe_title');
+    const descEl = document.getElementById('recipe_description');
+    const ingredientsEl = document.getElementById('recipe_ingredients');
+    const preparationEl = document.getElementById('recipe_preparation');
+    const photoUploadEl = document.getElementById('photo-upload');
+    const videoUploadEl = document.getElementById('video-upload');
+    const timeEl = document.getElementById('recipe_time_to_make');
+    
+    const title = titleEl?.value?.trim() || '-';
+    const desc = descEl?.value?.trim() || '-';
+    const ingredients = ingredientsEl?.value?.trim() || '-';
+    const preparation = preparationEl?.value?.trim() || '-';
+    const photoCount = photoUploadEl?.files?.length || 0;
+    const hasVideo = videoUploadEl?.files?.length > 0;
+    const time = timeEl?.value || '0';
+
+    const reviewTitleEl = document.getElementById('review-title');
+    const reviewDescEl = document.getElementById('review-description');
+    const reviewIngredientsEl = document.getElementById('review-ingredients');
+    const reviewPreparationEl = document.getElementById('review-preparation');
+    const reviewMediaEl = document.getElementById('review-media');
+    const reviewTimeEl = document.getElementById('review-time');
+    
+    if (reviewTitleEl) reviewTitleEl.textContent = title;
+    if (reviewDescEl) reviewDescEl.textContent = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+    if (reviewIngredientsEl) {
+      if (ingredients === '-') {
+        reviewIngredientsEl.textContent = '-';
+      } else {
+        const ingredientLines = ingredients.split('\n').filter(l => l.trim()).length;
+        reviewIngredientsEl.textContent = ingredientLines > 0 ? `${ingredientLines} ingrediente` : '-';
+      }
+    }
+    if (reviewPreparationEl) {
+      if (preparation === '-') {
+        reviewPreparationEl.textContent = '-';
+      } else {
+        const prepLines = preparation.split('\n').filter(l => l.trim()).length;
+        reviewPreparationEl.textContent = prepLines > 0 ? `${prepLines} pași` : '-';
+      }
+    }
+    if (reviewMediaEl) {
+      if (photoCount > 0 || hasVideo) {
+        reviewMediaEl.textContent = `${photoCount} foto${hasVideo ? ' + video' : ''}`;
+      } else {
+        reviewMediaEl.textContent = 'Niciun media';
+      }
+    }
+    if (reviewTimeEl) {
+      reviewTimeEl.textContent = time && parseInt(time) > 0 ? time + ' minute' : 'Nespecificat';
+    }
   }
 
   // Event listeners
@@ -637,11 +908,51 @@ function initRecipeWizard() {
   form.addEventListener('submit', (e) => {
     if (currentStep < totalSteps) {
       e.preventDefault();
+      // If not on last step, go to last step
+      currentStep = totalSteps;
+      updateStep(currentStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return false;
     }
+    // On last step, allow form submission
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <%= t("recipes.form.publishing", default: "Se publică...") %>';
   });
 
-  // Initialize
-  updateStep(1);
+  // Initialize - ALWAYS start at step 1 for new forms
+  // Only show error step if there are REAL server-side validation errors
+  stepContents.forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Only show error step if we have confirmed server errors with actual error messages
+  if (hasServerErrors && errorStep !== 1) {
+    currentStep = errorStep;
+    updateStep(errorStep);
+    // Scroll to errors
+    setTimeout(() => {
+      if (errorDiv) {
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      // Also scroll to field with error
+      const errorField = form.querySelector('.field_with_errors input, .field_with_errors textarea');
+      if (errorField) {
+        errorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorField.focus();
+      }
+    }, 100);
+  } else {
+    // FORCE step 1 for all new forms
+    currentStep = 1;
+    updateStep(1);
+  }
 }
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initRecipeWizard);
+document.addEventListener('turbo:load', function() {
+  wizardInitialized = false;
+  initRecipeWizard();
+});
 </script>

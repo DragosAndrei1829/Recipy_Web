@@ -614,8 +614,53 @@
         document.body.style.opacity = '0.7';
       });
 
+      // Video timestamps functionality
+      function initializeVideoTimestamps() {
+        const videoPlayer = document.getElementById('recipe-video-player');
+        if (!videoPlayer) return;
+
+        const timestampsData = videoPlayer.dataset.timestamps;
+        if (!timestampsData) return;
+
+        const timestamps = JSON.parse(timestampsData);
+        const timestampButtons = document.querySelectorAll('.timestamp-step');
+
+        timestampButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const timestampSeconds = parseInt(this.dataset.timestamp);
+            if (videoPlayer && !isNaN(timestampSeconds)) {
+              videoPlayer.currentTime = timestampSeconds;
+              videoPlayer.play();
+              // Highlight active step
+              timestampButtons.forEach(btn => btn.classList.remove('border-primary', 'bg-primary/10'));
+              this.classList.add('border-primary', 'bg-primary/10');
+            }
+          });
+        });
+
+        // Update active step as video plays
+        videoPlayer.addEventListener('timeupdate', function() {
+          const currentTime = Math.floor(this.currentTime);
+          timestampButtons.forEach(button => {
+            const timestampSeconds = parseInt(button.dataset.timestamp);
+            const nextTimestamp = Array.from(timestampButtons)
+              .map(btn => parseInt(btn.dataset.timestamp))
+              .filter(ts => ts > timestampSeconds)
+              .sort((a, b) => a - b)[0] || videoPlayer.duration;
+
+            if (currentTime >= timestampSeconds && currentTime < nextTimestamp) {
+              timestampButtons.forEach(btn => btn.classList.remove('border-primary', 'bg-primary/10'));
+              button.classList.add('border-primary', 'bg-primary/10');
+            }
+          });
+        });
+      }
+
       // Initialize on both DOMContentLoaded and turbo:load
-      document.addEventListener('DOMContentLoaded', initializePage);
+      document.addEventListener('DOMContentLoaded', function() {
+        initializePage();
+        initializeVideoTimestamps();
+      });
       document.addEventListener('turbo:load', () => {
         document.body.style.opacity = '1';
         // Animate in main content
@@ -625,6 +670,7 @@
         }
         // Reinitialize all functionality
         initializePage();
+        initializeVideoTimestamps();
       });
     </script>
   </body>

@@ -1,0 +1,288 @@
+#!/bin/bash
+
+# =============================================================================
+# RECIPY SECURITY AUDIT SCRIPT
+# =============================================================================
+# Rulează toate testele de securitate disponibile
+# Usage: bin/security_audit [--full]
+# --full = include și scanare ZAP/Nikto (necesită server pornit)
+# =============================================================================
+
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo ""
+echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║           🔒 RECIPY SECURITY AUDIT SCRIPT 🔒                 ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+FULL_SCAN=false
+if [[ "$1" == "--full" ]]; then
+    FULL_SCAN=true
+fi
+
+PASS_COUNT=0
+WARN_COUNT=0
+FAIL_COUNT=0
+
+pass() {
+    echo -e "${GREEN}✅ PASS:${NC} $1"
+    ((PASS_COUNT++)) || true
+}
+
+warn() {
+    echo -e "${YELLOW}⚠️  WARN:${NC} $1"
+    ((WARN_COUNT++)) || true
+}
+
+fail() {
+    echo -e "${RED}❌ FAIL:${NC} $1"
+    ((FAIL_COUNT++)) || true
+}
+
+info() {
+    echo -e "${CYAN}ℹ️  INFO:${NC} $1"
+}
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}1. STATIC CODE ANALYSIS (Brakeman)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+BRAKEMAN_OUTPUT=$(BRAKEMAN_SKIP_LATEST=true bundle exec brakeman -q --no-pager -f text 2>/dev/null || echo "ERROR")
+if [[ "$BRAKEMAN_OUTPUT" == "ERROR" ]]; then
+    fail "Brakeman failed to run"
+else
+    WARNINGS=$(echo "$BRAKEMAN_OUTPUT" | grep -o "Security Warnings: [0-9]*" | grep -o "[0-9]*" || echo "0")
+    if [[ "$WARNINGS" == "0" ]]; then
+        pass "Brakeman: No security warnings found"
+    else
+        fail "Brakeman: $WARNINGS security warning(s) found"
+        echo "$BRAKEMAN_OUTPUT" | grep -A 10 "== Warnings ==" || true
+    fi
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}2. DEPENDENCY VULNERABILITIES (Bundle Audit)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+AUDIT_OUTPUT=$(bundle exec bundle-audit check 2>/dev/null || echo "VULNERABILITIES")
+if echo "$AUDIT_OUTPUT" | grep -q "No vulnerabilities found"; then
+    pass "Bundle Audit: No vulnerable gems found"
+else
+    fail "Bundle Audit: Vulnerable gems detected!"
+    echo "$AUDIT_OUTPUT"
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}3. JAVASCRIPT DEPENDENCIES (Importmap Audit)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+IMPORTMAP_OUTPUT=$(bin/importmap audit 2>&1 || echo "ERROR")
+if echo "$IMPORTMAP_OUTPUT" | grep -q "No vulnerable packages found"; then
+    pass "Importmap Audit: No vulnerable JS packages"
+elif echo "$IMPORTMAP_OUTPUT" | grep -q "ERROR"; then
+    warn "Importmap Audit: Could not run audit"
+else
+    warn "Importmap Audit: Check JS dependencies"
+    echo "$IMPORTMAP_OUTPUT"
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}4. CONFIGURATION CHECKS${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# Check rack-attack
+if grep -q "rack-attack" Gemfile 2>/dev/null; then
+    pass "Rack::Attack is installed (brute force protection)"
+else
+    warn "Rack::Attack NOT installed - no rate limiting!"
+    info "  Add to Gemfile: gem 'rack-attack'"
+fi
+
+# Check Devise lockable
+if grep -q ":lockable" app/models/user.rb 2>/dev/null; then
+    pass "Devise Lockable is enabled (account lockout after failed attempts)"
+else
+    warn "Devise Lockable NOT enabled - accounts can't be locked!"
+    info "  Add :lockable to User model devise modules"
+fi
+
+# Check CSP
+if grep -q "^[^#]*config.content_security_policy" config/initializers/content_security_policy.rb 2>/dev/null; then
+    pass "Content Security Policy is configured"
+else
+    warn "Content Security Policy is DISABLED"
+    info "  Uncomment config/initializers/content_security_policy.rb"
+fi
+
+# Check force_ssl in production
+if grep -q "config.force_ssl = true" config/environments/production.rb 2>/dev/null; then
+    pass "Force SSL is enabled in production"
+else
+    warn "Force SSL might not be enabled in production"
+fi
+
+# Check CSRF protection
+if grep -q "protect_from_forgery" app/controllers/application_controller.rb 2>/dev/null; then
+    pass "CSRF protection is enabled"
+else
+    info "CSRF protection uses Rails defaults"
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}5. FILE PERMISSIONS CHECK${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+# Check .env file permissions
+if [ -f ".env" ]; then
+    ENV_PERMS=$(stat -f "%OLp" .env 2>/dev/null || stat -c "%a" .env 2>/dev/null || echo "unknown")
+    if [[ "$ENV_PERMS" == "600" ]] || [[ "$ENV_PERMS" == "400" ]]; then
+        pass ".env file has secure permissions ($ENV_PERMS)"
+    elif [[ "$ENV_PERMS" == "unknown" ]]; then
+        info "Could not check .env permissions"
+    else
+        warn ".env file permissions too open ($ENV_PERMS) - should be 600"
+        info "  Run: chmod 600 .env"
+    fi
+else
+    info "No .env file found (using credentials.yml.enc is recommended)"
+fi
+
+# Check credentials file
+if [ -f "config/credentials.yml.enc" ]; then
+    pass "Encrypted credentials file exists"
+else
+    warn "No encrypted credentials file found"
+fi
+
+# Check master.key is gitignored
+if grep -q "master.key" .gitignore 2>/dev/null; then
+    pass "master.key is in .gitignore"
+else
+    warn "master.key might not be in .gitignore!"
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}6. CODE STYLE & QUALITY (RuboCop)${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+RUBOCOP_OUTPUT=$(bundle exec rubocop --format simple 2>/dev/null || echo "ERROR")
+if [[ "$RUBOCOP_OUTPUT" == "ERROR" ]]; then
+    info "RuboCop could not run"
+else
+    RUBOCOP_OFFENSES=$(echo "$RUBOCOP_OUTPUT" | grep -o "[0-9]* offense" | head -1 | grep -o "[0-9]*" || echo "0")
+    if [[ "$RUBOCOP_OFFENSES" == "0" ]] || [[ -z "$RUBOCOP_OFFENSES" ]]; then
+        pass "RuboCop: No offenses detected"
+    else
+        warn "RuboCop: $RUBOCOP_OFFENSES offense(s) found"
+        info "  Run: bin/rubocop -A to auto-fix"
+    fi
+fi
+
+# =============================================================================
+if [[ "$FULL_SCAN" == true ]]; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}7. SECURITY HEADERS CHECK (Server must be running)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Check if server is running
+    if curl -s http://localhost:3000 > /dev/null 2>&1; then
+        pass "Server is running on localhost:3000"
+        
+        HEADERS=$(curl -sI http://localhost:3000 2>/dev/null)
+        
+        if echo "$HEADERS" | grep -qi "X-Frame-Options"; then
+            pass "X-Frame-Options header present (clickjacking protection)"
+        else
+            warn "X-Frame-Options header MISSING"
+        fi
+        
+        if echo "$HEADERS" | grep -qi "X-Content-Type-Options"; then
+            pass "X-Content-Type-Options header present"
+        else
+            warn "X-Content-Type-Options header MISSING"
+        fi
+        
+        if echo "$HEADERS" | grep -qi "Content-Security-Policy"; then
+            pass "Content-Security-Policy header present"
+        else
+            info "Content-Security-Policy header not in response (might be report-only)"
+        fi
+        
+        if echo "$HEADERS" | grep -qi "Strict-Transport-Security"; then
+            pass "Strict-Transport-Security (HSTS) header present"
+        else
+            info "HSTS header not present (normal for localhost/HTTP)"
+        fi
+        
+    else
+        warn "Server not running on localhost:3000 - skipping header checks"
+        info "  Start server with: rails s"
+    fi
+
+    # =============================================================================
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}8. NIKTO WEB SERVER SCAN${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    if command -v nikto &> /dev/null; then
+        if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            info "Running Nikto scan (this may take 2-5 minutes)..."
+            echo ""
+            nikto -h http://localhost:3000 -Tuning 123457 -timeout 10 -maxtime 300 2>/dev/null | head -80 || true
+        else
+            warn "Server not running - skipping Nikto scan"
+        fi
+    else
+        info "Nikto not installed - skipping web server scan"
+        info "  Install with: brew install nikto"
+    fi
+fi
+
+# =============================================================================
+echo ""
+echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║                    📊 AUDIT SUMMARY                          ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "  ${GREEN}✅ Passed:${NC}   $PASS_COUNT"
+echo -e "  ${YELLOW}⚠️  Warnings:${NC} $WARN_COUNT"
+echo -e "  ${RED}❌ Failed:${NC}   $FAIL_COUNT"
+echo ""
+
+if [[ $FAIL_COUNT -gt 0 ]]; then
+    echo -e "${RED}❌ Security audit FAILED - fix critical issues above${NC}"
+    echo ""
+    exit 1
+elif [[ $WARN_COUNT -gt 0 ]]; then
+    echo -e "${YELLOW}⚠️  Security audit passed with WARNINGS - review recommendations${NC}"
+    echo ""
+    exit 0
+else
+    echo -e "${GREEN}✅ Security audit PASSED - all checks OK!${NC}"
+    echo ""
+    exit 0
+fi
+
+

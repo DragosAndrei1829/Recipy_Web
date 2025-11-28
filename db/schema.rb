@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -250,6 +250,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
     t.bigint "user_id", null: false
     t.index ["recipe_id"], name: "index_likes_on_recipe_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "live_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.datetime "ended_at"
+    t.bigint "recipe_id"
+    t.datetime "scheduled_at"
+    t.datetime "started_at"
+    t.string "status", default: "scheduled", null: false
+    t.string "stream_key"
+    t.string "stream_url"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "viewer_count", default: 0
+    t.index ["recipe_id"], name: "index_live_sessions_on_recipe_id"
+    t.index ["scheduled_at"], name: "index_live_sessions_on_scheduled_at"
+    t.index ["status"], name: "index_live_sessions_on_status"
+    t.index ["user_id", "status"], name: "index_live_sessions_on_user_id_and_status"
+    t.index ["user_id"], name: "index_live_sessions_on_user_id"
   end
 
   create_table "meal_plans", force: :cascade do |t|
@@ -521,6 +542,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  create_table "video_timestamps", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "position"
+    t.bigint "recipe_id", null: false
+    t.integer "step_number", null: false
+    t.integer "timestamp_seconds", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipe_id", "position"], name: "index_video_timestamps_on_recipe_id_and_position"
+    t.index ["recipe_id", "step_number"], name: "index_video_timestamps_on_recipe_id_and_step_number", unique: true
+    t.index ["recipe_id"], name: "index_video_timestamps_on_recipe_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "challenge_participants", "challenges"
@@ -548,6 +583,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
   add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "recipes"
   add_foreign_key "likes", "users"
+  add_foreign_key "live_sessions", "recipes"
+  add_foreign_key "live_sessions", "users"
   add_foreign_key "meal_plans", "recipes"
   add_foreign_key "meal_plans", "users"
   add_foreign_key "messages", "conversations"
@@ -570,4 +607,5 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_140106) do
   add_foreign_key "shopping_list_items", "shopping_lists"
   add_foreign_key "shopping_lists", "users"
   add_foreign_key "user_shortcuts", "users"
+  add_foreign_key "video_timestamps", "recipes"
 end

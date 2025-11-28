@@ -24,17 +24,21 @@ class RecipesController < ApplicationController
     if user_signed_in?
       # Get IDs of users being followed
       followed_user_ids = current_user.following.pluck(:id)
-      # Include current user's own posts
-      followed_user_ids << current_user.id
+      # Always include current user's own posts (even if not following self)
+      followed_user_ids << current_user.id unless followed_user_ids.include?(current_user.id)
 
       # Get recipes from followed users + own posts
       followed_recipes = base_recipes.where(user_id: followed_user_ids).order(created_at: :desc)
+      followed_recipe_ids = followed_recipes.pluck(:id)
+
+      # Always ensure user's own recipes are included
+      own_recipe_ids = base_recipes.where(user_id: current_user.id).pluck(:id)
+      followed_recipe_ids = (followed_recipe_ids + own_recipe_ids).uniq
 
       # If we have fewer than 10 recipes from followed users, add recommended recipes
-      if followed_recipes.count < 10
+      if followed_recipe_ids.count < 10
         recommended_ids = base_recipes.top_of_month(20).pluck(:id)
         # Exclude recipes already in followed_recipes
-        followed_recipe_ids = followed_recipes.pluck(:id)
         additional_ids = recommended_ids - followed_recipe_ids
 
         # Combine followed recipes with recommended
@@ -42,7 +46,7 @@ class RecipesController < ApplicationController
         @recipes = base_recipes.where(id: all_ids).order(created_at: :desc)
         @showing_recommended = true if additional_ids.any?
       else
-        @recipes = followed_recipes
+        @recipes = base_recipes.where(id: followed_recipe_ids).order(created_at: :desc)
       end
     else
       # For non-signed-in users, show all recipes
@@ -148,11 +152,12 @@ class RecipesController < ApplicationController
       @recipes = @recipes.where("time_to_make > 0 AND time_to_make <= ?", filters[:max_time].to_i)
     end
 
-    # Top recipes for sidebar
-    @top_day = Recipe.includes(:user).top_of_day(10)
-    @top_week = Recipe.includes(:user).top_of_week(10)
-    @top_month = Recipe.includes(:user).top_of_month(10)
-    @top_year = Recipe.includes(:user).top_of_year(10)
+    # Top recipes for sidebar - default to year, limit to 5
+    @current_period = 'year'
+    @top_day = Recipe.includes(:user).top_of_day(5)
+    @top_week = Recipe.includes(:user).top_of_week(5)
+    @top_month = Recipe.includes(:user).top_of_month(5)
+    @top_year = Recipe.includes(:user).top_of_year(5)
 
     @feed_stats = {
       total_recipes: Recipe.count,
@@ -302,8 +307,27 @@ class RecipesController < ApplicationController
 
     map_free_text_taxonomies!(@recipe)
     if @recipe.save
-        redirect_to recipes_path, notice: "Rețeta a fost publicată!"
+        # Create video timestamps if provided
+        if params[:recipe][:video_timestamps_json].present?
+          begin
+            timestamps_data = JSON.parse(params[:recipe][:video_timestamps_json])
+            timestamps_data.each do |ts_data|
+              @recipe.video_timestamps.create!(
+                step_number: ts_data['step_number'],
+                timestamp_seconds: ts_data['timestamp_seconds'],
+                title: ts_data['title'],
+                description: ts_data['description'] || ''
+              )
+            end
+          rescue JSON::ParserError => e
+            Rails.logger.error "Failed to parse video timestamps: #{e.message}"
+          end
+        end
+        
+        redirect_to recipes_path(locale: I18n.locale), notice: t('recipes.created_successfully', default: "Rețeta a fost publicată cu succes!")
     else
+        # Preserve step if there are errors
+        @current_step = params[:current_step].to_i || 1
         render :new, status: :unprocessable_entity
     end
   end

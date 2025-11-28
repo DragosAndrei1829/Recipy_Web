@@ -1,0 +1,30 @@
+<button 
+  type="button"
+  class="timestamp-step w-full text-left p-3 rounded-lg border-2 border-default hover:border-primary transition-all bg-page hover:bg-primary/5"
+  data-timestamp="<%= timestamp.timestamp_seconds %>"
+  data-step="<%= timestamp.step_number %>"
+>
+  <div class="flex items-start justify-between gap-2">
+    <div class="flex-1">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Pas <%= timestamp.step_number %></span>
+        <span class="text-xs text-secondary-content"><%= timestamp.formatted_time %></span>
+      </div>
+      <p class="text-sm font-semibold text-primary-content"><%= timestamp.title %></p>
+      <% if timestamp.description.present? %>
+        <p class="text-xs text-secondary-content mt-1 line-clamp-2"><%= timestamp.description %></p>
+      <% end %>
+    </div>
+    <% if can?(:destroy, timestamp) %>
+      <%= button_to recipe_video_timestamp_path(timestamp.recipe, timestamp, locale: I18n.locale), 
+          method: :delete,
+          class: "text-error hover:text-error/80 p-1",
+          data: { confirm: t('video_timestamps.confirm_delete') } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+</button>
+
