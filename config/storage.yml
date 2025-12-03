@@ -7,18 +7,20 @@ local:
   root: <%= Rails.root.join("storage") %>
 
 # Map the production amazon service to local disk for development/test data
-# Amazon S3 (used when AWS env vars are set)
+# Amazon S3 or Cloudflare R2 (configured via AWS_ENDPOINT)
 amazon:
   service: S3
   access_key_id: <%= ENV.fetch("AWS_ACCESS_KEY_ID", nil) %>
   secret_access_key: <%= ENV.fetch("AWS_SECRET_ACCESS_KEY", nil) %>
-  region: <%= ENV.fetch("AWS_REGION", "eu-north-1") %>
+  region: <%= ENV.fetch("AWS_REGION", "auto") %>
   bucket: <%= ENV.fetch("AWS_S3_BUCKET", nil) %>
+  endpoint: <%= ENV.fetch("AWS_ENDPOINT", nil) %>
+  force_path_style: <%= ENV.fetch("AWS_FORCE_PATH_STYLE", "false") == "true" %>
   public: false
   upload:
     server_side_encryption: "AES256"
-  http_open_timeout: 5
-  http_read_timeout: 5
+  http_open_timeout: 10
+  http_read_timeout: 30
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
 #   service: S3

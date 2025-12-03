@@ -50,7 +50,11 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 1.12"
+
+# Redis for caching and background jobs
+gem 'redis', '~> 5.0'
+gem 'hiredis-client'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -82,8 +86,6 @@ end
 
 gem "tailwindcss-rails", "~> 4.4"
 gem "tailwindcss-ruby"
-
-gem "image_processing", "~> 1.12"
 
 # Excel and PDF generation (loaded only when needed to avoid compatibility issues)
 group :admin do
