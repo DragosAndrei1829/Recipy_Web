@@ -2,7 +2,12 @@
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+  if [ -n "$DATABASE_URL" ]; then
+    echo "Running database migrations..."
+    ./bin/rails db:migrate 2>&1 || echo "Migration failed, continuing..."
+  else
+    echo "DATABASE_URL not set, skipping migrations"
+  fi
 fi
 
 exec "${@}"
