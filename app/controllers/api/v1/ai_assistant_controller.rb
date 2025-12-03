@@ -28,6 +28,14 @@ module Api
           return render_error("Invalid provider. Use: local, llama, or openai", :bad_request)
         end
 
+        # Check subscription for OpenAI
+        if provider == AiRecipeAssistant::PROVIDER_OPENAI && !current_user.has_active_ai_chat_subscription?
+          return render_error(
+            "Pentru a folosi OpenAI, ai nevoie de un abonament activ. Preț: 15 RON/lună.",
+            :payment_required
+          )
+        end
+
         # Initialize AI assistant with selected provider
         assistant = AiRecipeAssistant.new(user: current_user, provider: provider)
 

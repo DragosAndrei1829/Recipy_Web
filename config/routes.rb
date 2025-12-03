@@ -232,6 +232,9 @@ Rails.application.routes.draw do
     post "/confirmations/:user_id/verify", to: "confirmations#verify", as: :verify_confirmation
     resources :recipes
     resources :users, only: [ :show ] do
+      member do
+        get :purchases
+      end
       collection do
         get :search
       end
@@ -366,6 +369,8 @@ Rails.application.routes.draw do
     get "/chef-ai", to: "ai_assistant#index", as: :ai_assistant
     post "/chef-ai/chat", to: "ai_assistant#chat", as: :ai_assistant_chat
     delete "/chef-ai/clear", to: "ai_assistant#clear_conversation", as: :clear_ai_conversation
+    post "/chef-ai/new", to: "ai_assistant#new_conversation", as: :new_ai_conversation
+    get "/chef-ai/conversations/:id", to: "ai_assistant#load_conversation", as: :load_ai_conversation
     post "/chef-ai/save_recipe", to: "ai_assistant#save_recipe", as: :ai_assistant_save_recipe
     post "/chef-ai/set_provider", to: "ai_assistant#set_provider", as: :set_ai_provider
     post "/chef-ai/generate", to: "ai_assistant#generate", as: :ai_assistant_generate
@@ -377,6 +382,12 @@ Rails.application.routes.draw do
         post :end
       end
     end
+
+    # Stripe routes
+    post "stripe/create-checkout-session", to: "stripe#create_checkout_session"
+    get "stripe/success", to: "stripe#success"
+    get "stripe/cancel", to: "stripe#cancel"
+    post "stripe/webhook", to: "stripe#webhook"
   end
 
 

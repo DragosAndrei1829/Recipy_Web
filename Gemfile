@@ -94,3 +94,6 @@ end
 gem "azure-storage-blob", "~> 2.0"
 gem "aws-sdk-s3", "~> 1.0"
 gem "ruby-openai"
+
+
+gem 'stripe'

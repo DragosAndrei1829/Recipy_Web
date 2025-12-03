@@ -47,8 +47,48 @@
       </div>
     </div>
 
-    <% if @conversations.any? %>
+    <% if @conversations.any? || @ai_conversations.any? %>
       <div class="conversation-cards">
+        <!-- AI Conversations -->
+        <% @ai_conversations.each do |ai_conv| %>
+          <%= link_to ai_assistant_path(locale: I18n.locale), data: { turbo_frame: "_top" }, class: "conversation-card hover-lift border-2 border-emerald-500/30" do %>
+            <div class="conversation-card__avatar">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                🤖
+              </div>
+              <% if ai_conv.messages.present? && ai_conv.messages.any? %>
+                <span class="conversation-card__badge bg-emerald-500">AI</span>
+              <% end %>
+            </div>
+            <div class="conversation-card__body overflow-hidden">
+              <div class="flex items-center justify-between gap-4 mb-2">
+                <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-400 truncate flex-1 min-w-0">
+                  🤖 Chef AI
+                </h3>
+                <% if ai_conv.last_message_at %>
+                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary-content flex-shrink-0 whitespace-nowrap">
+                    <%= time_ago_in_words(ai_conv.last_message_at) %> <%= t('time.ago') %>
+                  </span>
+                <% end %>
+              </div>
+              <p class="text-sm text-secondary-content overflow-hidden font-medium" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word;">
+                <%= ai_conv.title.presence || "Conversație AI" %>
+              </p>
+              <div class="conversation-card__tags">
+                <span class="chip-muted bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
+                  <%= ai_conv.provider == 'llama' ? '🦙 Llama' : ai_conv.provider == 'openai' ? '✨ OpenAI' : '🔍 Local' %>
+                </span>
+                <% if ai_conv.messages.present? %>
+                  <span class="chip-muted">
+                    <%= ai_conv.messages.count %> mesaje
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+        
+        <!-- Regular Conversations -->
         <% @conversations.each do |conversation| %>
           <% other_user = conversation.other_user(current_user) %>
           <% unread_count = conversation.unread_messages_count_for(current_user) %>
@@ -67,19 +107,19 @@
                 <span class="conversation-card__badge"><%= unread_count %></span>
               <% end %>
             </div>
-            <div class="conversation-card__body">
+            <div class="conversation-card__body overflow-hidden">
               <div class="flex items-center justify-between gap-4 mb-2">
-                <h3 class="text-xl font-bold text-primary-content truncate">
+                <h3 class="text-xl font-bold text-primary-content truncate flex-1 min-w-0">
                   <%= other_user.username %>
                 </h3>
                 <% if last_message %>
-                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary-content flex-shrink-0">
+                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary-content flex-shrink-0 whitespace-nowrap">
                     <%= time_ago_in_words(last_message.created_at) %> <%= t('time.ago') %>
                   </span>
                 <% end %>
               </div>
               <% if last_message %>
-                <p class="text-sm text-secondary-content line-clamp-2 <%= 'text-primary-content font-semibold' if unread_count > 0 %>">
+                <p class="text-sm text-secondary-content overflow-hidden <%= 'text-primary-content font-semibold' if unread_count > 0 %>" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word;">
                   <%= last_message.body.presence || t('messages.attachments_only', default: 'Media trimisă') %>
                 </p>
               <% else %>

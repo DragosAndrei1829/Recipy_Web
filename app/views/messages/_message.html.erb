@@ -1,6 +1,6 @@
 <div class="message-wrapper flex <%= message.user == current_user ? 'justify-end' : 'justify-start' %> animate-message-in" data-message-id="<%= message.id %>">
-  <div class="max-w-[75%] md:max-w-[60%]">
-    <div class="flex items-end gap-2 <%= message.user == current_user ? 'flex-row-reverse' : 'flex-row' %>">
+  <div class="max-w-[75%] md:max-w-[60%] min-w-0">
+    <div class="flex items-end gap-2 <%= message.user == current_user ? 'flex-row-reverse' : 'flex-row' %> min-w-0">
       <!-- Avatar -->
       <% unless message.user == current_user %>
         <% if message.user.avatar&.attached? %>
@@ -13,7 +13,7 @@
       <% end %>
       
       <!-- Message Bubble -->
-      <div class="message-bubble <%= message.user == current_user ? 'bg-gradient-primary text-white rounded-2xl rounded-tr-sm' : 'bg-card border-2 border-default text-primary-content rounded-2xl rounded-tl-sm' %> px-4 py-3 shadow-lg relative group">
+      <div class="message-bubble <%= message.user == current_user ? 'bg-gradient-primary text-white rounded-2xl rounded-tr-sm' : 'bg-card border-2 border-default text-primary-content rounded-2xl rounded-tl-sm' %> px-4 py-3 shadow-lg relative group min-w-0 overflow-hidden">
         
         <!-- Recipe Card (if shared) -->
         <% if message.recipe_id.present? && message.recipe %>
@@ -58,7 +58,7 @@
 
         <!-- Message Text -->
         <% if message.body.present? %>
-          <p class="text-sm leading-relaxed whitespace-pre-wrap break-words"><%= message.body %></p>
+          <p class="text-sm leading-relaxed whitespace-pre-wrap break-words overflow-wrap-anywhere word-break-break-word" style="overflow-wrap: anywhere; word-break: break-word;"><%= message.body %></p>
         <% end %>
 
         <!-- Timestamp and Read Status -->

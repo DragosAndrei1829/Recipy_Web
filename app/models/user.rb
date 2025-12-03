@@ -41,6 +41,8 @@ class User < ApplicationRecord
   has_many :favorite_recipes, through: :favorites, source: :recipe
   has_many :user_shortcuts, dependent: :destroy
   has_many :live_sessions, dependent: :destroy
+  has_many :subscriptions, dependent: :destroy
+  has_many :ai_conversations, dependent: :destroy
 
   # Follow relationships
   has_many :follows, foreign_key: :follower_id, dependent: :destroy
@@ -107,6 +109,16 @@ class User < ApplicationRecord
 
   def oauth_user?
     provider.present?
+  end
+
+  # Check if user has active subscription for AI chat
+  def has_active_ai_chat_subscription?
+    subscriptions.active.for_plan(Subscription::PLAN_AI_CHAT).exists?
+  end
+
+  # Get active AI chat subscription
+  def active_ai_chat_subscription
+    subscriptions.active.for_plan(Subscription::PLAN_AI_CHAT).first
   end
 
   def admin?

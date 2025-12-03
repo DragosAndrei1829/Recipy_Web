@@ -1,0 +1,132 @@
+<% content_for :head do %>
+  <title><%= t('navigation.my_purchases', default: 'My Purchases') %> - Recipy</title>
+<% end %>
+
+<div class="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-primary-content mb-2">
+        <%= t('navigation.my_purchases', default: 'My Purchases') %>
+      </h1>
+      <p class="text-secondary-content">
+        <%= t('users.purchases_description', default: 'View all your transactions and subscription history') %>
+      </p>
+    </div>
+
+    <!-- Error Message -->
+    <% if @error %>
+      <div class="mb-6 p-4 bg-error/10 border-2 border-error rounded-xl">
+        <p class="text-error"><%= @error %></p>
+      </div>
+    <% end %>
+
+    <!-- Purchases List -->
+    <% if @purchases.any? %>
+      <div class="space-y-4">
+        <% @purchases.each do |purchase| %>
+          <div class="bg-card border-2 border-default rounded-xl p-6 hover:shadow-lg transition-all">
+            <div class="flex items-start justify-between flex-wrap gap-4">
+              <!-- Left: Purchase Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="flex-shrink-0">
+                    <% if purchase[:status] == 'paid' %>
+                      <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    <% else %>
+                      <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                      </div>
+                    <% end %>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-lg font-bold text-primary-content truncate">
+                      <%= purchase[:description] %>
+                    </h3>
+                    <p class="text-sm text-secondary-content">
+                      <%= purchase[:date].strftime('%d %b %Y, %H:%M') %>
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Test Mode Badge -->
+                <% if purchase[:livemode] == false %>
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-lg mt-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span><%= t('users.test_mode', default: 'Test Mode') %></span>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- Right: Amount & Actions -->
+              <div class="flex items-center gap-4">
+                <div class="text-right">
+                  <p class="text-2xl font-black text-primary-content">
+                    <%= number_to_currency(purchase[:amount], unit: purchase[:currency] == 'RON' ? 'lei' : purchase[:currency], separator: ',', delimiter: '.') %>
+                  </p>
+                  <p class="text-xs text-secondary-content capitalize">
+                    <%= purchase[:status] %>
+                  </p>
+                </div>
+                
+                <!-- Invoice Links -->
+                <% if purchase[:hosted_invoice_url] %>
+                  <div class="flex flex-col gap-2">
+                    <%= link_to purchase[:hosted_invoice_url], target: '_blank', rel: 'noopener noreferrer',
+                        class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-link hover:text-primary border border-default rounded-lg hover:bg-primary/10 transition-all" do %>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      <%= t('users.view_invoice', default: 'View') %>
+                    <% end %>
+                    <% if purchase[:invoice_pdf] %>
+                      <%= link_to purchase[:invoice_pdf], target: '_blank', rel: 'noopener noreferrer',
+                          class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-link hover:text-primary border border-default rounded-lg hover:bg-primary/10 transition-all" do %>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        <%= t('users.download_pdf', default: 'PDF') %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <!-- Empty State -->
+      <div class="bg-card border-2 border-default rounded-xl p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-primary-content mb-2">
+          <%= t('users.no_purchases', default: 'No purchases yet') %>
+        </h3>
+        <p class="text-secondary-content mb-6">
+          <%= t('users.no_purchases_description', default: 'Your transaction history will appear here once you make a purchase.') %>
+        </p>
+        <%= link_to ai_assistant_path(locale: I18n.locale), 
+            class: "inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl hover:shadow-lg transition-all" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+          <%= t('users.explore_features', default: 'Explore Features') %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

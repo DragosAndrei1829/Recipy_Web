@@ -1,52 +1,113 @@
-<% stats = @feed_stats || {} %>
-<div class="space-y-6">
-  <div>
-    <h3 class="text-lg font-black text-primary-content mb-1">Creator spotlight</h3>
-    <p class="text-sm text-secondary-content mb-3">Chefs whose recipes are buzzing this week.</p>
-    <ul class="space-y-3">
-      <% Array(@top_week).first(3).each do |top_recipe| %>
-        <li class="flex items-center gap-3">
-          <% if top_recipe.user&.avatar&.attached? %>
-            <%= image_tag url_for(top_recipe.user.avatar.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
-          <% else %>
-            <div class="h-8 w-8 rounded-full bg-card border border-default grid place-items-center text-xs font-bold text-secondary-content">
-              <%= (top_recipe.user&.username&.first || 'R').upcase %>
-            </div>
+<% if user_signed_in? %>
+  <%# Personal stats for logged-in users %>
+  <% 
+    user_recipes = current_user.recipes
+    user_total_recipes = user_recipes.count
+    user_avg_time = user_recipes.where.not(time_to_make: nil).average(:time_to_make)&.round
+    user_avg_difficulty = user_recipes.where.not(difficulty: nil).average(:difficulty)&.round(1)
+    user_total_likes = user_recipes.sum(:likes_count)
+    user_top_recipes = user_recipes.order(likes_count: :desc).limit(3)
+  %>
+
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-lg font-black text-primary-content mb-1"><%= t('users.my_content', default: 'My Content') %></h3>
+      <p class="text-sm text-secondary-content mb-3"><%= t('users.your_top_recipes', default: 'Your most popular recipes') %></p>
+      <% if user_top_recipes.any? %>
+        <ul class="space-y-3">
+          <% user_top_recipes.each do |recipe| %>
+            <% next if recipe.nil? || recipe.id.nil? %>
+            <%= link_to recipe_path(recipe, locale: I18n.locale), class: "flex items-center gap-3 hover:bg-primary/5 p-2 rounded-lg transition-all" do %>
+              <% if recipe.photos.attached? && recipe.photos.first.present? %>
+                <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
+              <% else %>
+                <div class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-xs font-bold text-white">
+                  <%= recipe.title&.first&.upcase || 'R' %>
+                </div>
+              <% end %>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-primary-content truncate"><%= recipe.title %></p>
+                <p class="text-xs text-secondary-content"><%= recipe.category&.display_name || 'Rețetă' %></p>
+              </div>
+              <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
+                <%= recipe.likes_count %> ❤
+              </span>
+            <% end %>
           <% end %>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-primary-content truncate"><%= top_recipe.user&.username || 'Anonim' %></p>
-            <p class="text-xs text-secondary-content"><%= top_recipe.title %></p>
-          </div>
-          <span class="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-            <%= (top_recipe.likes_count if top_recipe.respond_to?(:likes_count)) || top_recipe.likes.count %> ❤
-          </span>
-        </li>
+        </ul>
+      <% else %>
+        <div class="text-center py-4">
+          <p class="text-sm text-secondary-content mb-2"><%= t('users.no_recipes_yet', default: 'You haven\'t posted any recipes yet') %></p>
+          <%= link_to new_recipe_path(locale: I18n.locale), class: "inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-secondary transition-all" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <%= t('recipes.new', default: 'Add Recipe') %>
+          <% end %>
+        </div>
       <% end %>
-      <% if Array(@top_week).empty? %>
-        <li class="text-sm text-secondary-content">Încă nu există suficiente date pentru topul săptămânii.</li>
-      <% end %>
-    </ul>
-  </div>
+    </div>
 
-  <div class="gradient-divider"></div>
+    <div class="gradient-divider"></div>
 
-  <div>
-    <h3 class="text-lg font-black text-primary-content mb-1">Library pulse</h3>
-    <p class="text-sm text-secondary-content mb-4">Live stats from the entire Recipy universe.</p>
-    <div class="grid grid-cols-1 gap-3">
-      <div class="stat-card">
-        <p class="text-2xl font-black text-primary-content"><%= number_with_delimiter(stats[:total_recipes] || Recipe.count) %></p>
-        <p class="text-xs uppercase tracking-wide text-secondary-content">total recipes</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-black text-primary-content"><%= stats[:avg_time].present? ? "#{stats[:avg_time]} min" : "—" %></p>
-        <p class="text-xs uppercase tracking-wide text-secondary-content">average prep time</p>
-      </div>
-      <div class="stat-card">
-        <p class="text-2xl font-black text-primary-content"><%= stats[:avg_rating].present? ? stats[:avg_rating] : "—" %></p>
-        <p class="text-xs uppercase tracking-wide text-secondary-content">community rating</p>
+    <div>
+      <h3 class="text-lg font-black text-primary-content mb-1"><%= t('users.my_stats', default: 'My Statistics') %></h3>
+      <p class="text-sm text-secondary-content mb-4"><%= t('users.personal_overview', default: 'Your personal overview') %></p>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="stat-card">
+          <p class="text-2xl font-black text-primary-content"><%= number_with_delimiter(user_total_recipes) %></p>
+          <p class="text-xs uppercase tracking-wide text-secondary-content"><%= t('users.your_recipes', default: 'your recipes') %></p>
+        </div>
+        <div class="stat-card">
+          <p class="text-2xl font-black text-primary-content"><%= user_avg_time.present? ? "#{user_avg_time} min" : "—" %></p>
+          <p class="text-xs uppercase tracking-wide text-secondary-content"><%= t('users.your_avg_time', default: 'your avg prep time') %></p>
+        </div>
+        <div class="stat-card">
+          <p class="text-2xl font-black text-primary-content"><%= number_with_delimiter(user_total_likes) %></p>
+          <p class="text-xs uppercase tracking-wide text-secondary-content"><%= t('users.total_likes', default: 'total likes received') %></p>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+<% else %>
+  <%# Show login prompt for guests %>
+  <div class="space-y-6">
+    <div>
+      <h3 class="text-lg font-black text-primary-content mb-1"><%= t('users.my_content', default: 'My Content') %></h3>
+      <p class="text-sm text-secondary-content mb-3"><%= t('users.your_top_recipes', default: 'Your most popular recipes') %></p>
+      <div class="text-center py-8 px-4 bg-card rounded-xl border-2 border-dashed border-default">
+        <svg class="w-12 h-12 mx-auto mb-3 text-secondary-content opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <p class="text-sm font-semibold text-primary-content mb-2"><%= t('users.login_to_view', default: 'Login to view your data') %></p>
+        <%= link_to new_user_session_path(locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+          <%= t('navigation.login') %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="gradient-divider"></div>
+
+    <div>
+      <h3 class="text-lg font-black text-primary-content mb-1"><%= t('users.my_stats', default: 'My Statistics') %></h3>
+      <p class="text-sm text-secondary-content mb-4"><%= t('users.personal_overview', default: 'Your personal overview') %></p>
+      <div class="text-center py-8 px-4 bg-card rounded-xl border-2 border-dashed border-default">
+        <svg class="w-12 h-12 mx-auto mb-3 text-secondary-content opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <p class="text-sm font-semibold text-primary-content mb-2"><%= t('users.login_to_view', default: 'Login to view your data') %></p>
+        <%= link_to new_user_session_path(locale: I18n.locale), class: "inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold rounded-lg hover:shadow-lg transition-all" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+          </svg>
+          <%= t('navigation.login') %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
 

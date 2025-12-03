@@ -99,12 +99,12 @@
     <aside class="chat-panel chat-panel--context">
       <div class="chat-panel__section">
         <p class="chat-panel__label"><%= t('conversations.user_overview', default: 'Profil rapid') %></p>
-        <div class="context-card">
-          <p class="text-lg font-bold text-primary-content"><%= @other_user.username %></p>
-          <p class="text-sm text-secondary-content mb-3"><%= @other_user.email %></p>
+        <div class="context-card overflow-hidden">
+          <p class="text-lg font-bold text-primary-content truncate"><%= @other_user.username %></p>
+          <p class="text-sm text-secondary-content mb-3 truncate"><%= @other_user.email %></p>
           <div class="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-secondary-content">
-            <span><%= t('conversations.joined', default: 'Membru din') %></span>
-            <span class="text-primary font-bold"><%= l(@other_user.created_at.to_date) rescue @other_user.created_at.strftime('%Y-%m-%d') %></span>
+            <span class="flex-shrink-0"><%= t('conversations.joined', default: 'Membru din') %></span>
+            <span class="text-primary font-bold break-words"><%= l(@other_user.created_at.to_date) rescue @other_user.created_at.strftime('%d %b %Y') %></span>
           </div>
         </div>
       </div>

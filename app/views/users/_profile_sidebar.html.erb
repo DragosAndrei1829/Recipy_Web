@@ -63,13 +63,22 @@
     
     <!-- Action Buttons -->
     <% if user_signed_in? && current_user == user %>
-      <%= link_to edit_user_registration_path, 
-          class: "flex items-center justify-center gap-1.5 xl:gap-2 w-full px-3 xl:px-4 py-2 xl:py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs xl:text-sm font-bold rounded-lg xl:rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all" do %>
-        <svg class="w-3.5 h-3.5 xl:w-4 xl:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-        </svg>
-        <span class="truncate"><%= t('navigation.edit_profile') %></span>
-      <% end %>
+      <div class="space-y-2">
+        <%= link_to edit_user_registration_path, 
+            class: "flex items-center justify-center gap-1.5 xl:gap-2 w-full px-3 xl:px-4 py-2 xl:py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs xl:text-sm font-bold rounded-lg xl:rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all" do %>
+          <svg class="w-3.5 h-3.5 xl:w-4 xl:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          <span class="truncate"><%= t('navigation.edit_profile') %></span>
+        <% end %>
+        <%= link_to purchases_user_path(user, locale: I18n.locale), 
+            class: "flex items-center justify-center gap-1.5 xl:gap-2 w-full px-3 xl:px-4 py-2 xl:py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-xs xl:text-sm font-semibold rounded-lg xl:rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all" do %>
+          <svg class="w-3.5 h-3.5 xl:w-4 xl:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span class="truncate"><%= t('navigation.my_purchases', default: 'My Purchases') %></span>
+        <% end %>
+      </div>
     <% elsif user_signed_in? && current_user != user %>
       <div class="space-y-2">
         <div id="follow-button-<%= user.id %>" class="w-full">

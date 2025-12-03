@@ -5,6 +5,7 @@ class ConversationsController < ApplicationController
     @conversations = current_user.conversations
                                   .includes(:sender, :recipient, messages: { images_attachments: :blob })
                                   .order(updated_at: :desc)
+    @ai_conversations = current_user.ai_conversations.order(last_message_at: :desc).limit(5)
   end
 
   def show

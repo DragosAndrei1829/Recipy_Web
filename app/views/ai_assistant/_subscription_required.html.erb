@@ -1,0 +1,46 @@
+<div class="ai-message ai-assistant-message subscription-required-message">
+  <div class="ai-message-content">
+    <div class="flex items-center gap-2 mb-2">
+      <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <h4 class="font-semibold text-yellow-500"><%= t('ai.subscription_required.title', default: 'Abonament Necesar') %></h4>
+    </div>
+    <p class="text-sm text-gray-300 mb-4"><%= message %></p>
+    <button 
+      onclick="createCheckoutSession()" 
+      class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+      <%= t('ai.subscription_required.subscribe', default: 'Abonează-te acum - 15 RON/lună') %>
+    </button>
+  </div>
+</div>
+
+<script>
+async function createCheckoutSession() {
+  try {
+    const response = await fetch('/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        priceId: '<%= ENV["STRIPE_PRICE_ID_AI_CHAT"] %>'
+      })
+    });
+
+    const data = await response.json();
+    
+    if (data.sessionId) {
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } else {
+      alert('A apărut o eroare. Te rugăm să încerci din nou.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('A apărut o eroare. Te rugăm să încerci din nou.');
+  }
+}
+</script>
+

@@ -4,7 +4,16 @@ class AiAssistantController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @conversation_history = session[:ai_conversation] || []
+    # Get or create current conversation
+    @current_conversation = current_user.ai_conversations.recent.first
+    @current_conversation ||= current_user.ai_conversations.create!(
+      title: "Conversație nouă",
+      provider: AiRecipeAssistant::PROVIDER_LOCAL,
+      messages: []
+    )
+    
+    @conversation_history = @current_conversation.messages || []
+    @conversations = current_user.ai_conversations.recent.limit(10)
     @current_provider = session[:ai_provider] || AiRecipeAssistant::PROVIDER_LOCAL
     @available_providers = AiRecipeAssistant.available_providers
   end
@@ -24,32 +33,53 @@ class AiAssistantController < ApplicationController
       return
     end
 
+    # Check subscription for OpenAI
+    if provider == AiRecipeAssistant::PROVIDER_OPENAI && !current_user.has_active_ai_chat_subscription?
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.append("ai-messages", partial: "ai_assistant/subscription_required",
+            locals: { message: "Pentru a folosi OpenAI, ai nevoie de un abonament activ. Preț: 15 RON/lună." })
+        end
+        format.json { render json: { error: "Subscription required for OpenAI" }, status: :payment_required }
+      end
+      return
+    end
+
     # Store provider preference
     session[:ai_provider] = provider
 
+    # Get or create current conversation
+    conversation = current_user.ai_conversations.recent.first
+    conversation ||= current_user.ai_conversations.create!(
+      title: message.truncate(50),
+      provider: provider,
+      messages: []
+    )
+    
     # Initialize AI assistant with selected provider
     assistant = AiRecipeAssistant.new(user: current_user, provider: provider)
 
-    # Get conversation history from session
-    conversation_history = session[:ai_conversation] || []
+    # Get conversation history
+    conversation_history = conversation.messages || []
 
-    # Get AI response
-    response = assistant.chat(message, conversation_history: conversation_history)
+    # Get AI response (this takes time but happens server-side)
+    ai_response = assistant.chat(message, conversation_history: conversation_history)
 
-    # Store in session
-    conversation_history << { role: "user", content: message, timestamp: Time.current }
-    conversation_history << { role: "assistant", content: response, timestamp: Time.current }
-    session[:ai_conversation] = conversation_history.last(20)
+    # Store in database
+    conversation.add_message("user", message)
+    conversation.add_message("assistant", ai_response)
+    conversation.update(provider: provider)
 
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
-          turbo_stream.append("ai-messages", partial: "ai_assistant/user_message", locals: { message: message }),
-          turbo_stream.append("ai-messages", partial: "ai_assistant/assistant_message", locals: { response: response }),
+          turbo_stream.remove("ai-loading-indicator"),
+          turbo_stream.append("ai-messages", partial: "ai_assistant/assistant_message", locals: { response: ai_response }),
+          turbo_stream.update("ai-message-input", ""),
           turbo_stream.replace("ai-input-form", partial: "ai_assistant/input_form", locals: { current_provider: provider })
         ]
       end
-      format.json { render json: response }
+      format.json { render json: ai_response }
     end
   rescue StandardError => e
     Rails.logger.error "AI Assistant error: #{e.message}"
@@ -91,8 +121,25 @@ class AiAssistantController < ApplicationController
   end
 
   def clear_conversation
-    session[:ai_conversation] = []
+    # Delete current conversation and create a new one
+    current_user.ai_conversations.recent.first&.destroy
     redirect_to ai_assistant_path, notice: "Conversația a fost ștearsă."
+  end
+  
+  def new_conversation
+    # Create a new conversation
+    current_user.ai_conversations.create!(
+      title: "Conversație nouă",
+      provider: session[:ai_provider] || AiRecipeAssistant::PROVIDER_LOCAL,
+      messages: []
+    )
+    redirect_to ai_assistant_path, notice: "Conversație nouă creată!"
+  end
+  
+  def load_conversation
+    conversation = current_user.ai_conversations.find(params[:id])
+    session[:current_conversation_id] = conversation.id
+    redirect_to ai_assistant_path
   end
 
   def set_provider

@@ -16,19 +16,21 @@ class AiRecipeAssistant
   # Common Romanian ingredients dictionary for parsing
   INGREDIENT_KEYWORDS = %w[
     pui carne vită porc miel pește somon ton creveți
-    cartofi roșii tomate ceapă usturoi morcovi ardei vinete dovlecei 
-    broccoli conopidă varză spanac salată castraveți
-    brânză cașcaval telemea parmezan mozzarella ricotta
-    lapte smântână frișcă unt iaurt ouă ou
+    cartofi roșii rosii tomate ceapă ceapa usturoi morcovi ardei vinete dovlecei dovlecel
+    broccoli conopidă conopida varză varza spanac salată salata castraveți castraveti castravete
+    brânză branza cașcaval cascaval telemea parmezan mozzarella ricotta
+    lapte smântână smantana frișcă frisca unt iaurt ouă oua ou
     paste spaghete macaroane orez quinoa couscous
-    făină pâine pesmet griș mălai
-    ulei măsline unt untură
-    sare piper boia oregano busuioc cimbru rozmarin pătrunjel mărar
-    zahăr miere ciocolată cacao vanilie
-    lămâie portocale mere pere banane căpșuni
-    vin bere oțet zeamă bulion sos
-    nucă migdale alune susan mac
-    fasole mazăre linte năut ciuperci
+    făină faina pâine paine pesmet griș gris mălai malai
+    ulei măsline masline unt untură untura
+    sare piper boia oregano busuioc cimbru rozmarin pătrunjel patrunjel mărar marar
+    zahăr zahar miere ciocolată ciocolata cacao vanilie
+    lămâie lamie lamaie portocale mere pere banane căpșuni capsuni
+    vin bere oțet otet zeamă zeama bulion sos
+    nucă nuca migdale alune susan mac
+    fasole mazăre mazare linte năut naut ciuperci
+    ridichi ridiche редиш sfeclă sfecla muștar mustar salată-verde verde rucola
+    porumb mărar avocado zucchini dovleac
   ].freeze
 
   # Preference keywords
@@ -39,6 +41,17 @@ class AiRecipeAssistant
   BOIL_KEYWORDS = %w[fiert fierbere abur].freeze
   VEGETARIAN_KEYWORDS = %w[vegetarian veggie fără\ carne legume].freeze
   VEGAN_KEYWORDS = %w[vegan vegetal fără\ lactate].freeze
+  
+  # Meal time keywords
+  BREAKFAST_KEYWORDS = %w[dimineață dimineata mic\ dejun micul\ dejun breakfast].freeze
+  DINNER_KEYWORDS = %w[seară seara cină cina evening dinner].freeze
+  SNACK_KEYWORDS = %w[snack gustare mic\ dejun\ ușor].freeze
+  
+  # Ingredient compatibility groups
+  DAIRY_GROUP = %w[iaurt lapte smântână smantana brânză branza cașcaval cascaval].freeze
+  BREAKFAST_ADDITIONS = %w[cereale musli ovăz ovaz miere banane mere căpșuni capsuni fructe].freeze
+  PROTEIN_GROUP = %w[pui carne vită vita porc pește peste ouă oua ou].freeze
+  VEGETABLES_GROUP = %w[roșii rosii castraveți castraveti ceapă ceapa morcovi ardei salată salata].freeze
 
   def initialize(user: nil, provider: PROVIDER_LOCAL)
     @user = user
@@ -132,16 +145,25 @@ class AiRecipeAssistant
       end
     end
 
-    # Also extract words that look like ingredients (nouns after "am", "cu", etc.)
-    # Pattern: "am X", "cu X", "și X"
-    message.scan(/(?:am|cu|și|plus|adaug)\s+(\w+)/i).flatten.each do |word|
+    # Also extract words that look like ingredients (nouns after "am", "cu", "si", etc.)
+    # Pattern: "am X", "cu X", "și X", "si X"
+    message.scan(/(?:am|cu|și|si|plus|adaug|adaugă)\s+(\w+)/i).flatten.each do |word|
       word = word.downcase.strip
-      if word.length > 2 && !%w[un o pe la de în].include?(word)
-        found_ingredients << word unless found_ingredients.include?(word)
+      # Skip common words but include potential ingredients
+      next if word.length <= 2
+      next if %w[un o pe la de în in cu si si mai].include?(word)
+      
+      # If it's not already in the list and looks like an ingredient
+      unless found_ingredients.include?(word)
+        # Check if it might be an ingredient (ends with common patterns)
+        if word.match?(/^(cast|ros|ceap|morcov|ard|vin|dovl|bro|con|var|span|sal|bran|cas|tel|parm|moz|ric|lapt|sman|fris|oua|ou|past|spag|mac|orz|quin|cous|fain|pain|pesm|gris|mal|ulei|mas|unt|sar|pip|boi|oreg|busu|cim|rozm|patr|mar|zah|mier|cio|caca|vani|lam|port|mer|per|ban|caps|vin|ber|otet|zeam|bul|sos|nuc|mig|alu|sus|mac|fas|maz|lint|naut|ciup|ridi|sfec|must|ruco|porumb|avoc|zucc|dovl)/)
+          found_ingredients << word
+        end
       end
     end
 
-    found_ingredients.uniq
+    # Final cleanup - remove duplicates and very short words
+    found_ingredients.uniq.select { |i| i.length > 2 }
   end
 
   def detect_preferences_locally(message)
@@ -149,6 +171,22 @@ class AiRecipeAssistant
 
     # Healthy
     preferences["healthy"] = HEALTHY_KEYWORDS.any? { |kw| message.include?(kw) }
+
+    # Meal time
+    if BREAKFAST_KEYWORDS.any? { |kw| message.include?(kw) }
+      preferences["meal_time"] = "breakfast"
+    elsif DINNER_KEYWORDS.any? { |kw| message.include?(kw) }
+      preferences["meal_time"] = "dinner"
+    elsif SNACK_KEYWORDS.any? { |kw| message.include?(kw) }
+      preferences["meal_time"] = "snack"
+    end
+
+    # Calorie limit
+    if match = message.match(/sub\s*(\d+)\s*(?:calorii|kcal|cal)/i)
+      preferences["max_calories"] = match[1].to_i
+    elsif match = message.match(/(\d+)\s*(?:calorii|kcal|cal)/i)
+      preferences["max_calories"] = match[1].to_i
+    end
 
     # Cooking method
     if OVEN_KEYWORDS.any? { |kw| message.include?(kw) }
@@ -173,7 +211,7 @@ class AiRecipeAssistant
     preferences["dietary_restrictions"] = restrictions if restrictions.any?
 
     # Difficulty
-    if message.include?("ușor") || message.include?("simplu")
+    if message.include?("ușor") || message.include?("simplu") || message.include?("usor")
       preferences["difficulty"] = "ușor"
     elsif message.include?("greu") || message.include?("complex")
       preferences["difficulty"] = "greu"
@@ -278,20 +316,23 @@ class AiRecipeAssistant
 
   def similar_ingredients?(ing1, ing2)
     synonyms = {
-      "roșii" => ["tomate", "roșie", "tomată"],
+      "roșii" => ["tomate", "roșie", "tomată", "rosii", "rosie", "tomata"],
+      "castraveți" => ["castravete", "castraveti"],
       "cartofi" => ["cartof"],
-      "ceapă" => ["cepe"],
-      "usturoi" => ["căței de usturoi"],
+      "ceapă" => ["cepe", "ceapa"],
+      "usturoi" => ["căței de usturoi", "catei de usturoi"],
       "pui" => ["piept de pui", "carne de pui", "pulpe de pui"],
-      "vită" => ["carne de vită", "mușchi de vită"],
-      "porc" => ["carne de porc", "mușchi de porc"],
-      "brânză" => ["cașcaval", "telemea", "parmezan"],
-      "smântână" => ["smantana"],
+      "vită" => ["carne de vită", "mușchi de vită", "vita", "muschi de vita"],
+      "porc" => ["carne de porc", "mușchi de porc", "muschi de porc"],
+      "brânză" => ["cașcaval", "telemea", "parmezan", "branza", "cascaval"],
+      "smântână" => ["smantana", "frisca", "frișcă"],
       "lapte" => ["lapte integral", "lapte degresat"],
-      "ouă" => ["ou", "gălbenușuri", "albușuri"],
+      "ouă" => ["ou", "oua", "gălbenușuri", "albușuri", "galbenusuri", "albusuri"],
       "făină" => ["faina"],
-      "ulei" => ["ulei de măsline", "ulei de floarea soarelui"],
-      "orez" => ["orez basmati", "orez cu bob lung"]
+      "ulei" => ["ulei de măsline", "ulei de floarea soarelui", "ulei de masline"],
+      "orez" => ["orez basmati", "orez cu bob lung"],
+      "ardei" => ["ardei gras", "ardei iute", "ardei kapia"],
+      "salată" => ["salata", "salata verde", "salată verde"]
     }
 
     synonyms.each do |_key, values|
@@ -348,6 +389,7 @@ class AiRecipeAssistant
   # Response when no matches found and no AI available
   def generate_no_match_local_response(parsed_request)
     ingredients = parsed_request["ingredients"]
+    preferences = parsed_request["preferences"] || {}
 
     if ingredients.empty?
       {
@@ -356,11 +398,14 @@ class AiRecipeAssistant
         "ai_provider" => "local"
       }
     elsif ingredients.length < 3
+      # Build context-aware message
+      context_msg = build_context_message(ingredients, preferences)
+      
       {
-        "message" => "📝 Ai menționat doar #{ingredients.length} ingredient#{ingredients.length == 1 ? '' : 'e'} (#{ingredients.join(', ')}). Pentru o rețetă completă, ai nevoie de cel puțin 3-4 ingrediente.\n\n💡 **Sugestii:** Adaugă legume (ceapă, morcovi), condimente sau o sursă de proteine.",
+        "message" => "📝 Ai menționat doar #{ingredients.length} ingredient#{ingredients.length == 1 ? '' : 'e'} (#{ingredients.join(', ')}).#{context_msg}\n\n💡 **Sugestii de ingrediente:**",
         "type" => "insufficient_ingredients",
-        "suggested_ingredients" => suggest_complementary_ingredients(ingredients),
-        "possible_recipes_with_additions" => suggest_recipe_ideas(ingredients),
+        "suggested_ingredients" => suggest_complementary_ingredients(ingredients, preferences),
+        "possible_recipes_with_additions" => suggest_recipe_ideas(ingredients, preferences),
         "ai_provider" => "local"
       }
     else
@@ -373,34 +418,105 @@ class AiRecipeAssistant
       }
     end
   end
-
-  def suggest_complementary_ingredients(ingredients)
-    suggestions = []
-
-    # Base suggestions
-    base_suggestions = %w[ceapă usturoi ulei sare piper]
-
-    # Protein suggestions if none present
-    proteins = %w[pui carne vită porc pește ouă]
-    unless ingredients.any? { |i| proteins.any? { |p| i.include?(p) } }
-      suggestions << "pui sau ouă (pentru proteine)"
+  
+  def build_context_message(ingredients, preferences)
+    has_dairy = ingredients.any? { |i| DAIRY_GROUP.any? { |d| i.include?(d) } }
+    meal_time = preferences["meal_time"]
+    max_calories = preferences["max_calories"]
+    
+    context = []
+    context << " Pentru seară" if meal_time == "dinner"
+    context << " Pentru micul dejun" if meal_time == "breakfast"
+    context << " sub #{max_calories} calorii" if max_calories
+    
+    if context.any?
+      "#{context.join(',')},"
+    else
+      " Pentru o rețetă completă, ai nevoie de cel puțin 3-4 ingrediente."
     end
-
-    # Vegetable suggestions
-    veggies = %w[roșii morcovi ardei cartofi]
-    unless ingredients.any? { |i| veggies.any? { |v| i.include?(v) } }
-      suggestions << "roșii sau morcovi (pentru legume)"
-    end
-
-    suggestions + base_suggestions.first(3)
   end
 
-  def suggest_recipe_ideas(ingredients)
-    ideas = []
+  def suggest_complementary_ingredients(ingredients, preferences = {})
+    suggestions = []
+    
+    # Check if user has dairy ingredients
+    has_dairy = ingredients.any? { |i| DAIRY_GROUP.any? { |d| i.include?(d) } }
+    
+    # Check meal time context
+    meal_time = preferences["meal_time"]
+    is_low_calorie = preferences["max_calories"].present? && preferences["max_calories"] < 300
+    
+    # Smart suggestions based on context
+    if has_dairy && (meal_time == "breakfast" || meal_time == "snack" || is_low_calorie)
+      # For dairy + breakfast/snack/low-cal: suggest breakfast items
+      suggestions << "cereale sau musli"
+      suggestions << "miere sau fructe (banane, mere, căpșuni)"
+      suggestions << "ovăz sau semințe"
+    elsif has_dairy && meal_time == "dinner"
+      # For dairy + dinner: suggest vegetables and light proteins
+      suggestions << "castraveți sau roșii (pentru salată)"
+      suggestions << "usturoi și mărar (pentru dressing)"
+      suggestions << "salată verde"
+    else
+      # Default suggestions based on what's missing
+      
+      # Protein suggestions if none present
+      proteins = %w[pui carne vită vita porc pește peste ouă oua ou]
+      unless ingredients.any? { |i| proteins.any? { |p| i.include?(p) } }
+        if is_low_calorie || preferences["healthy"]
+          suggestions << "pește sau ouă (proteine light)"
+        else
+          suggestions << "pui sau ouă (pentru proteine)"
+        end
+      end
 
+      # Vegetable suggestions
+      veggies = %w[roșii rosii morcovi ardei cartofi castraveți castraveti]
+      unless ingredients.any? { |i| veggies.any? { |v| i.include?(v) } }
+        if is_low_calorie
+          suggestions << "salată, castraveți sau roșii (legume light)"
+        else
+          suggestions << "roșii sau morcovi (pentru legume)"
+        end
+      end
+      
+      # Base suggestions
+      base_suggestions = %w[ceapă usturoi ulei sare piper]
+      suggestions += base_suggestions.first(2)
+    end
+
+    suggestions.uniq.first(5)
+  end
+
+  def suggest_recipe_ideas(ingredients, preferences = {})
+    ideas = []
+    
+    has_dairy = ingredients.any? { |i| DAIRY_GROUP.any? { |d| i.include?(d) } }
+    meal_time = preferences["meal_time"]
+    is_low_calorie = preferences["max_calories"].present? && preferences["max_calories"] < 300
+
+    # Smart suggestions based on dairy + context
+    if has_dairy && (meal_time == "breakfast" || meal_time == "snack")
+      ideas << "Iaurt cu cereale și fructe"
+      ideas << "Smoothie bowl cu iaurt"
+      ideas << "Parfait cu iaurt și musli"
+    elsif has_dairy && meal_time == "dinner" && is_low_calorie
+      ideas << "Salată cu iaurt și castraveți"
+      ideas << "Tzatziki cu legume crude"
+      ideas << "Salată grecească light"
+    elsif has_dairy
+      ideas << "Salată cu brânză și legume"
+      ideas << "Dressing de iaurt pentru salată"
+    end
+
+    # Protein-based suggestions
     if ingredients.any? { |i| i.include?("pui") }
-      ideas << "Pui la tigaie cu legume"
-      ideas << "Piept de pui la cuptor"
+      if is_low_calorie
+        ideas << "Piept de pui la grătar cu salată"
+      else
+        ideas << "Pui la tigaie cu legume"
+        ideas << "Piept de pui la cuptor"
+      end
     end
 
     if ingredients.any? { |i| i.include?("paste") || i.include?("spaghete") }
@@ -408,9 +524,13 @@ class AiRecipeAssistant
       ideas << "Spaghete aglio e olio"
     end
 
-    if ingredients.any? { |i| i.include?("ou") || i.include?("ouă") }
-      ideas << "Omletă cu legume"
-      ideas << "Ouă ochiuri cu brânză"
+    if ingredients.any? { |i| i.include?("ou") || i.include?("ouă") || i.include?("oua") }
+      if is_low_calorie
+        ideas << "Omletă cu legume (fără ulei)"
+      else
+        ideas << "Omletă cu legume"
+        ideas << "Ouă ochiuri cu brânză"
+      end
     end
 
     if ingredients.any? { |i| i.include?("cartof") }
@@ -455,7 +575,8 @@ class AiRecipeAssistant
 
     uri = URI("#{@ollama_url}/api/generate")
     http = Net::HTTP.new(uri.host, uri.port)
-    http.read_timeout = 120 # Llama can be slow
+    http.open_timeout = 30  # Time to establish connection
+    http.read_timeout = 180 # 3 minutes for generation (Llama can be slow)
 
     request = Net::HTTP::Post.new(uri)
     request["Content-Type"] = "application/json"
@@ -465,7 +586,9 @@ class AiRecipeAssistant
       stream: false,
       options: {
         temperature: 0.7,
-        num_predict: 1500
+        num_predict: 800,  # Reduced for faster responses (was 1500)
+        top_p: 0.9,
+        top_k: 40
       }
     }.to_json
 
@@ -527,28 +650,33 @@ class AiRecipeAssistant
   # ============================================
 
   def build_recipe_generation_prompt(ingredients, preferences)
-    <<~PROMPT
-      Ești un chef profesionist care creează rețete în limba română.
+    prefs = []
+    prefs << "sănătos" if preferences['healthy']
+    prefs << "#{preferences['cooking_method']}" if preferences['cooking_method']
+    prefs << "max #{preferences['time_limit_minutes']} min" if preferences['time_limit_minutes']
+    prefs << "max #{preferences['max_calories']} cal" if preferences['max_calories']
+    prefs << "pentru #{preferences['meal_time'] == 'dinner' ? 'seară' : preferences['meal_time']}" if preferences['meal_time']
+    
+    <<~PROMPT.strip
+      Ești un chef profesionist. Creează o rețetă delicioasă în limba română folosind: #{ingredients.join(', ')}
+      #{prefs.any? ? "Cerințe: #{prefs.join(', ')}" : ''}
       
-      Creează o rețetă delicioasă folosind ACESTE ingrediente principale: #{ingredients.join(', ')}
-      
-      Preferințe:
-      - Sănătos: #{preferences['healthy'] ? 'Da' : 'Nu neapărat'}
-      - Metodă de gătit: #{preferences['cooking_method'] || 'orice'}
-      - Timp maxim: #{preferences['time_limit_minutes'] ? "#{preferences['time_limit_minutes']} minute" : 'nelimitat'}
-      - Restricții: #{preferences['dietary_restrictions']&.join(', ') || 'niciuna'}
-      
-      IMPORTANT: Răspunde DOAR în format JSON valid (fără markdown, fără ```):
+      Răspunde EXACT în acest format JSON (fără markdown, fără ```, doar JSON pur):
       {
-        "title": "Numele rețetei",
-        "description": "Descriere scurtă",
-        "ingredients": "Lista ingrediente cu cantități, fiecare pe linie nouă",
-        "preparation": "Pașii de preparare numerotați",
-        "time_to_make": numar_minute,
+        "title": "Nume rețetă atrăgător",
+        "description": "Descriere scurtă (2-3 propoziții)",
+        "servings": numar_portii,
+        "ingredients": "Lista detaliată cu cantități precise:\\n- 250ml lapte\\n- 2 linguri miere\\n- etc",
+        "preparation": "Pași clari și numerotați:\\n1. Primul pas detaliat\\n2. Al doilea pas\\n3. etc",
+        "time_to_make": numar_minute_total,
         "difficulty": numar_1_la_5,
         "healthiness": numar_1_la_5,
-        "tips": "Sfaturi opționale"
+        "calories": numar_calorii_aproximativ,
+        "additional_ingredients": "Ingrediente opționale recomandate (max 3):\\n- ingredient1\\n- ingredient2",
+        "tips": "Sfat util pentru preparare"
       }
+      
+      IMPORTANT: Răspunde DOAR cu JSON-ul, fără text suplimentar!
     PROMPT
   end
 
@@ -565,14 +693,16 @@ class AiRecipeAssistant
       "recipe" => {
         "title" => recipe_data["title"],
         "description" => recipe_data["description"],
+        "servings" => recipe_data["servings"],
         "ingredients" => recipe_data["ingredients"],
         "preparation" => recipe_data["preparation"],
         "time_to_make" => recipe_data["time_to_make"].to_i,
         "difficulty" => recipe_data["difficulty"].to_i,
         "healthiness" => recipe_data["healthiness"].to_i,
+        "calories" => recipe_data["calories"],
+        "additional_ingredients" => recipe_data["additional_ingredients"],
         "tips" => recipe_data["tips"]
       },
-      "additional_ingredients_needed" => [],
       "ai_provider" => provider
     }
   rescue JSON::ParserError => e

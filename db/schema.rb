@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_03_161747) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "ai_conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_message_at"
+    t.json "messages"
+    t.string "provider"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_ai_conversations_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -466,6 +477,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
     t.string "warning_color", default: "#f59e0b"
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.datetime "canceled_at"
+    t.datetime "created_at", null: false
+    t.datetime "current_period_end"
+    t.datetime "current_period_start"
+    t.string "plan_type"
+    t.string "status"
+    t.string "stripe_subscription_id"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
+  end
+
   create_table "themes", force: :cascade do |t|
     t.string "accent_color", default: "#06b6d4"
     t.string "background_color", default: "#f0fdf4"
@@ -558,6 +582,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_conversations", "users"
   add_foreign_key "challenge_participants", "challenges"
   add_foreign_key "challenge_participants", "recipes"
   add_foreign_key "challenge_participants", "users"
@@ -606,6 +631,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_143315) do
   add_foreign_key "shopping_list_items", "recipes"
   add_foreign_key "shopping_list_items", "shopping_lists"
   add_foreign_key "shopping_lists", "users"
+  add_foreign_key "subscriptions", "users"
   add_foreign_key "user_shortcuts", "users"
   add_foreign_key "video_timestamps", "recipes"
 end
