@@ -1,41 +1,168 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Recipy</title>
+    <title>Recipy - <%= content_for?(:title) ? yield(:title) : 'Sign In' %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "minimalist", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
     <style>
+      /* Auth Page Theme Support */
       :root {
         --bg-light: #ffffff;
         --text-light: #000000;
+        --accent-light: #10b981;
         --bg-dark: #1f1f1f;
         --text-dark: #f5f5dc;
+        --accent-dark: #34d399;
       }
       
       /* Light theme by default */
       body {
         background-color: var(--bg-light);
         color: var(--text-light);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      /* Dark theme via data attribute */
+      [data-theme="dark"] body {
+        background-color: var(--bg-dark);
+        color: var(--text-dark);
+      }
+      
+      [data-theme="dark"] .auth-card {
+        background-color: #2a2a2a;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      [data-theme="dark"] .auth-input {
+        background-color: #1f1f1f;
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f5f5dc;
+      }
+      
+      [data-theme="dark"] .auth-input:focus {
+        border-color: var(--accent-dark);
+      }
+      
+      [data-theme="dark"] .auth-btn-google {
+        background-color: #2a2a2a;
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      
+      [data-theme="dark"] .auth-btn-google:hover {
+        background-color: #333333;
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      
+      [data-theme="dark"] .auth-label {
+        color: #f5f5dc;
+      }
+      
+      [data-theme="dark"] .auth-divider {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      [data-theme="light"] .auth-card {
+        background-color: #f9fafb;
+        border-color: #e5e7eb;
+      }
+      
+      [data-theme="light"] .auth-input {
+        background-color: #ffffff;
+        border-color: #d1d5db;
+        color: #000000;
+      }
+      
+      [data-theme="light"] .auth-btn-google {
+        background-color: #ffffff;
+        border-color: #d1d5db;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+      
+      [data-theme="light"] .auth-btn-google:hover {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
       }
       
       /* Dark theme via system preference */
       @media (prefers-color-scheme: dark) {
-        body {
+        :root:not([data-theme="light"]) body {
           background-color: var(--bg-dark);
           color: var(--text-dark);
         }
       }
+      
+      .auth-gradient-overlay {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9), rgba(13, 148, 136, 0.9));
+      }
     </style>
-    
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
   </head>
 
   <body class="min-h-screen">
+    <!-- Theme Toggle (Top Right) -->
+    <div class="fixed top-4 right-4 z-50">
+      <button onclick="toggleTheme()" class="p-3 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all" id="theme-toggle">
+        <svg id="theme-icon-light" class="w-5 h-5 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <svg id="theme-icon-dark" class="w-5 h-5 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+      </button>
+    </div>
+    
     <%= yield %>
+    
+    <script>
+      function applyTheme(theme) {
+        if (theme === 'system') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+          updateThemeIcon(prefersDark ? 'dark' : 'light');
+        } else {
+          document.documentElement.setAttribute('data-theme', theme);
+          updateThemeIcon(theme);
+        }
+      }
+      
+      function updateThemeIcon(theme) {
+        const lightIcon = document.getElementById('theme-icon-light');
+        const darkIcon = document.getElementById('theme-icon-dark');
+        
+        if (theme === 'dark') {
+          lightIcon.classList.add('hidden');
+          darkIcon.classList.remove('hidden');
+        } else {
+          lightIcon.classList.remove('hidden');
+          darkIcon.classList.add('hidden');
+        }
+      }
+      
+      function toggleTheme() {
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+      }
+      
+      // Apply theme on load
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      applyTheme(savedTheme);
+      
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        if (localStorage.getItem('theme') === 'system') {
+          applyTheme('system');
+        }
+      });
+    </script>
   </body>
 </html>
 
