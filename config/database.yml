@@ -88,20 +88,31 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
+  # Use DATABASE_URL from environment (Railway/Heroku/etc)
+  # Falls back to manual config if DATABASE_URL not set
+  url: <%= ENV.fetch("DATABASE_URL", nil) %>
   primary: &primary_production
     <<: *default
+    <% if ENV["DATABASE_URL"].blank? %>
     database: backend_production
     username: backend
     password: <%= ENV["BACKEND_DATABASE_PASSWORD"] %>
+    <% end %>
   cache:
     <<: *primary_production
+    <% if ENV["DATABASE_URL"].blank? %>
     database: backend_production_cache
+    <% end %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
+    <% if ENV["DATABASE_URL"].blank? %>
     database: backend_production_queue
+    <% end %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
+    <% if ENV["DATABASE_URL"].blank? %>
     database: backend_production_cable
+    <% end %>
     migrations_paths: db/cable_migrate
