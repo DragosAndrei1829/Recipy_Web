@@ -1,9 +1,10 @@
 <% content_for :head do %>
   <meta name="turbo-cache-control" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <% end %>
 
 <!-- Feed Header -->
-<div class="feed-hero animate-slide-in">
+<div class="feed-hero animate-slide-in <%= 'px-3 py-4' if mobile_device? %>">
   <p class="feed-hero__eyebrow"><%= t('recipes.title') %> · <%= number_with_delimiter(@feed_stats[:total_recipes]) %>+</p>
   <h1>
     <%= t('recipes.index.title') %>

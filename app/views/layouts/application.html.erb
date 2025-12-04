@@ -357,9 +357,9 @@
               <%= yield %>
             </div>
           <% else %>
-            <div class="app-grid">
-              <!-- Left Sidebar -->
-              <aside class="hidden lg:block">
+            <div class="<%= mobile_device? ? 'mobile-layout' : 'app-grid' %>">
+              <!-- Left Sidebar (hidden on mobile) -->
+              <aside class="<%= mobile_device? ? 'hidden' : 'hidden lg:block' %>">
                 <div class="sidebar-stack">
                   <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
                     <%= render 'users/profile_sidebar', user: @user %>
@@ -379,8 +379,8 @@
                 <%= yield %>
               </section>
               
-              <!-- Right Sidebar -->
-              <aside class="hidden lg:block">
+              <!-- Right Sidebar (hidden on mobile) -->
+              <aside class="<%= mobile_device? ? 'hidden' : 'hidden lg:block' %>">
                 <div class="sidebar-stack">
                   <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
                     <%= render 'users/stats_sidebar', user: @user %>

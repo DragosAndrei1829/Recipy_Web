@@ -1086,11 +1086,45 @@ body[data-theme="cyan"] .theme-background-pattern {
   gap: clamp(0.5rem, 1.2vw, 1rem);
 }
 
-/* Mobile optimization */
+/* Mobile Layout - Dedicated mobile view */
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  gap: 0;
+}
+
+.mobile-layout > main {
+  width: 100%;
+  padding: 0.5rem;
+}
+
+/* Mobile Recipe Card - Simplified */
+.mobile-recipe-card {
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mobile-recipe-card:active {
+  transform: scale(0.98);
+}
+
+/* Mobile optimization for desktop cards (fallback) */
 @media (max-width: 767px) {
   .feed-card {
     border-radius: 16px;
     gap: 0.75rem;
+    margin: 0 0.5rem 0.75rem 0.5rem;
+  }
+  
+  .feed-card__header {
+    padding: 0.75rem 1rem 0;
+  }
+  
+  .feed-card__body {
+    padding: 0 1rem 1rem;
   }
 }
 

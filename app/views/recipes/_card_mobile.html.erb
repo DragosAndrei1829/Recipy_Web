@@ -1,0 +1,113 @@
+<% rating_scope = recipe.comments.where.not(rating: nil) %>
+<% avg_rating = rating_scope.any? ? rating_scope.average(:rating).to_f.round(1) : nil %>
+
+<article id="<%= dom_id(recipe, :mobile) %>" class="mobile-recipe-card bg-card border border-default rounded-2xl overflow-hidden shadow-lg mb-3">
+  <!-- Mobile Header - Compact -->
+  <div class="flex items-center justify-between p-3 border-b border-default">
+    <div class="flex items-center gap-2 flex-1 min-w-0">
+      <% if recipe.user.avatar.attached? %>
+        <%= image_tag url_for(recipe.user.avatar.variant(resize_to_fill: [32,32])), class: "w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" %>
+      <% else %>
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
+          <%= recipe.user.username&.first&.upcase || 'U' %>
+        </div>
+      <% end %>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-bold text-primary-content truncate"><%= recipe.user.username %></p>
+        <p class="text-xs text-secondary-content"><%= time_ago_in_words(recipe.created_at) %> ago</p>
+      </div>
+    </div>
+    <!-- Category Badge -->
+    <% if recipe.category %>
+      <span class="text-xs px-2 py-1 rounded-full <%= recipe.category.id == 1 ? 'bg-orange-100 text-orange-700' : recipe.category.id == 2 ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700' %>">
+        <%= recipe.category.display_name %>
+      </span>
+    <% end %>
+  </div>
+
+  <!-- Mobile Image - Full Width -->
+  <% if recipe.photos.attached? && recipe.photos.first.present? %>
+    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "block" do %>
+      <%= image_tag url_for(recipe.photos.first.variant(resize_to_limit: [800, 600])), 
+          class: "w-full h-48 object-cover",
+          loading: "lazy" %>
+    <% end %>
+  <% end %>
+
+  <!-- Mobile Content -->
+  <div class="p-3 space-y-3">
+    <!-- Title -->
+    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "block" do %>
+      <h3 class="text-lg font-black text-primary-content mb-1 line-clamp-2"><%= recipe.title %></h3>
+    <% end %>
+    
+    <!-- Stats - Compact -->
+    <div class="flex items-center gap-3 text-sm text-secondary-content">
+      <span class="flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <%= recipe.time_to_make %> min
+      </span>
+      <span class="flex items-center gap-1">
+        <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <%= recipe.difficulty %>/5
+      </span>
+      <% if avg_rating %>
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <%= avg_rating %>
+        </span>
+      <% end %>
+    </div>
+
+    <!-- Actions - Mobile Optimized -->
+    <div class="flex items-center justify-between pt-2 border-t border-default">
+      <!-- Left: Social Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Like -->
+        <button type="button" 
+                onclick="toggleLike(<%= recipe.id %>, this, '<%= recipe_path(recipe, locale: I18n.locale) %>')"
+                class="flex items-center gap-1.5 text-secondary-content hover:text-rose-500 transition-colors"
+                data-liked="<%= user_signed_in? && recipe.likes.exists?(user: current_user) %>">
+          <svg class="w-5 h-5 <%= 'text-rose-500 fill-rose-500' if user_signed_in? && recipe.likes.exists?(user: current_user) %>" 
+               fill="<%= user_signed_in? && recipe.likes.exists?(user: current_user) ? 'currentColor' : 'none' %>" 
+               stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <span class="text-sm font-semibold"><%= recipe.likes_count %></span>
+        </button>
+
+        <!-- Comment -->
+        <%= link_to recipe_path(recipe, anchor: "comments", locale: I18n.locale), class: "flex items-center gap-1.5 text-secondary-content hover:text-blue-500 transition-colors" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <span class="text-sm font-semibold"><%= recipe.comments_count %></span>
+        <% end %>
+
+        <!-- Favorite -->
+        <% if user_signed_in? %>
+          <button type="button"
+                  onclick="toggleFavorite(<%= recipe.id %>, this, '<%= recipe_path(recipe, locale: I18n.locale) %>')"
+                  class="text-secondary-content hover:text-amber-500 transition-colors"
+                  data-favorited="<%= recipe.favorites.exists?(user: current_user) %>">
+            <svg class="w-5 h-5 <%= 'text-amber-500 fill-amber-500' if recipe.favorites.exists?(user: current_user) %>" 
+                 fill="<%= recipe.favorites.exists?(user: current_user) ? 'currentColor' : 'none' %>" 
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+          </button>
+        <% end %>
+      </div>
+
+      <!-- Right: View Recipe Button -->
+      <%= link_to recipe_path(recipe, locale: I18n.locale), 
+          class: "inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all" do %>
+        <span>Vezi</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
+    </div>
+  </div>
+</article>
+
