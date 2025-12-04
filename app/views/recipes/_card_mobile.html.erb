@@ -88,7 +88,7 @@
       <!-- Left: Social Actions - Larger Touch Targets -->
       <div class="flex items-center gap-5">
         <!-- Like - Enhanced Button -->
-        <%= button_to toggle_like_recipe_path(recipe, locale: I18n.locale), 
+        <%= button_to recipe_like_path(recipe, locale: I18n.locale), 
             method: :post,
             class: "flex items-center gap-2 px-3 py-2 rounded-xl transition-all active:scale-95 border-0 #{user_signed_in? && recipe.likes.exists?(user: current_user) ? 'bg-rose-50 dark:bg-rose-900/20' : 'bg-gray-50 dark:bg-gray-800/50'}",
             data: { turbo: false },
@@ -113,7 +113,7 @@
 
         <!-- Favorite - Enhanced Button -->
         <% if user_signed_in? %>
-          <%= button_to toggle_favorite_recipe_path(recipe, locale: I18n.locale),
+          <%= button_to recipe_favorite_path(recipe, locale: I18n.locale),
               method: :post,
               class: "flex items-center justify-center w-10 h-10 rounded-xl transition-all active:scale-95 border-0 #{recipe.favorites.exists?(user: current_user) ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-800/50'}",
               data: { turbo: false },
