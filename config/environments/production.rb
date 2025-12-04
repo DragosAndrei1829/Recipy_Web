@@ -22,8 +22,8 @@ Rails.application.configure do
   # config.asset_host = "http://assets.example.com"
 
   # Store uploaded files (prefer :amazon when AWS env vars are present or explicitly configured).
-  storage_service = ENV.fetch("ACTIVE_STORAGE_SERVICE", nil)&.to_sym
-  config.active_storage.service = storage_service || (ENV["AWS_S3_BUCKET"].present? ? :amazon : :local)
+  storage_service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "local")&.to_sym
+  config.active_storage.service = storage_service
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   # config.assume_ssl = true
