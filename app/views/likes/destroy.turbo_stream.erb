@@ -1,7 +1,8 @@
-<%= turbo_stream.update dom_id(@recipe, :inner),
-      partial: "recipes/card_inner",
-      locals: { recipe: @recipe } %>
-
-<%= turbo_stream.update dom_id(@recipe, :actions),
-      partial: "recipes/show_actions",
-      locals: { recipe: @recipe } %>
+<%= turbo_stream.replace "recipe_#{@recipe.id}_like_button" do %>
+  <%= button_to recipe_like_path(@recipe, locale: I18n.locale), method: :post, id: "recipe_#{@recipe.id}_like_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--like action-btn-compact" do %>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+    </svg>
+    <span class="recipe-card-modern__action-count"><%= @recipe.likes_count %></span>
+  <% end %>
+<% end %>

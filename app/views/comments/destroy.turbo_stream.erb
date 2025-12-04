@@ -1,16 +1,5 @@
-<%# Update comments section (works for both show page and feed) %>
-<%= turbo_stream.update dom_id(@recipe, :comments),
-      partial: "recipes/show_comments",
-      locals: { recipe: @recipe } %>
+<%= turbo_stream.remove "comment_#{@comment.id}" %>
 
-<%# Update recipe card in feed (only if exists) %>
-<% if @from_feed %>
-  <%= turbo_stream.update dom_id(@recipe, :inner),
-        partial: "recipes/card_inner",
-        locals: { recipe: @recipe } %>
-<% else %>
-  <%# Update actions on show page %>
-  <%= turbo_stream.update dom_id(@recipe, :actions),
-        partial: "recipes/show_actions",
-        locals: { recipe: @recipe } %>
+<%= turbo_stream.replace "recipe_#{@recipe.id}_comment_count" do %>
+  <span id="recipe_#{@recipe.id}_comment_count"><%= @recipe.comments_count %></span>
 <% end %>

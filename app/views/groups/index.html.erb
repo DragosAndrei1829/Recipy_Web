@@ -1,86 +1,121 @@
 <% content_for :title, "Grupurile Mele" %>
 
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-    <div>
-      <h1 class="text-3xl font-bold text-primary-content">Grupurile Mele</h1>
-      <p class="text-secondary-content mt-1">Creează și gestionează grupuri private pentru rețete</p>
-    </div>
-    
-    <div class="flex gap-3">
-      <!-- Join Group -->
-      <button type="button" onclick="document.getElementById('join-modal').classList.remove('hidden')" class="px-4 py-2 bg-card border border-default rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300">
-        <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-        </svg>
-        Alătură-te
-      </button>
-      
-      <!-- Create Group -->
-      <%= link_to new_group_path, class: "px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl hover:from-emerald-700 hover:to-teal-600 transition-all shadow-lg" do %>
-        <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Creează Grup
-      <% end %>
+<!-- Modern Groups Page -->
+<div class="modern-page-container">
+  <!-- Modern Header -->
+  <div class="modern-page-header">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-1 h-12 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
+      <div class="flex-1">
+        <h1 class="text-4xl font-black bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
+          <%= t('groups.my_groups', default: 'Grupurile Mele') %>
+        </h1>
+        <p class="text-sm opacity-60 mt-1">
+          <%= @my_groups.count %> <%= t('groups.title', default: 'grupuri') %> · 
+          <span class="text-blue-500 font-semibold"><%= t('groups.subtitle', default: 'Partajează cu prietenii') %></span>
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <button type="button" onclick="document.getElementById('join-modal').classList.remove('hidden')" class="modern-btn-secondary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+          </svg>
+          <span><%= t('groups.join', default: 'Alătură-te') %></span>
+        </button>
+        <%= link_to new_group_path(locale: I18n.locale), class: "modern-btn-primary" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span><%= t('groups.create', default: 'Creează Grup') %></span>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <% if @my_groups.empty? && @owned_groups.empty? %>
-    <!-- Empty State -->
-    <div class="text-center py-16 bg-card rounded-2xl border border-default">
-      <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-full flex items-center justify-center">
-        <span class="text-5xl">👥</span>
-      </div>
-      <h2 class="text-xl font-semibold text-primary-content mb-2">Nu faci parte din niciun grup</h2>
-      <p class="text-secondary-content max-w-md mx-auto mb-6">
-        Creează un grup privat pentru a partaja rețete cu prietenii sau familia, sau alătură-te unui grup existent cu un cod de invitație.
-      </p>
-      <div class="flex justify-center gap-3">
-        <button type="button" onclick="document.getElementById('join-modal').classList.remove('hidden')" class="px-4 py-2 bg-card border border-default rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300">
-          Am un cod de invitație
-        </button>
-        <%= link_to "Creează primul grup", new_group_path, class: "px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl hover:from-emerald-700 hover:to-teal-600 transition-all" %>
-      </div>
+  <% if @my_groups.any? %>
+    <div class="modern-grid">
+      <% @my_groups.each_with_index do |group, index| %>
+        <div class="modern-card" style="animation-delay: <%= index * 0.08 %>s">
+          <%= link_to group_path(group, locale: I18n.locale), class: "block" do %>
+            <div class="modern-card__header">
+              <div class="modern-card__icon modern-card__icon--blue">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <h3 class="modern-card__title"><%= group.name %></h3>
+            </div>
+            <% if group.description.present? %>
+              <p class="modern-card__description"><%= truncate(group.description, length: 100) %></p>
+            <% end %>
+            <div class="modern-card__stats">
+              <span class="modern-stat-badge modern-stat-badge--blue">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <%= group.members_count || group.members.count %> <%= t('groups.members', default: 'membri') %>
+              </span>
+              <% if group.owner == current_user %>
+                <span class="modern-badge modern-badge--primary">
+                  <%= t('groups.owner', default: 'Owner') %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   <% else %>
-    <!-- Groups Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @my_groups.each do |group| %>
-        <%= render "groups/group_card", group: group %>
-      <% end %>
+    <div class="modern-empty-state">
+      <div class="modern-empty-icon">
+        <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <h3 class="modern-empty-title"><%= t('groups.empty', default: 'Nu faci parte din niciun grup') %></h3>
+      <p class="modern-empty-description"><%= t('groups.empty_description', default: 'Creează un grup privat sau alătură-te cu un cod!') %></p>
+      <div class="flex justify-center gap-3 mt-6">
+        <button type="button" onclick="document.getElementById('join-modal').classList.remove('hidden')" class="modern-btn-secondary">
+          <%= t('groups.join_with_code', default: 'Am un Cod') %>
+        </button>
+        <%= link_to new_group_path(locale: I18n.locale), class: "modern-btn-primary" do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span><%= t('groups.create_first', default: 'Creează Primul Grup') %></span>
+        <% end %>
+      </div>
     </div>
   <% end %>
 </div>
 
 <!-- Join Modal -->
-<div id="join-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-  <div class="bg-card rounded-2xl p-6 max-w-md w-full shadow-2xl">
-    <h3 class="text-xl font-bold text-primary-content mb-4">Alătură-te unui grup</h3>
-    <p class="text-secondary-content mb-4">Introdu codul de invitație primit de la owner-ul grupului.</p>
+<div id="join-modal" class="modal-overlay hidden">
+  <div class="modal-content-compact">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-2xl font-bold text-primary-content">Alătură-te unui grup</h3>
+      <button onclick="document.getElementById('join-modal').classList.add('hidden')" class="text-secondary-content hover:text-primary-content transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
     
-    <%= form_with url: join_groups_path, method: :post, local: true do |f| %>
-      <div class="mb-4">
-        <%= f.text_field :invite_code, placeholder: "Ex: ABC12345", class: "w-full px-4 py-3 border border-default rounded-xl bg-card text-primary-content uppercase tracking-widest text-center text-lg font-mono", maxlength: 8 %>
-      </div>
+    <%= form_with url: join_groups_path(locale: I18n.locale), method: :post, local: true do |f| %>
+      <%= f.text_field :invite_code, placeholder: "ABC12345", class: "w-full px-4 py-3 border-2 border-default rounded-xl bg-card text-primary-content uppercase tracking-widest text-center text-lg font-mono mb-4 focus:border-primary focus:ring-2 focus:ring-primary/20", maxlength: 8 %>
       
       <div class="flex gap-3">
-        <button type="button" onclick="document.getElementById('join-modal').classList.add('hidden')" class="flex-1 px-4 py-2 bg-gray-100 bg-card text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+        <button type="button" onclick="document.getElementById('join-modal').classList.add('hidden')" class="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
           Anulează
         </button>
-        <%= f.submit "Alătură-te", class: "flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl hover:from-emerald-700 hover:to-teal-600 transition-all cursor-pointer" %>
+        <%= f.submit "Alătură-te", class: "flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold hover:shadow-xl transition-all" %>
       </div>
     <% end %>
   </div>
 </div>
 
 <script>
-  // Close modal on click outside
-  document.getElementById('join-modal').addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.classList.add('hidden');
-    }
-  });
+document.getElementById('join-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.add('hidden');
+});
 </script>
-

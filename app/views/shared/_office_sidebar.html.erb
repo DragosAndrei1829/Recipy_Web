@@ -12,6 +12,15 @@
 
   <!-- Navigation -->
   <nav class="office-sidebar__nav">
+    <% if user_signed_in? %>
+      <%= link_to new_recipe_path(locale: I18n.locale), class: "office-sidebar__nav-item office-sidebar__nav-item--primary" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span><%= t('recipes.new_recipe', default: 'Postează Rețetă') %></span>
+      <% end %>
+    <% end %>
+
     <%= link_to recipes_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'recipes' && action_name == 'index'}" do %>
       <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -23,7 +32,7 @@
       <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
       </svg>
-      <span><%= t('recipes.title', default: 'Recipes') %></span>
+      <span><%= t('recipes.title', default: 'Rețete') %></span>
     <% end %>
 
     <% if user_signed_in? %>
@@ -31,28 +40,35 @@
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
         </svg>
-        <span><%= t('favorites.title', default: 'Favorites') %></span>
+        <span><%= t('favorites.title', default: 'Favorite') %></span>
       <% end %>
 
       <%= link_to collections_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'collections'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
         </svg>
-        <span><%= t('collections.title', default: 'Collections') %></span>
+        <span><%= t('collections.title', default: 'Colecții') %></span>
       <% end %>
 
       <%= link_to groups_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'groups'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
         </svg>
-        <span><%= t('groups.title', default: 'Groups') %></span>
+        <span><%= t('groups.title', default: 'Grupuri') %></span>
       <% end %>
 
       <%= link_to challenges_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'challenges'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
         </svg>
-        <span><%= t('challenges.title', default: 'Challenges') %></span>
+        <span><%= t('challenges.title', default: 'Challenge-uri') %></span>
+      <% end %>
+
+      <%= link_to conversations_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'conversations'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+        </svg>
+        <span><%= t('conversations.title', default: 'Mesaje') %></span>
       <% end %>
 
       <%= link_to ai_assistant_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'ai_assistant'}" do %>
@@ -68,34 +84,39 @@
         </svg>
         <span><%= t('meal_plans.title', default: 'Meal Planner') %></span>
       <% end %>
+
+    <!-- Admin Link (if admin) -->
+    <% if current_user&.admin? %>
+      <div class="office-sidebar__nav-divider"></div>
+      <%= link_to admin_dashboard_path, class: "office-sidebar__nav-item office-sidebar__nav-item--admin #{'office-sidebar__nav-item--active' if controller_name == 'admin'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span><%= t('admin.title', default: 'Admin Panel') %></span>
+      <% end %>
     <% end %>
+  <% end %>
   </nav>
 
-  <!-- Profile Section (Bottom) -->
+  <!-- Profile Section (Bottom) - Simple Avatar Button -->
   <% if user_signed_in? %>
-    <div class="office-sidebar__profile">
-      <button type="button" class="office-sidebar__profile-button" id="sidebar-profile-button">
+    <div class="office-sidebar__profile-simple">
+      <button type="button" class="office-sidebar__avatar-button" id="sidebar-profile-button" onclick="document.getElementById('sidebar-profile-dropdown').classList.toggle('hidden'); event.stopPropagation();">
         <% if current_user&.avatar&.attached? %>
           <% begin %>
-            <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [40,40])),
-                class: "office-sidebar__profile-avatar" %>
+            <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [48,48])),
+                class: "office-sidebar__avatar-image" %>
           <% rescue ActiveStorage::FileNotFoundError %>
-            <div class="office-sidebar__profile-avatar office-sidebar__profile-avatar--fallback">
+            <div class="office-sidebar__avatar-fallback">
               <%= (current_user.username&.first || 'U').upcase %>
             </div>
           <% end %>
         <% else %>
-          <div class="office-sidebar__profile-avatar office-sidebar__profile-avatar--fallback">
+          <div class="office-sidebar__avatar-fallback">
             <%= (current_user.username&.first || 'U').upcase %>
           </div>
         <% end %>
-        <div class="office-sidebar__profile-info">
-          <span class="office-sidebar__profile-name"><%= current_user.username %></span>
-          <span class="office-sidebar__profile-email"><%= truncate(current_user.email, length: 20) %></span>
-        </div>
-        <svg class="office-sidebar__profile-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
       </button>
 
       <!-- Profile Dropdown -->
@@ -119,9 +140,9 @@
 
         <!-- Theme Switcher -->
         <div class="office-sidebar__theme-switcher">
-          <span class="office-sidebar__theme-label"><%= t('navigation.theme', default: 'Theme') %></span>
+          <span class="office-sidebar__theme-label">☀️ <%= t('navigation.theme', default: 'Temă') %></span>
           <div class="office-sidebar__theme-options">
-            <button type="button" class="office-sidebar__theme-option office-sidebar__theme-option--active" data-theme="light">
+            <button type="button" class="office-sidebar__theme-option" data-theme="light">
               <svg class="office-sidebar__theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
               </svg>
@@ -139,6 +160,24 @@
               </svg>
               <span>System</span>
             </button>
+          </div>
+        </div>
+
+        <div class="office-sidebar__profile-dropdown-divider"></div>
+
+        <!-- Language Switcher -->
+        <div class="office-sidebar__theme-switcher">
+          <span class="office-sidebar__theme-label">🌍 <%= t('navigation.language', default: 'Limbă') %></span>
+          <div class="office-sidebar__theme-options">
+            <% current_locale = I18n.locale.to_s %>
+            <%= link_to switch_locale_path('ro'), class: "office-sidebar__theme-option #{'office-sidebar__theme-option--active' if current_locale == 'ro'}" do %>
+              <span class="text-lg">🇷🇴</span>
+              <span>RO</span>
+            <% end %>
+            <%= link_to switch_locale_path('en'), class: "office-sidebar__theme-option #{'office-sidebar__theme-option--active' if current_locale == 'en'}" do %>
+              <span class="text-lg">🇬🇧</span>
+              <span>EN</span>
+            <% end %>
           </div>
         </div>
 
@@ -252,6 +291,56 @@
   font-weight: 500;
   transition: all 150ms ease;
   position: relative;
+}
+
+.office-sidebar__nav-item--primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white !important;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.office-sidebar__nav-item--primary:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-item--primary {
+    box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+  }
+}
+
+/* Admin Nav Item */
+.office-sidebar__nav-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0.75rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-divider {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.office-sidebar__nav-item--admin {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.office-sidebar__nav-item--admin:hover {
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #7c3aed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-item--admin {
+    color: #a78bfa;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -407,25 +496,97 @@
   }
 }
 
-/* Profile Dropdown */
+/* Profile Simple Avatar Button */
+.office-sidebar__profile-simple {
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-simple {
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__avatar-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.office-sidebar__avatar-button:hover {
+  transform: scale(1.08);
+}
+
+.office-sidebar__avatar-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.office-sidebar__avatar-button:hover .office-sidebar__avatar-image {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.office-sidebar__avatar-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+}
+
+.office-sidebar__avatar-button:hover .office-sidebar__avatar-fallback {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Profile Dropdown - Opens UP */
 .office-sidebar__profile-dropdown {
-  position: absolute;
-  bottom: 100%;
-  left: 0.5rem;
-  right: 0.5rem;
-  margin-bottom: 0.5rem;
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  width: 220px;
   background: var(--bg-light, #ffffff);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  z-index: 2000;
+  animation: slideUpFade 0.2s ease;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   .office-sidebar__profile-dropdown {
     background: var(--bg-dark, #1f1f1f);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -598,36 +759,35 @@
 </style>
 
 <script>
-// Profile dropdown toggle
-document.addEventListener('DOMContentLoaded', function() {
-  const profileButton = document.getElementById('sidebar-profile-button');
-  const profileDropdown = document.getElementById('sidebar-profile-dropdown');
-
-  if (profileButton && profileDropdown) {
-    profileButton.addEventListener('click', function(e) {
-      e.stopPropagation();
-      profileDropdown.classList.toggle('hidden');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-      if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
-        profileDropdown.classList.add('hidden');
-      }
-    });
-  }
+// Simple sidebar initialization
+function initSidebar() {
+  console.log('Sidebar initialized!');
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('sidebar-profile-dropdown');
+    const button = document.getElementById('sidebar-profile-button');
+    
+    if (dropdown && button && !button.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
 
   // Theme switcher
   const themeButtons = document.querySelectorAll('.office-sidebar__theme-option');
   const currentTheme = localStorage.getItem('theme') || 'system';
 
   themeButtons.forEach(button => {
-    if (button.dataset.theme === currentTheme) {
+    if (button.dataset && button.dataset.theme === currentTheme) {
       button.classList.add('office-sidebar__theme-option--active');
+    } else {
+      button.classList.remove('office-sidebar__theme-option--active');
     }
 
     button.addEventListener('click', function() {
       const theme = this.dataset.theme;
+      if (!theme) return;
+      
       localStorage.setItem('theme', theme);
 
       themeButtons.forEach(btn => btn.classList.remove('office-sidebar__theme-option--active'));
@@ -655,6 +815,30 @@ document.addEventListener('DOMContentLoaded', function() {
       applyTheme('system');
     }
   });
+}
+
+// Support both Turbo and regular page loads
+document.addEventListener('DOMContentLoaded', initSidebar);
+document.addEventListener('turbo:load', initSidebar);
+document.addEventListener('turbo:render', initSidebar);
+
+// Prevent double-click on action buttons
+document.addEventListener('turbo:submit-start', function(event) {
+  const form = event.target;
+  const button = form.querySelector('button[type="submit"]');
+  if (button) {
+    button.disabled = true;
+    button.style.opacity = '0.6';
+  }
+});
+
+document.addEventListener('turbo:submit-end', function(event) {
+  const form = event.target;
+  const button = form.querySelector('button[type="submit"]');
+  if (button) {
+    button.disabled = false;
+    button.style.opacity = '1';
+  }
 });
 </script>
 

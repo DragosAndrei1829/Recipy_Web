@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-    background-image: url('/assets/bg_1.png');
+    /* background-image removed - using theme colors instead */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

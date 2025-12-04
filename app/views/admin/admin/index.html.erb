@@ -1,226 +1,139 @@
-<div class="admin-dashboard min-h-screen bg-page py-8 px-4">
-  <div class="max-w-7xl mx-auto">
-    <!-- Header -->
-    <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+<% content_for :title, t('admin.dashboard.title', default: 'Admin Dashboard') %>
+
+<!-- Professional Admin Dashboard -->
+<div class="admin-dashboard-modern">
+  <!-- Header -->
+  <div class="admin-header-modern">
+    <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-2">
+        <h1 class="admin-title-modern">
           <%= t('admin.dashboard.title', default: 'Admin Dashboard') %>
         </h1>
-        <p class="text-secondary-content"><%= t('admin.dashboard.subtitle', default: 'Manage your application') %></p>
+        <p class="admin-subtitle-modern">
+          <%= t('admin.dashboard.subtitle', default: 'System Management & Monitoring') %>
+        </p>
       </div>
-      <div class="flex items-center gap-3">
-        <%= link_to root_path, class: "btn-outline flex items-center gap-2" do %>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      <%= link_to root_path(locale: I18n.locale), class: "admin-btn-secondary" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span><%= t('admin.back_to_site', default: 'Back to Site') %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="admin-stats-grid">
+    <!-- Total Users -->
+    <div class="admin-stat-card admin-stat-card--blue">
+      <div class="admin-stat-card__icon">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+      </div>
+      <div class="admin-stat-card__content">
+        <p class="admin-stat-card__label"><%= t('admin.total_users', default: 'Total Users') %></p>
+        <p class="admin-stat-card__value"><%= number_with_delimiter(@total_users) %></p>
+        <p class="admin-stat-card__change">+<%= @new_users_today %> <%= t('admin.today', default: 'today') %></p>
+      </div>
+    </div>
+
+    <!-- Total Recipes -->
+    <div class="admin-stat-card admin-stat-card--green">
+      <div class="admin-stat-card__icon">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+      </div>
+      <div class="admin-stat-card__content">
+        <p class="admin-stat-card__label"><%= t('admin.total_recipes', default: 'Total Recipes') %></p>
+        <p class="admin-stat-card__value"><%= number_with_delimiter(@total_recipes) %></p>
+        <p class="admin-stat-card__change">+<%= @new_recipes_today %> <%= t('admin.today', default: 'today') %></p>
+      </div>
+    </div>
+
+    <!-- Pending Reports -->
+    <% if defined?(@pending_reports) %>
+      <div class="admin-stat-card admin-stat-card--red">
+        <div class="admin-stat-card__icon">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
           </svg>
-          <span><%= t('admin.dashboard.back_to_site', default: 'Back to Site') %></span>
+        </div>
+        <div class="admin-stat-card__content">
+          <p class="admin-stat-card__label"><%= t('admin.pending_reports', default: 'Pending Reports') %></p>
+          <p class="admin-stat-card__value"><%= @pending_reports %></p>
+          <%= link_to t('admin.review', default: 'Review'), admin_reports_path, class: "admin-stat-card__link" %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Active Themes -->
+    <% if defined?(@themes) %>
+      <div class="admin-stat-card admin-stat-card--purple">
+        <div class="admin-stat-card__icon">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+          </svg>
+        </div>
+        <div class="admin-stat-card__content">
+          <p class="admin-stat-card__label"><%= t('admin.themes', default: 'Themes') %></p>
+          <p class="admin-stat-card__value"><%= @themes.count %></p>
+          <%= link_to t('admin.manage', default: 'Manage'), admin_themes_path, class: "admin-stat-card__link" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="admin-section-modern">
+    <h2 class="admin-section-title"><%= t('admin.quick_actions', default: 'Quick Actions') %></h2>
+    <div class="admin-actions-grid">
+      <%= link_to admin_users_path, class: "admin-action-card" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <span><%= t('admin.manage_users', default: 'Manage Users') %></span>
+      <% end %>
+
+      <%= link_to admin_recipes_path, class: "admin-action-card" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+        <span><%= t('admin.manage_recipes', default: 'Manage Recipes') %></span>
+      <% end %>
+
+      <%= link_to admin_categories_path, class: "admin-action-card" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        <span><%= t('admin.manage_categories', default: 'Categories') %></span>
+      <% end %>
+
+      <%= link_to admin_themes_path, class: "admin-action-card" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+        </svg>
+        <span><%= t('admin.themes', default: 'Themes') %></span>
+      <% end %>
+
+      <%= link_to admin_settings_path, class: "admin-action-card" do %>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span><%= t('admin.settings', default: 'Settings') %></span>
+      <% end %>
+
+      <% if defined?(@pending_reports) && @pending_reports > 0 %>
+        <%= link_to admin_reports_path, class: "admin-action-card admin-action-card--alert" do %>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span><%= t('admin.reports', default: 'Reports') %></span>
+          <span class="admin-alert-badge"><%= @pending_reports %></span>
         <% end %>
-      </div>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Total Users -->
-      <div class="admin-stat-card border-l-4 border-primary">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-semibold text-secondary-content uppercase tracking-wide"><%= t('admin.dashboard.total_users', default: 'Total Users') %></p>
-            <p class="text-3xl font-black text-primary-content mt-2"><%= @total_users %></p>
-            <p class="text-xs text-secondary-content mt-1">
-              <span class="text-success-color">+<%= @new_users_today %></span> today
-            </p>
-          </div>
-          <div class="w-14 h-14 bg-primary bg-opacity-20 rounded-xl flex items-center justify-center">
-            <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Recipes -->
-      <div class="admin-stat-card border-l-4 border-secondary">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-semibold text-secondary-content uppercase tracking-wide"><%= t('admin.dashboard.total_recipes', default: 'Total Recipes') %></p>
-            <p class="text-3xl font-black text-primary-content mt-2"><%= @total_recipes %></p>
-            <p class="text-xs text-secondary-content mt-1">
-              <span class="text-success-color">+<%= @new_recipes_today %></span> today
-            </p>
-          </div>
-          <div class="w-14 h-14 bg-secondary bg-opacity-20 rounded-xl flex items-center justify-center">
-            <svg class="w-7 h-7 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Categories -->
-      <div class="admin-stat-card border-l-4 border-accent">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-semibold text-secondary-content uppercase tracking-wide"><%= t('admin.dashboard.total_categories', default: 'Categories') %></p>
-            <p class="text-3xl font-black text-primary-content mt-2"><%= @total_categories %></p>
-            <p class="text-xs text-secondary-content mt-1">Active</p>
-          </div>
-          <div class="w-14 h-14 bg-accent bg-opacity-20 rounded-xl flex items-center justify-center">
-            <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- Active Themes -->
-      <div class="admin-stat-card border-l-4 border-warning-color">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-semibold text-secondary-content uppercase tracking-wide">Themes</p>
-            <p class="text-3xl font-black text-primary-content mt-2"><%= @themes.count %></p>
-            <p class="text-xs text-secondary-content mt-1">
-              <%= @themes.where(is_default: true).count %> default
-            </p>
-          </div>
-          <div class="w-14 h-14 bg-warning-color bg-opacity-20 rounded-xl flex items-center justify-center">
-            <svg class="w-7 h-7 text-warning-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <!-- Quick Actions -->
-      <div class="lg:col-span-2 admin-card">
-        <h2 class="text-2xl font-black text-primary-content mb-6 flex items-center gap-3">
-          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          <%= t('admin.dashboard.quick_actions', default: 'Quick Actions') %>
-        </h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <%= link_to admin_themes_path, class: "admin-action-card bg-gradient-to-br from-purple-500 to-pink-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-            </svg>
-            <span class="text-sm font-bold">Themes</span>
-            <span class="text-xs opacity-90">Manage themes</span>
-          <% end %>
-
-          <%= link_to admin_settings_path, class: "admin-action-card bg-gradient-to-br from-emerald-500 to-teal-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <span class="text-sm font-bold">Settings</span>
-            <span class="text-xs opacity-90">Site settings</span>
-          <% end %>
-
-          <%= link_to admin_users_path, class: "admin-action-card bg-gradient-to-br from-blue-500 to-cyan-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-            <span class="text-sm font-bold">Users</span>
-            <span class="text-xs opacity-90">Manage users</span>
-          <% end %>
-
-          <%= link_to admin_recipes_path, class: "admin-action-card bg-gradient-to-br from-orange-500 to-red-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-            <span class="text-sm font-bold">Recipes</span>
-            <span class="text-xs opacity-90">Manage recipes</span>
-          <% end %>
-
-          <%= link_to admin_reports_path, class: "admin-action-card bg-gradient-to-br from-indigo-500 to-purple-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
-            <span class="text-sm font-bold">Reports</span>
-            <span class="text-xs opacity-90">View reports</span>
-          <% end %>
-
-          <%= link_to admin_categories_path, class: "admin-action-card bg-gradient-to-br from-green-500 to-emerald-500" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            <span class="text-sm font-bold">Categories</span>
-            <span class="text-xs opacity-90">Manage categories</span>
-          <% end %>
-
-          <%= link_to admin_moderation_path, class: "admin-action-card bg-gradient-to-br from-red-500 to-rose-600" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            <span class="text-sm font-bold">Moderation</span>
-            <span class="text-xs opacity-90">Reports & Quarantine</span>
-          <% end %>
-
-          <%= link_to admin_legal_contents_path, class: "admin-action-card bg-gradient-to-br from-slate-600 to-gray-700" do %>
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span class="text-sm font-bold">Legal</span>
-            <span class="text-xs opacity-90">Edit legal pages</span>
-          <% end %>
-        </div>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="admin-card">
-        <h2 class="text-2xl font-black text-primary-content mb-6 flex items-center gap-3">
-          <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Activity
-        </h2>
-        <div class="space-y-4">
-          <div class="admin-activity-item">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-primary bg-opacity-20 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-semibold text-primary-content"><%= t('admin.dashboard.new_users', default: 'New Users') %></p>
-                <p class="text-xs text-secondary-content">Today: <%= @new_users_today %></p>
-              </div>
-              <span class="text-lg font-black text-primary"><%= @new_users_today %></span>
-            </div>
-          </div>
-          <div class="admin-activity-item">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-secondary bg-opacity-20 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-semibold text-primary-content"><%= t('admin.dashboard.new_recipes', default: 'New Recipes') %></p>
-                <p class="text-xs text-secondary-content">Today: <%= @new_recipes_today %></p>
-              </div>
-              <span class="text-lg font-black text-secondary"><%= @new_recipes_today %></span>
-            </div>
-          </div>
-          <div class="admin-activity-item">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-accent bg-opacity-20 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm font-semibold text-primary-content">This Week</p>
-                <p class="text-xs text-secondary-content">Users: <%= @new_users_week %>, Recipes: <%= @new_recipes_week %></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>

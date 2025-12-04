@@ -1,6 +1,6 @@
 <% 
   # Determine valid photo for display
-  valid_photo = if recipe.cover_photo&.attached?
+  valid_photo = if recipe.cover_photo.present?
     begin
       recipe.cover_photo.variant(resize_to_fill: [680, 400])
     rescue ActiveStorage::FileNotFoundError, NoMethodError
@@ -8,7 +8,7 @@
     end
   elsif recipe.photos.attached? && recipe.photos.any?
     begin
-      photo = recipe.photos.detect { |p| p.attached? && p.blob.present? }
+      photo = recipe.photos.detect { |p| p.blob.present? rescue false }
       photo&.variant(resize_to_fill: [680, 400])
     rescue ActiveStorage::FileNotFoundError, NoMethodError
       nil
@@ -18,127 +18,187 @@
   end
 %>
 
-<article class="recipe-card-minimal animate-fade-in">
-  <!-- Image (if available) -->
+<article class="recipe-card-modern">
+  <!-- Image with Overlay (if available) -->
   <% if valid_photo %>
-    <%= link_to recipe_path(recipe, locale: I18n.locale), data: { turbo: false } do %>
-      <%= image_tag url_for(valid_photo), 
-          alt: recipe.title,
-          class: "recipe-card-minimal__image",
-          loading: "lazy" %>
-    <% end %>
+    <div class="recipe-card-modern__image-wrapper">
+      <%= link_to recipe_path(recipe, locale: I18n.locale), data: { turbo: false } do %>
+        <%= image_tag url_for(valid_photo), 
+            alt: recipe.title,
+            class: "recipe-card-modern__image",
+            loading: "lazy" %>
+        <div class="recipe-card-modern__image-overlay">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+        </div>
+      <% end %>
+      
+      <!-- Category Badge on Image -->
+      <% if recipe.category %>
+        <div class="recipe-card-modern__category-badge">
+          <%= recipe.category.display_name %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Placeholder with Gradient if no image -->
+    <div class="recipe-card-modern__placeholder">
+      <%= link_to recipe_path(recipe, locale: I18n.locale), data: { turbo: false }, class: "recipe-card-modern__placeholder-link" do %>
+        <svg class="w-20 h-20 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+        </svg>
+      <% end %>
+      <% if recipe.category %>
+        <div class="recipe-card-modern__category-badge">
+          <%= recipe.category.display_name %>
+        </div>
+      <% end %>
+    </div>
   <% end %>
 
   <!-- Content -->
-  <div class="recipe-card-minimal__content">
-    <!-- User Info -->
-    <div class="flex items-center gap-2 mb-3">
-      <%= link_to user_path(recipe.user, locale: I18n.locale), class: "flex items-center gap-2 hover-underline", data: { turbo: false } do %>
+  <div class="recipe-card-modern__content">
+    <!-- User Info with Avatar -->
+    <div class="recipe-card-modern__author">
+      <%= link_to user_path(recipe.user, locale: I18n.locale), class: "flex items-center gap-2.5 group", data: { turbo: false } do %>
         <% if recipe.user&.avatar&.attached? %>
           <% begin %>
-            <%= image_tag url_for(recipe.user.avatar.variant(resize_to_fill: [32,32])),
-                class: "w-8 h-8 rounded-full object-cover" %>
+            <%= image_tag url_for(recipe.user.avatar.variant(resize_to_fill: [40,40])),
+                class: "w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all" %>
           <% rescue ActiveStorage::FileNotFoundError %>
-            <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-xs font-semibold">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
               <%= (recipe.user.username&.first || 'U').upcase %>
             </div>
           <% end %>
         <% else %>
-          <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-xs font-semibold">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
             <%= (recipe.user.username&.first || 'U').upcase %>
           </div>
         <% end %>
-        <span class="text-sm font-semibold"><%= recipe.user.username %></span>
+        <div class="flex-1 min-w-0">
+          <span class="text-sm font-bold text-primary-content group-hover:text-primary transition-colors"><%= recipe.user.username %></span>
+          <p class="text-xs opacity-60"><%= time_ago_in_words(recipe.created_at) %> <%= t('time.ago', default: 'ago') %></p>
+        </div>
       <% end %>
-      <span class="text-xs opacity-50">· <%= time_ago_in_words(recipe.created_at) %> <%= t('time.ago') %></span>
     </div>
 
-    <!-- Title -->
-    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "block", data: { turbo: false } do %>
-      <h3 class="recipe-card-minimal__title"><%= recipe.title %></h3>
+    <!-- Title with Hover Effect -->
+    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "block group", data: { turbo: false } do %>
+      <h3 class="recipe-card-modern__title">
+        <%= recipe.title %>
+        <svg class="recipe-card-modern__title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </h3>
     <% end %>
 
-    <!-- Description -->
+    <!-- Description with Read More -->
     <% if recipe.description.present? %>
-      <p class="recipe-card-minimal__description"><%= recipe.description %></p>
+      <p class="recipe-card-modern__description"><%= recipe.description %></p>
     <% end %>
 
-    <!-- Meta Info -->
-    <div class="recipe-card-minimal__meta">
-      <% if recipe.preparation_time %>
-        <span class="flex items-center gap-1">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Meta Info with Modern Badges -->
+    <div class="recipe-card-modern__meta">
+      <% if recipe.time_to_make && recipe.time_to_make > 0 %>
+        <span class="recipe-card-modern__badge recipe-card-modern__badge--time">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <%= recipe.preparation_time %> min
+          <span><%= recipe.time_to_make %> min</span>
         </span>
       <% end %>
-      <% if recipe.category %>
-        <span class="flex items-center gap-1">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-          </svg>
-          <%= recipe.category.display_name %>
-        </span>
-      <% end %>
-      <% if recipe.average_rating && recipe.average_rating > 0 %>
-        <span class="flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+      
+      <% if recipe.comments.where.not(rating: nil).any? %>
+        <% avg_rating = recipe.comments.where.not(rating: nil).average(:rating) %>
+        <span class="recipe-card-modern__badge recipe-card-modern__badge--rating">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
           </svg>
-          <%= number_with_precision(recipe.average_rating, precision: 1) %>
+          <span><%= number_with_precision(avg_rating, precision: 1) %></span>
+        </span>
+      <% end %>
+
+      <% if recipe.difficulty && recipe.difficulty > 0 %>
+        <span class="recipe-card-modern__badge recipe-card-modern__badge--difficulty">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span><%= recipe.difficulty %>/5</span>
         </span>
       <% end %>
     </div>
   </div>
 
-  <!-- Actions -->
-  <div class="recipe-card-minimal__actions">
-    <!-- Like -->
-    <%= button_to recipe_like_path(recipe, locale: I18n.locale), method: :post, class: "btn-icon", data: { turbo: false } do %>
+  <!-- Actions - Modern Interactive Bar -->
+  <div class="recipe-card-modern__actions">
+    <div class="recipe-card-modern__actions-left">
+      <!-- Like with Turbo -->
       <% if user_signed_in? && recipe.likes.exists?(user: current_user) %>
-        <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-        </svg>
+        <%= button_to recipe_like_path(recipe, locale: I18n.locale), method: :delete, id: "recipe_#{recipe.id}_like_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--like recipe-card-modern__action-btn--liked", form: { data: { turbo: true, turbo_stream: true } } do %>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+          </svg>
+          <span class="recipe-card-modern__action-count"><%= recipe.likes_count || 0 %></span>
+        <% end %>
       <% else %>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-        </svg>
+        <%= button_to recipe_like_path(recipe, locale: I18n.locale), method: :post, id: "recipe_#{recipe.id}_like_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--like", form: { data: { turbo: true, turbo_stream: true } } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <span class="recipe-card-modern__action-count"><%= recipe.likes_count || 0 %></span>
+        <% end %>
       <% end %>
-      <span class="text-sm ml-1"><%= recipe.likes_count || 0 %></span>
-    <% end %>
 
-    <!-- Comment -->
-    <%= link_to recipe_path(recipe, locale: I18n.locale, anchor: "comments"), class: "btn-icon", data: { turbo: false } do %>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-      </svg>
-      <span class="text-sm ml-1"><%= recipe.comments_count || 0 %></span>
-    <% end %>
+      <!-- Comment - Toggle Form -->
+      <button type="button" class="recipe-card-modern__action-btn" onclick="document.getElementById('comment_form_<%= recipe.id %>').classList.toggle('hidden')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        <span id="recipe_<%= recipe.id %>_comment_count" class="recipe-card-modern__action-count"><%= recipe.comments_count || 0 %></span>
+      </button>
 
-    <!-- Share -->
-    <button type="button" class="btn-icon" onclick="navigator.share ? navigator.share({title: '<%= escape_javascript(recipe.title) %>', url: '<%= recipe_url(recipe, locale: I18n.locale) %>'}) : navigator.clipboard.writeText('<%= recipe_url(recipe, locale: I18n.locale) %>')">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-      </svg>
-    </button>
+      <!-- Share -->
+      <button type="button" class="recipe-card-modern__action-btn" onclick="navigator.share ? navigator.share({title: '<%= escape_javascript(recipe.title) %>', url: '<%= recipe_url(recipe, locale: I18n.locale) %>'}) : navigator.clipboard.writeText('<%= recipe_url(recipe, locale: I18n.locale) %>')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+        </svg>
+      </button>
 
-    <!-- Favorite -->
-    <%= button_to recipe_favorite_path(recipe, locale: I18n.locale), method: :post, class: "btn-icon ml-auto", data: { turbo: false } do %>
+      <!-- Favorite with Turbo -->
       <% if user_signed_in? && recipe.favorites.exists?(user: current_user) %>
-        <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-        </svg>
+        <%= button_to recipe_favorite_path(recipe, locale: I18n.locale), method: :delete, id: "recipe_#{recipe.id}_favorite_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--favorite recipe-card-modern__action-btn--favorited", form: { data: { turbo: true, turbo_stream: true } } do %>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+          </svg>
+        <% end %>
       <% else %>
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-        </svg>
+        <%= button_to recipe_favorite_path(recipe, locale: I18n.locale), method: :post, id: "recipe_#{recipe.id}_favorite_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--favorite", form: { data: { turbo: true, turbo_stream: true } } do %>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+          </svg>
+        <% end %>
       <% end %>
-    <% end %>
+    </div>
 
-    <!-- View Recipe Button -->
-    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "btn-primary ml-2", data: { turbo: false } do %>
-      <%= t('recipes.view_recipe', default: 'View Recipe') %>
+    <!-- View Recipe Button - Prominent CTA -->
+    <%= link_to recipe_path(recipe, locale: I18n.locale), class: "recipe-card-modern__view-btn", data: { turbo: false } do %>
+      <span><%= t('recipes.view_recipe', default: 'Vezi Rețeta') %></span>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+      </svg>
     <% end %>
   </div>
+
+  <!-- Quick Comment Form (Hidden by default) -->
+  <% if user_signed_in? %>
+    <div id="comment_form_<%= recipe.id %>" class="recipe-card-modern__comment-form hidden">
+      <%= form_with model: [recipe, Comment.new], url: recipe_comments_path(recipe, locale: I18n.locale), class: "flex gap-2" do |f| %>
+        <%= f.text_field :body, placeholder: t('comments.quick_comment', default: 'Adaugă un comentariu rapid...'), 
+            class: "flex-1 px-4 py-2 rounded-lg border-2 border-default focus:border-primary focus:ring-2 focus:ring-primary/20 bg-card text-primary-content transition-all text-sm" %>
+        <%= f.submit t('comments.post', default: 'Postează'), class: "px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-semibold hover:shadow-lg transition-all text-sm" %>
+      <% end %>
+    </div>
+  <% end %>
 </article>

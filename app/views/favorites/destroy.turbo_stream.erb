@@ -1,8 +1,7 @@
-<%= turbo_stream.update dom_id(@recipe, :inner),
-      partial: "recipes/card_inner",
-      locals: { recipe: @recipe } %>
-
-<%= turbo_stream.update dom_id(@recipe, :actions),
-      partial: "recipes/show_actions",
-      locals: { recipe: @recipe } %>
-
+<%= turbo_stream.replace "recipe_#{@recipe.id}_favorite_button" do %>
+  <%= button_to recipe_favorite_path(@recipe, locale: I18n.locale), method: :post, id: "recipe_#{@recipe.id}_favorite_button", class: "recipe-card-modern__action-btn recipe-card-modern__action-btn--favorite action-btn-compact" do %>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+    </svg>
+  <% end %>
+<% end %>

@@ -3,20 +3,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <% end %>
 
-<!-- Minimalist Feed Container -->
+<!-- Modern Feed Container -->
 <div class="feed-container">
-  <!-- Simple Header -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold mb-2"><%= t('recipes.index.title', default: 'Discover Recipes') %></h1>
-    <p class="text-sm opacity-70"><%= number_with_delimiter(@feed_stats[:total_recipes]) %>+ <%= t('recipes.title', default: 'recipes') %></p>
+  <!-- Modern Header with Gradient -->
+  <div class="mb-10 animate-fade-in">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-1 h-12 bg-gradient-to-b from-primary via-secondary to-accent rounded-full"></div>
+      <div>
+        <h1 class="text-4xl font-black bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <%= t('recipes.index.title', default: 'Exploratorul Culinar') %>
+        </h1>
+        <p class="text-sm opacity-60 mt-1">
+          <%= number_with_delimiter(@feed_stats[:total_recipes]) %>+ <%= t('recipes.title', default: 'rețete') %> · 
+          <span class="text-accent font-semibold"><%= t('recipes.index.fresh_content', default: 'Actualizat zilnic') %></span>
+        </p>
+      </div>
+    </div>
   </div>
 
-  <!-- Recipes List - Single Column -->
-  <div class="space-y-6">
+  <!-- Recipes Grid - Modern Layout with Spacing -->
+  <div class="recipe-feed-grid">
     <% @recipes.each_with_index do |recipe, index| %>
-      <turbo-frame id="<%= dom_id(recipe) %>" class="stagger-item" style="animation-delay: <%= index * 0.05 %>s">
+      <div class="recipe-card-wrapper" style="animation-delay: <%= index * 0.08 %>s">
         <%= render "recipes/card_minimal", recipe: recipe %>
-      </turbo-frame>
+      </div>
     <% end %>
   </div>
 </div>

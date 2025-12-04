@@ -1,59 +1,113 @@
 <% content_for :title, "Colecțiile mele" %>
 
-<div class="collections-page">
-  <!-- Header -->
-  <div class="collections-header">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="collections-title">Colecțiile mele</h1>
-        <p class="collections-subtitle">Organizează-ți rețetele preferate în colecții</p>
+<!-- Modern Collections Page -->
+<div class="modern-page-container">
+  <!-- Modern Header with Gradient -->
+  <div class="modern-page-header">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-1 h-12 bg-gradient-to-b from-purple-500 via-pink-500 to-red-500 rounded-full"></div>
+      <div class="flex-1">
+        <h1 class="text-4xl font-black bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent">
+          <%= t('collections.my_collections', default: 'Colecțiile Mele') %>
+        </h1>
+        <p class="text-sm opacity-60 mt-1">
+          <%= @collections.count %> <%= t('collections.title', default: 'colecții') %> · 
+          <span class="text-purple-500 font-semibold"><%= t('collections.subtitle', default: 'Organizează-ți rețetele') %></span>
+        </p>
       </div>
-      <%= link_to new_collection_path, class: "collection-btn-primary" do %>
+      <%= link_to new_collection_path(locale: I18n.locale), class: "modern-btn-primary" do %>
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Colecție nouă
+        <span><%= t('collections.new', default: 'Colecție Nouă') %></span>
       <% end %>
     </div>
   </div>
 
-  <!-- My Collections -->
-  <div class="collections-section">
-    <h2 class="collections-section-title">Colecțiile tale</h2>
-    <% if @collections.any? %>
-      <div class="collections-grid">
-        <% @collections.each do |collection| %>
-          <%= render 'collections/collection_card', collection: collection %>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="collections-empty">
-        <span class="text-5xl">📚</span>
-        <h3>Nu ai colecții încă</h3>
-        <p>Creează prima ta colecție pentru a organiza rețetele preferate!</p>
-        <%= link_to new_collection_path, class: "collection-btn-primary mt-4" do %>
-          Creează prima colecție
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Public Collections -->
-  <% if @public_collections.any? %>
-    <div class="collections-section">
-      <h2 class="collections-section-title">Colecții publice</h2>
-      <div class="collections-grid">
-        <% @public_collections.each do |collection| %>
-          <%= render 'collections/collection_card', collection: collection %>
-        <% end %>
-      </div>
-      <%= link_to public_index_collections_path, class: "collection-link-more" do %>
-        Vezi toate colecțiile publice
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+  <!-- Collections Grid -->
+  <% if @collections.any? %>
+    <div class="modern-grid">
+      <% @collections.each_with_index do |collection, index| %>
+        <div class="modern-card" style="animation-delay: <%= index * 0.08 %>s">
+          <%= link_to collection_path(collection, locale: I18n.locale), class: "block" do %>
+            <div class="modern-card__header">
+              <div class="modern-card__icon modern-card__icon--purple">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+              <h3 class="modern-card__title"><%= collection.name %></h3>
+            </div>
+            <% if collection.description.present? %>
+              <p class="modern-card__description"><%= truncate(collection.description, length: 100) %></p>
+            <% end %>
+            <div class="modern-card__stats">
+              <span class="modern-stat-badge modern-stat-badge--purple">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+                <%= collection.recipes.count %> <%= t('recipes.title', default: 'rețete') %>
+              </span>
+              <% if collection.public %>
+                <span class="modern-badge modern-badge--success">
+                  <%= t('collections.public', default: 'Publică') %>
+                </span>
+              <% else %>
+                <span class="modern-badge modern-badge--gray">
+                  <%= t('collections.private', default: 'Privată') %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="modern-empty-state">
+      <div class="modern-empty-icon">
+        <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
         </svg>
+      </div>
+      <h3 class="modern-empty-title"><%= t('collections.empty', default: 'Nu ai colecții încă') %></h3>
+      <p class="modern-empty-description"><%= t('collections.empty_description', default: 'Creează prima ta colecție pentru a organiza rețetele!') %></p>
+      <%= link_to new_collection_path(locale: I18n.locale), class: "modern-btn-primary mt-6" do %>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span><%= t('collections.create_first', default: 'Creează Prima Colecție') %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Public Collections Section -->
+  <% if defined?(@public_collections) && @public_collections&.any? %>
+    <div class="modern-section-divider">
+      <h2 class="modern-section-title"><%= t('collections.public_collections', default: 'Colecții Publice') %></h2>
+    </div>
+    <div class="modern-grid">
+      <% @public_collections.take(6).each_with_index do |collection, index| %>
+        <div class="modern-card" style="animation-delay: <%= (index + @collections.count) * 0.08 %>s">
+          <%= link_to collection_path(collection, locale: I18n.locale), class: "block" do %>
+            <div class="modern-card__header">
+              <div class="modern-card__icon modern-card__icon--purple">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+              <h3 class="modern-card__title"><%= collection.name %></h3>
+            </div>
+            <p class="modern-card__meta">
+              de <%= collection.user.username %>
+            </p>
+            <div class="modern-card__stats">
+              <span class="modern-stat-badge modern-stat-badge--purple">
+                <%= collection.recipes.count %> <%= t('recipes.title', default: 'rețete') %>
+              </span>
+            </div>
+          <% end %>
+        </div>
       <% end %>
     </div>
   <% end %>
 </div>
-

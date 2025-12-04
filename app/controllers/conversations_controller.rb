@@ -14,7 +14,8 @@ class ConversationsController < ApplicationController
       redirect_to conversations_path, alert: t("conversations.unauthorized")
       return
     end
-    @full_screen_chat = true
+    # Don't use fullscreen - keep sidebar visible
+    @full_screen_chat = false
 
     @other_user = @conversation.other_user(current_user)
     @messages = @conversation.messages.includes(:user).order(created_at: :asc)

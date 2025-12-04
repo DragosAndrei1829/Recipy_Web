@@ -1,304 +1,157 @@
-<%# Main Content - User's Recipes (Center Column) %>
+<% content_for :title, @user.username %>
 
-<div class="space-y-6">
-  <%# Mobile Profile Header - Only visible on mobile %>
-  <div class="lg:hidden">
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
-      <!-- Cover -->
-      <div class="h-24 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 relative">
-        <% if user_signed_in? && current_user == @user %>
-          <%= link_to edit_user_registration_path, class: "absolute top-3 right-3 p-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-all" do %>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-          <% end %>
-        <% end %>
-      </div>
-      
-      <div class="px-4 pb-4 -mt-10">
-        <!-- Avatar -->
+<!-- Modern Profile Page -->
+<div class="modern-page-container">
+  <!-- Profile Header -->
+  <div class="profile-header-modern">
+    <div class="profile-header-modern__cover"></div>
+    <div class="profile-header-modern__content">
+      <!-- Avatar -->
+      <div class="profile-avatar-modern">
         <% if @user.avatar.attached? %>
           <% begin %>
-            <%= image_tag url_for(@user.avatar.variant(resize_to_fill: [80,80])), 
-                class: "w-20 h-20 rounded-full object-cover ring-4 ring-white dark:ring-gray-900 shadow-lg" %>
+            <%= image_tag url_for(@user.avatar.variant(resize_to_fill: [120,120])), 
+                class: "profile-avatar-modern__image" %>
           <% rescue ActiveStorage::FileNotFoundError %>
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center ring-4 ring-white dark:ring-gray-900 shadow-lg">
-              <span class="text-2xl font-black text-white"><%= @user.username&.first&.upcase || 'U' %></span>
+            <div class="profile-avatar-modern__fallback">
+              <%= @user.username&.first&.upcase || 'U' %>
             </div>
           <% end %>
         <% else %>
-          <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center ring-4 ring-white dark:ring-gray-900 shadow-lg">
-            <span class="text-2xl font-black text-white"><%= @user.username&.first&.upcase || 'U' %></span>
+          <div class="profile-avatar-modern__fallback">
+            <%= @user.username&.first&.upcase || 'U' %>
           </div>
         <% end %>
-        
-        <h1 class="text-xl font-black text-gray-900 dark:text-white mt-3"><%= @user.username %></h1>
-        
-        <!-- Mobile Stats -->
-        <div class="flex items-center gap-4 mt-3 text-sm">
-          <div><span class="font-bold text-gray-900 dark:text-white"><%= @recipes.count %></span> <span class="text-gray-500"><%= t('users.recipes_short') %></span></div>
-          <div><span class="font-bold text-gray-900 dark:text-white"><%= @user.followers.count %></span> <span class="text-gray-500"><%= t('follows.followers_short') %></span></div>
-          <div><span class="font-bold text-gray-900 dark:text-white"><%= @user.following.count %></span> <span class="text-gray-500"><%= t('follows.following_short') %></span></div>
-        </div>
-        
-        <!-- Mobile Action Buttons -->
-        <% if user_signed_in? && current_user != @user %>
-          <div class="flex gap-2 mt-4">
-            <div id="follow-button-mobile-<%= @user.id %>" class="flex-1">
-              <%= render 'follows/button', user: @user %>
-            </div>
-            <%= button_to conversations_path(recipient_id: @user.id), method: :post, 
-                class: "flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl" do %>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-              <%= t('conversations.message') %>
-            <% end %>
-            <!-- Report Button -->
-            <%= render 'reports/report_button', reportable: @user %>
+      </div>
+
+      <!-- User Info -->
+      <div class="profile-info-modern">
+        <h1 class="profile-username-modern"><%= @user.username %></h1>
+        <div class="profile-stats-modern">
+          <div class="profile-stat">
+            <span class="profile-stat__value"><%= @recipes.count %></span>
+            <span class="profile-stat__label"><%= t('users.recipes', default: 'Rețete') %></span>
           </div>
+          <div class="profile-stat">
+            <span class="profile-stat__value"><%= @user.followers.count %></span>
+            <span class="profile-stat__label"><%= t('follows.followers', default: 'Urmăritori') %></span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat__value"><%= @user.following.count %></span>
+            <span class="profile-stat__label"><%= t('follows.following', default: 'Urmărește') %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="profile-actions-modern">
+        <% if user_signed_in? && current_user == @user %>
+          <%= link_to edit_user_registration_path(locale: I18n.locale), class: "modern-btn-secondary" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            <span><%= t('users.edit_profile', default: 'Editează Profil') %></span>
+          <% end %>
+        <% elsif user_signed_in? %>
+          <div id="follow-button-<%= @user.id %>">
+            <%= render 'follows/button', user: @user %>
+          </div>
+          <%= button_to conversations_path(recipient_id: @user.id, locale: I18n.locale), method: :post, 
+              class: "modern-btn-secondary" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <span><%= t('conversations.message', default: 'Mesaj') %></span>
+          <% end %>
         <% end %>
       </div>
     </div>
   </div>
 
-  <%# Notifications Banner (only for current user) %>
-  <% if user_signed_in? && current_user == @user && @user.notifications.unread.any? %>
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-700/30">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-          </div>
-          <div>
-            <span class="font-bold text-gray-900 dark:text-white"><%= @user.unread_notifications.count %></span>
-            <span class="text-gray-600 dark:text-gray-300 text-sm"> <%= t('notifications.unread') %></span>
-          </div>
-        </div>
-        <%= link_to notifications_path, class: "text-sm font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400" do %>
-          <%= t('notifications.view_all') %> →
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-
-  <%# Collections Section (if user has collections) %>
+  <!-- Collections Section -->
   <% if @collections.any? %>
-    <div class="mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-            </svg>
+    <div class="profile-section-modern">
+      <h2 class="profile-section-title">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <%= t('collections.title', default: 'Colecții') %> (<%= @collections.count %>)
+      </h2>
+      <div class="modern-grid">
+        <% @collections.each_with_index do |collection, index| %>
+          <div class="modern-card" style="animation-delay: <%= index * 0.08 %>s">
+            <%= link_to collection_path(collection, locale: I18n.locale), class: "block" do %>
+              <div class="modern-card__header">
+                <div class="modern-card__icon modern-card__icon--purple">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                  </svg>
+                </div>
+                <h3 class="modern-card__title"><%= collection.name %></h3>
+              </div>
+              <div class="modern-card__stats">
+                <span class="modern-stat-badge modern-stat-badge--purple">
+                  <%= collection.recipes.count %> <%= t('recipes.title', default: 'rețete') %>
+                </span>
+              </div>
+            <% end %>
           </div>
-          <div>
-            <h2 class="text-xl font-black text-gray-900 dark:text-white">Colecții</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400"><%= @user.collections.count %> <%= @user.collections.count == 1 ? 'colecție' : 'colecții' %></p>
-          </div>
-        </div>
-        <% if user_signed_in? && current_user == @user %>
-          <%= link_to collections_path, class: "text-sm font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400" do %>
-            Vezi toate →
-          <% end %>
-        <% end %>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <% @collections.each do |collection| %>
-          <%= render 'collections/collection_card', collection: collection %>
         <% end %>
       </div>
     </div>
   <% end %>
 
-  <%# Recipe Collection Header %>
-  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+  <!-- Recipes Section -->
+  <div class="profile-section-modern">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="profile-section-title">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
         </svg>
-      </div>
-      <div>
-        <h2 class="text-xl font-black text-gray-900 dark:text-white"><%= t('users.recipe_collection') %></h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400"><%= @recipes.count %> <%= t('users.recipes_published') %></p>
-      </div>
-    </div>
-    <% if user_signed_in? && current_user == @user %>
-      <%= link_to new_recipe_path, class: "flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all" do %>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        <%= t('recipes.new') %>
-      <% end %>
-    <% end %>
-  </div>
-
-  <%# Recipes Feed %>
-  <% if @recipes.any? %>
-    <div class="space-y-4">
-      <% @recipes.each_with_index do |recipe, index| %>
-        <%= link_to recipe_path(recipe), data: { turbo_frame: "_top" }, 
-            class: "block group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 hover:-translate-y-1",
-            style: "animation: fadeInUp 0.4s ease-out #{index * 0.05}s both" do %>
-          <% 
-            # Check if recipe has a valid cover photo or at least one valid attached photo
-            # Use service.exist? to verify the file actually exists in storage
-            begin
-              has_cover = recipe.cover_photo.attached? && recipe.cover_photo.blob&.service&.exist?(recipe.cover_photo.blob.key)
-            rescue => e
-              has_cover = false
-            end
-            begin
-              if recipe.photos.attached?
-                first_valid_photo = recipe.photos.find { |p| p.blob&.service&.exist?(p.blob.key) rescue false }
-              else
-                first_valid_photo = nil
-              end
-              has_photos = first_valid_photo.present?
-            rescue => e
-              has_photos = false
-              first_valid_photo = nil
-            end
-            has_image = has_cover || has_photos
-          %>
-          <div class="flex flex-col sm:flex-row">
-            <%# Recipe Image - only show if image exists %>
-            <% if has_image %>
-              <div class="sm:w-48 md:w-56 flex-shrink-0">
-                <div class="aspect-[4/3] sm:aspect-square relative overflow-hidden">
-                  <% if has_cover %>
-                    <% begin %>
-                      <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [300,300])), 
-                          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
-                    <% rescue ActiveStorage::FileNotFoundError %>
-                      <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                      </div>
-                    <% end %>
-                  <% elsif has_photos && first_valid_photo %>
-                    <% begin %>
-                      <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [300,300])), 
-                          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
-                    <% rescue ActiveStorage::FileNotFoundError %>
-                      <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                      </div>
-                    <% end %>
-                  <% end %>
-                  
-                  <%# Category badge %>
-                  <% if recipe.category %>
-                    <div class="absolute top-2 left-2">
-                      <span class="px-2.5 py-1 bg-gradient-to-r from-emerald-500/90 to-teal-500/90 backdrop-blur-sm rounded-lg text-xs font-bold text-white shadow-lg">
-                        <%= recipe.category&.name %>
-                      </span>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-            
-            <%# Recipe Content %>
-            <div class="flex-1 p-4 flex flex-col justify-between">
-              <div>
-                <%# Show category badge inline when no image %>
-                <% if !has_image && recipe.category %>
-                  <span class="inline-block px-2.5 py-1 mb-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg text-xs font-bold text-white shadow-sm">
-                    <%= recipe.category&.name %>
-                  </span>
-                <% end %>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
-                  <%= recipe.title %>
-                </h3>
-                <% if recipe.description.present? %>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
-                    <%= recipe.description %>
-                  </p>
-                <% end %>
-              </div>
-              
-              <%# Recipe Meta %>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <% if recipe.time_to_make.present? && recipe.time_to_make > 0 %>
-                    <div class="flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                      <span><%= recipe.time_to_make %> min</span>
-                    </div>
-                  <% end %>
-                  <% if recipe.difficulty.present? && recipe.difficulty > 0 %>
-                    <div class="flex items-center gap-0.5">
-                      <% recipe.difficulty.times do %>
-                        <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                      <% end %>
-                    </div>
-                  <% end %>
-                </div>
-                
-                <div class="flex items-center gap-3 text-sm">
-                  <div class="flex items-center gap-1 text-rose-500">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    <span class="font-semibold"><%= recipe.likes_count %></span>
-                  </div>
-                  <div class="flex items-center gap-1 text-gray-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    <span class="font-semibold"><%= recipe.comments_count %></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <%# Empty State %>
-    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-12 text-center">
-      <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center">
-        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-        </svg>
-      </div>
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2"><%= t('users.no_recipes_yet') %></h3>
-      <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
-        <% if user_signed_in? && current_user == @user %>
-          <%= t('users.start_sharing') %>
-        <% else %>
-          <%= t('users.no_recipes_published') %>
-        <% end %>
-      </p>
+        <%= t('users.recipes', default: 'Rețete') %> (<%= @recipes.count %>)
+      </h2>
       <% if user_signed_in? && current_user == @user %>
-        <%= link_to new_recipe_path, class: "inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 transition-all" do %>
+        <%= link_to new_recipe_path(locale: I18n.locale), class: "modern-btn-primary" do %>
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          <%= t('users.publish_first_recipe') %>
+          <span><%= t('recipes.new', default: 'Rețetă Nouă') %></span>
         <% end %>
       <% end %>
     </div>
-  <% end %>
-</div>
 
-<style>
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
+    <% if @recipes.any? %>
+      <div class="recipe-feed-grid">
+        <% @recipes.each_with_index do |recipe, index| %>
+          <div class="recipe-card-wrapper" style="animation-delay: <%= index * 0.08 %>s">
+            <%= render "recipes/card_minimal", recipe: recipe %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="modern-empty-state">
+        <div class="modern-empty-icon">
+          <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+          </svg>
+        </div>
+        <h3 class="modern-empty-title">
+          <% if user_signed_in? && current_user == @user %>
+            <%= t('users.no_recipes_yet', default: 'Nu ai publicat rețete încă') %>
+          <% else %>
+            <%= t('users.no_recipes_published', default: 'Nu are rețete publicate') %>
+          <% end %>
+        </h3>
+        <% if user_signed_in? && current_user == @user %>
+          <p class="modern-empty-description"><%= t('users.start_sharing', default: 'Începe să partajezi rețetele tale!') %></p>
+          <%= link_to new_recipe_path(locale: I18n.locale), class: "modern-btn-primary mt-6" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span><%= t('users.publish_first', default: 'Publică Prima Rețetă') %></span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
