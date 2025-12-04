@@ -207,8 +207,14 @@ body {
 .main-content-wrapper {
   min-height: 100vh;
   padding: 2rem;
+  background: var(--bg);
+  transition: margin-left 200ms ease;
+}
+
+.main-content-wrapper .app-main {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0;
 }
 
 @media (max-width: 1024px) {

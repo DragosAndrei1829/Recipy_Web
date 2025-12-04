@@ -103,9 +103,9 @@
     <%= render 'shared/office_sidebar' unless defined?(@full_screen_chat) && @full_screen_chat %>
     
     <!-- Main Content Area with Sidebar Offset -->
-    <div class="main-content-wrapper" style="margin-left: 240px;">
-      <!-- Top Nav - Minimal Design (Optional, can be removed) -->
-      <nav class="sticky top-0 z-40 bg-card border-b border-neutral-300 dark:border-gray-700 shadow-sm" style="display: none;">
+    <div class="main-content-wrapper" style="<%= 'margin-left: 240px;' unless defined?(@full_screen_chat) && @full_screen_chat %>">
+      <!-- Hidden Old Navbar (keeping for compatibility) -->
+      <nav style="display: none;">
         <% if mobile_device? %>
           <!-- MOBILE NAVBAR - Single Row, Ultra Clean -->
           <div class="flex h-14 items-center justify-between px-3 gap-1">
@@ -373,76 +373,21 @@
             <% end %>
           <% end %>
         </div>
-    </nav>
+      </nav>
 
-      <!-- Modern Sidebar Menu -->
-      <%= render 'shared/modern_sidebar' %>
+      <!-- Simplified Page Container -->
+      <% if defined?(@full_screen_chat) && @full_screen_chat %>
+        <section class="chat-fullpage-wrapper" style="margin-left: 0 !important; height: 100vh;">
+          <%= yield %>
+        </section>
+      <% else %>
+        <main class="app-main animate-fade-in" style="padding: 2rem;">
+          <%= yield %>
+        </main>
 
-      <!-- Page Container with sidebar and feed -->
-      <main class="app-main animate-fade-in <%= 'chat-fullpage-main' if defined?(@full_screen_chat) && @full_screen_chat %>" data-turbo-action="replace">
-        <% if defined?(@full_screen_chat) && @full_screen_chat %>
-          <section class="chat-fullpage-wrapper">
-            <%= yield %>
-          </section>
-        <% else %>
-          <% if controller_name == 'recipes' && action_name == 'top_recipes' %>
-            <!-- Full Width Layout for Top Recipes -->
-            <div class="top-recipes-page-container">
-              <%= yield %>
-            </div>
-          <% elsif controller_name == 'recipes' && action_name == 'show' %>
-            <!-- Full Width Layout for Recipe Show -->
-            <div class="recipe-show-page-container">
-              <%= yield %>
-            </div>
-          <% elsif controller_name == 'groups' && action_name == 'show' %>
-            <!-- Full Width Layout for Groups -->
-            <div class="group-view-page-container">
-              <%= yield %>
-            </div>
-          <% else %>
-            <div class="<%= mobile_device? ? 'mobile-layout' : 'app-grid' %>">
-              <!-- Left Sidebar (hidden on mobile) -->
-              <aside class="<%= mobile_device? ? 'hidden' : 'hidden lg:block' %>">
-                <div class="sidebar-stack">
-                  <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
-                    <%= render 'users/profile_sidebar', user: @user %>
-                  <% elsif defined?(@top_day) %>
-                    <div class="sidebar-card">
-                      <%= render 'recipes/top_recipes_sidebar' %>
-                    </div>
-                    <div class="sidebar-card">
-                      <%= render 'recipes/sidebar_insights' %>
-                    </div>
-                  <% end %>
-                </div>
-              </aside>
-              
-              <!-- Main Content -->
-              <section class="feed-column">
-                <%= yield %>
-              </section>
-              
-              <!-- Right Sidebar (hidden on mobile) -->
-              <aside class="<%= mobile_device? ? 'hidden' : 'hidden lg:block' %>">
-                <div class="sidebar-stack">
-                  <% if controller_name == 'users' && action_name == 'show' && defined?(@user) %>
-                    <%= render 'users/stats_sidebar', user: @user %>
-                  <% elsif controller_name == 'recipes' && action_name == 'index' %>
-                    <%= render 'recipes/filters_sidebar' %>
-                    <div class="sidebar-card">
-                      <%= render 'recipes/sidebar_quick_filters' %>
-                    </div>
-                  <% end %>
-                </div>
-              </aside>
-            </div>
-          <% end %>
-        <% end %>
-      </main>
-
-      <!-- Footer -->
-      <%= render 'layouts/footer' %>
+        <!-- Footer -->
+        <%= render 'layouts/footer' %>
+      <% end %>
     </div> <!-- End main-content-wrapper -->
 
     <%= render 'shared/cookie_banner' %>
