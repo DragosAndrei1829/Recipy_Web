@@ -1,9 +1,5 @@
 <turbo-frame id="<%= dom_id(recipe) %>">
   <div id="<%= dom_id(recipe, :inner) %>">
-    <% if mobile_device? %>
-      <%= render "recipes/card_mobile", recipe: recipe %>
-    <% else %>
-      <%= render "recipes/card_inner", recipe: recipe %>
-    <% end %>
+    <%= render "recipes/card_minimal", recipe: recipe %>
   </div>
 </turbo-frame>
