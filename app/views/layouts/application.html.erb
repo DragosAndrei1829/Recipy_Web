@@ -116,88 +116,156 @@
     <div class="app-shell space-y-6">
       <!-- Top Nav -->
       <nav class="app-nav glass-panel sticky top-4 z-40 animate-fade-in">
-        <div class="flex h-16 items-center gap-4">
-          <!-- Left: Hamburger (mobile) + Brand + Admin Hub -->
-          <div class="flex items-center gap-3 flex-shrink-0">
-            <button id="menu-btn" class="inline-flex items-center justify-center rounded-xl p-2 text-primary-content/80 hover:bg-card transition" aria-label="Open menu" title="Deschide meniul">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </button>
-            <%= link_to root_path, class: "select-none font-black tracking-tight text-xl sm:text-2xl bg-clip-text-primary text-transparent hover:scale-105 transition-transform duration-300 flex-shrink-0" do %>
-              Recipy
-            <% end %>
-            <% if user_signed_in? && current_user.admin? %>
-              <%= link_to admin_dashboard_path, class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 rounded-lg hover:from-red-700 hover:to-orange-700 shadow-md hover:shadow-lg transition-all duration-300" do %>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-                <span>Admin Hub</span>
+        <% if mobile_device? %>
+          <!-- MOBILE NAVBAR - Simplified -->
+          <div class="flex h-14 items-center justify-between px-3 gap-2">
+            <!-- Left: Menu + Logo -->
+            <div class="flex items-center gap-2">
+              <button id="menu-btn" class="inline-flex items-center justify-center rounded-xl p-2 text-primary-content/80 hover:bg-card transition" aria-label="Open menu">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <%= link_to root_path, class: "select-none font-black text-lg bg-clip-text-primary text-transparent" do %>
+                Recipy
               <% end %>
-            <% end %>
-          </div>
-
-          <!-- Center: Unified Search Bar -->
-          <div class="flex-1 flex justify-center max-w-2xl mx-auto">
-            <div class="relative w-full">
-              <div class="relative">
-                <input type="text" placeholder="<%= t('navigation.search_all') %>" class="w-full pl-12 pr-4 py-2.5 text-sm border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary bg-white/80 backdrop-blur transition-all duration-300 search-input shadow-sm hover:shadow-md" id="unified-search-input" data-locale="<%= I18n.locale %>">
-                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-primary search-icon pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            </div>
+            
+            <!-- Right: Search + Notifications + Profile -->
+            <div class="flex items-center gap-2">
+              <!-- Search Icon (opens modal) -->
+              <button type="button" class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-card border border-default" onclick="document.getElementById('mobile-search-modal').classList.remove('hidden')">
+                <svg class="h-4 w-4 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-              </div>
-              <div id="unified-search-results" class="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl border-2 border-default z-50 hidden max-h-96 overflow-hidden"></div>
-            </div>
-          </div>
-
-          <!-- Right: Actions (Always Right Aligned) -->
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <% if user_signed_in? %>
-              <!-- Notifications Button -->
-              <%= link_to notifications_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-card border-2 border-default hover:border-primary transition-all hover:shadow-md", title: t('notifications.title') do %>
-                <svg class="h-5 w-5 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-                <% if current_user.unread_notifications.count > 0 %>
-                  <span class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold bg-error text-white rounded-full min-w-[18px] text-center">
-                    <%= current_user.unread_notifications.count > 9 ? '9+' : current_user.unread_notifications.count %>
-                  </span>
-                <% end %>
-              <% end %>
-
-              <!-- Messages Button -->
-              <%= link_to conversations_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-card border-2 border-default hover:border-primary transition-all hover:shadow-md", title: t('conversations.title') do %>
-                <svg class="h-5 w-5 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                </svg>
-                <% if current_user.unread_messages_count > 0 %>
-                  <span class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold bg-error text-white rounded-full min-w-[18px] text-center">
-                    <%= current_user.unread_messages_count > 9 ? '9+' : current_user.unread_messages_count %>
-                  </span>
-                <% end %>
-              <% end %>
-
-              <!-- Add Recipe Button -->
-              <%= link_to new_recipe_path, class: "hidden sm:inline-flex items-center gap-2 btn-primary px-4 py-2 text-sm" do %>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span class="hidden lg:inline"><%= t('navigation.add_recipe') %></span>
-              <% end %>
+              </button>
               
-              <!-- Profile Dropdown -->
-              <div class="relative">
-                <button type="button" class="inline-flex items-center focus:outline-none hover:ring-2 hover:ring-pink-300 rounded-full transition-all" id="profile-menu-button">
+              <% if user_signed_in? %>
+                <!-- Notifications -->
+                <%= link_to notifications_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-card border border-default" do %>
+                  <svg class="h-4 w-4 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                  </svg>
+                  <% if current_user.unread_notifications.count > 0 %>
+                    <span class="absolute -top-0.5 -right-0.5 px-1 text-xs font-bold bg-error text-white rounded-full min-w-[16px] text-center">
+                      <%= current_user.unread_notifications.count > 9 ? '9+' : current_user.unread_notifications.count %>
+                    </span>
+                  <% end %>
+                <% end %>
+                
+                <!-- Profile -->
+                <button type="button" id="profile-menu-button" class="inline-flex items-center">
                   <% if current_user&.avatar&.attached? %>
-                    <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [40,40])),
-                        class: "h-10 w-10 rounded-full object-cover ring-2 ring-pink-100 bg-white cursor-pointer" %>
+                    <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
                   <% else %>
-                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 ring-2 ring-pink-100 grid place-content-center text-white font-bold text-sm cursor-pointer">
-                      <%= (current_user.username&.first || current_user.email&.first || 'U').upcase %>
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-bold">
+                      <%= (current_user.username&.first || 'U').upcase %>
                     </div>
                   <% end %>
                 </button>
+              <% else %>
+                <%= link_to new_user_session_path(locale: I18n.locale), class: "text-xs font-semibold text-primary-content px-3 py-1.5 rounded-lg bg-card border border-default" do %>
+                  Login
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Mobile Search Modal -->
+          <div id="mobile-search-modal" class="hidden fixed inset-0 bg-black/50 z-50" onclick="this.classList.add('hidden')">
+            <div class="bg-card m-4 mt-20 rounded-2xl p-4" onclick="event.stopPropagation()">
+              <div class="relative">
+                <input type="text" placeholder="<%= t('navigation.search_all') %>" class="w-full pl-10 pr-4 py-3 text-sm border-2 border-default rounded-xl focus:outline-none focus:ring-2 focus:ring-primary bg-card" id="mobile-search-input" data-locale="<%= I18n.locale %>">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+              <div id="mobile-search-results" class="mt-3 max-h-96 overflow-y-auto"></div>
+            </div>
+          </div>
+        <% else %>
+          <!-- DESKTOP NAVBAR - Full -->
+          <div class="flex h-16 items-center gap-4">
+            <!-- Left: Hamburger (mobile) + Brand + Admin Hub -->
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <button id="menu-btn" class="inline-flex items-center justify-center rounded-xl p-2 text-primary-content/80 hover:bg-card transition" aria-label="Open menu" title="Deschide meniul">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <%= link_to root_path, class: "select-none font-black tracking-tight text-xl sm:text-2xl bg-clip-text-primary text-transparent hover:scale-105 transition-transform duration-300 flex-shrink-0" do %>
+                Recipy
+              <% end %>
+              <% if user_signed_in? && current_user.admin? %>
+                <%= link_to admin_dashboard_path, class: "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 rounded-lg hover:from-red-700 hover:to-orange-700 shadow-md hover:shadow-lg transition-all duration-300" do %>
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                  <span>Admin Hub</span>
+                <% end %>
+              <% end %>
+            </div>
+
+            <!-- Center: Unified Search Bar -->
+            <div class="flex-1 flex justify-center max-w-2xl mx-auto">
+              <div class="relative w-full">
+                <div class="relative">
+                  <input type="text" placeholder="<%= t('navigation.search_all') %>" class="w-full pl-12 pr-4 py-2.5 text-sm border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary bg-white/80 backdrop-blur transition-all duration-300 search-input shadow-sm hover:shadow-md" id="unified-search-input" data-locale="<%= I18n.locale %>">
+                  <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-primary search-icon pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                </div>
+                <div id="unified-search-results" class="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl border-2 border-default z-50 hidden max-h-96 overflow-hidden"></div>
+              </div>
+            </div>
+
+            <!-- Right: Actions (Always Right Aligned) -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+        <% end %>
+              <% if user_signed_in? %>
+                <!-- Notifications Button -->
+                <%= link_to notifications_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-card border-2 border-default hover:border-primary transition-all hover:shadow-md", title: t('notifications.title') do %>
+                  <svg class="h-5 w-5 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                  </svg>
+                  <% if current_user.unread_notifications.count > 0 %>
+                    <span class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold bg-error text-white rounded-full min-w-[18px] text-center">
+                      <%= current_user.unread_notifications.count > 9 ? '9+' : current_user.unread_notifications.count %>
+                    </span>
+                  <% end %>
+                <% end %>
+
+                <!-- Messages Button -->
+                <%= link_to conversations_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-card border-2 border-default hover:border-primary transition-all hover:shadow-md", title: t('conversations.title') do %>
+                  <svg class="h-5 w-5 text-primary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  </svg>
+                  <% if current_user.unread_messages_count > 0 %>
+                    <span class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold bg-error text-white rounded-full min-w-[18px] text-center">
+                      <%= current_user.unread_messages_count > 9 ? '9+' : current_user.unread_messages_count %>
+                    </span>
+                  <% end %>
+                <% end %>
+
+                <!-- Add Recipe Button -->
+                <%= link_to new_recipe_path, class: "hidden sm:inline-flex items-center gap-2 btn-primary px-4 py-2 text-sm" do %>
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  <span class="hidden lg:inline"><%= t('navigation.add_recipe') %></span>
+                <% end %>
                 
-                <!-- Simplified Profile Dropdown -->
-                <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-2xl border-2 border-default z-50 overflow-hidden">
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                  <button type="button" class="inline-flex items-center focus:outline-none hover:ring-2 hover:ring-pink-300 rounded-full transition-all" id="profile-menu-button">
+                    <% if current_user&.avatar&.attached? %>
+                      <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [40,40])),
+                          class: "h-10 w-10 rounded-full object-cover ring-2 ring-pink-100 bg-white cursor-pointer" %>
+                    <% else %>
+                      <div class="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 ring-2 ring-pink-100 grid place-content-center text-white font-bold text-sm cursor-pointer">
+                        <%= (current_user.username&.first || current_user.email&.first || 'U').upcase %>
+                      </div>
+                    <% end %>
+                  </button>
+                  
+                  <!-- Simplified Profile Dropdown -->
+                  <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-2xl border-2 border-default z-50 overflow-hidden">
                   <div class="py-1">
                     <%= link_to user_path(current_user, locale: I18n.locale), class: "block px-4 py-2.5 text-sm text-primary-content hover:bg-primary/10 transition-all" do %>
                       <div class="flex items-center gap-2">
