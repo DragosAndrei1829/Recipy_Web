@@ -1,40 +1,31 @@
 <% 
-  # Determine valid photo for display - USE ORIGINAL IMAGE WITHOUT VARIANT
-  valid_photo = nil
+  # Simple image logic - try cover_photo first, then first photo
   valid_photo_url = nil
+  has_image = false
   
-  begin
-    if recipe.cover_photo&.attached?
-      valid_photo = recipe.cover_photo
-      # Try original image first, fallback to variant
-      begin
-        valid_photo_url = url_for(recipe.cover_photo)
-      rescue
-        valid_photo_url = url_for(recipe.cover_photo.variant(resize_to_fill: [680, 400]))
-      end
-    elsif recipe.photos.attached? && recipe.photos.any?
-      first_photo = recipe.photos.first
-      if first_photo&.blob.present?
-        valid_photo = first_photo
-        # Try original image first, fallback to variant
-        begin
-          valid_photo_url = url_for(first_photo)
-        rescue
-          valid_photo_url = url_for(first_photo.variant(resize_to_fill: [680, 400]))
-        end
-      end
+  if recipe.cover_photo&.attached?
+    begin
+      valid_photo_url = url_for(recipe.cover_photo)
+      has_image = true
+    rescue => e
+      Rails.logger.error("Cover photo error for recipe #{recipe.id}: #{e.message}")
     end
-  rescue => e
-    # If any error occurs, just show placeholder
-    Rails.logger.error("Recipe image error: #{e.message}")
-    valid_photo = nil
-    valid_photo_url = nil
+  end
+  
+  # If no cover_photo, try first photo from photos collection
+  if !has_image && recipe.photos.attached? && recipe.photos.any?
+    begin
+      valid_photo_url = url_for(recipe.photos.first)
+      has_image = true
+    rescue => e
+      Rails.logger.error("First photo error for recipe #{recipe.id}: #{e.message}")
+    end
   end
 %>
 
 <article class="recipe-card-modern">
   <!-- Image with Overlay (if available) -->
-  <% if valid_photo_url %>
+  <% if has_image && valid_photo_url %>
     <div class="recipe-card-modern__image-wrapper">
       <%= link_to recipe_path(recipe, locale: I18n.locale), data: { turbo: false } do %>
         <%= image_tag valid_photo_url, 
@@ -57,21 +48,8 @@
         </div>
       <% end %>
     </div>
-  <% else %>
-    <!-- Placeholder with Gradient if no image -->
-    <div class="recipe-card-modern__placeholder">
-      <%= link_to recipe_path(recipe, locale: I18n.locale), data: { turbo: false }, class: "recipe-card-modern__placeholder-link" do %>
-        <svg class="w-20 h-20 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
-        </svg>
-      <% end %>
-      <% if recipe.category %>
-        <div class="recipe-card-modern__category-badge">
-          <%= recipe.category.display_name %>
-        </div>
-      <% end %>
-    </div>
   <% end %>
+  <!-- No placeholder - skip image section if no image -->
 
   <!-- Content -->
   <div class="recipe-card-modern__content">

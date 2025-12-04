@@ -97,35 +97,35 @@
   </header>
 
   <% 
-    # Check for valid image - verify file exists in storage
-    begin
-      has_cover = recipe.cover_photo.present? && recipe.cover_photo.blob&.service&.exist?(recipe.cover_photo.blob.key)
-    rescue
-      has_cover = false
-    end
-    begin
-      if !has_cover && recipe.photos.attached?
-        first_valid_photo = recipe.photos.find { |p| p.blob&.service&.exist?(p.blob.key) rescue false }
-      else
-        first_valid_photo = nil
+    # Simple image logic - original image without variant
+    valid_photo_url = nil
+    has_image = false
+    
+    if recipe.cover_photo&.attached?
+      begin
+        valid_photo_url = url_for(recipe.cover_photo)
+        has_image = true
+      rescue => e
+        Rails.logger.error("Card inner cover photo error for recipe #{recipe.id}: #{e.message}")
       end
-    rescue
-      first_valid_photo = nil
     end
-    valid_photo = has_cover ? recipe.cover_photo : first_valid_photo
+    
+    # If no cover_photo, try first photo
+    if !has_image && recipe.photos.attached? && recipe.photos.any?
+      begin
+        valid_photo_url = url_for(recipe.photos.first)
+        has_image = true
+      rescue => e
+        Rails.logger.error("Card inner first photo error for recipe #{recipe.id}: #{e.message}")
+      end
+    end
   %>
-  <% if valid_photo %>
+  <% if has_image && valid_photo_url %>
     <div class="feed-card__media">
-      <% begin %>
-        <%= image_tag url_for(valid_photo.variant(resize_to_fill: [1000,560])), class: "feed-card__cover" %>
-      <% rescue ActiveStorage::FileNotFoundError %>
-        <!-- Image not found in R2 - show placeholder -->
-        <div class="feed-card__cover bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center" style="height: 560px;">
-          <svg class="w-32 h-32 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-        </div>
-      <% end %>
+      <%= image_tag valid_photo_url, 
+          class: "feed-card__cover",
+          loading: "lazy",
+          style: "max-height: 560px; width: 100%; object-fit: cover;" %>
     </div>
   <% end %>
 

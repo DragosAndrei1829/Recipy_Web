@@ -433,6 +433,11 @@ body {
   border-color: rgba(16, 185, 129, 0.2);
 }
 
+/* Card without image - add top padding to content */
+.recipe-card-modern:not(:has(.recipe-card-modern__image-wrapper)) .recipe-card-modern__content {
+  padding-top: 2rem;
+}
+
 /* Image Section */
 .recipe-card-modern__image-wrapper {
   position: relative;

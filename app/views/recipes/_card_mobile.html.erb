@@ -33,41 +33,36 @@
 
   <!-- Mobile Image - Only show if exists and accessible -->
   <%
-    # Check for cover photo or first valid photo (same logic as desktop)
-    begin
-      has_cover = recipe.cover_photo&.attached?
-      has_photos = recipe.photos.attached?
-      
-      first_valid_photo = nil
-      if has_photos
-        first_valid_photo = recipe.photos.detect { |p| p.persisted? && p.blob.present? }
+    # Simple image logic - original image without variant
+    valid_photo_url = nil
+    has_image = false
+    
+    if recipe.cover_photo&.attached?
+      begin
+        valid_photo_url = url_for(recipe.cover_photo)
+        has_image = true
+      rescue => e
+        Rails.logger.error("Mobile cover photo error for recipe #{recipe.id}: #{e.message}")
       end
-    rescue
-      has_cover = false
-      has_photos = false
-      first_valid_photo = nil
     end
     
-    valid_photo = has_cover ? recipe.cover_photo : first_valid_photo
-    show_image = false
-    
-    # Try to verify image is accessible before rendering
-    if valid_photo
+    # If no cover_photo, try first photo
+    if !has_image && recipe.photos.attached? && recipe.photos.any?
       begin
-        # Test if we can generate URL (will fail if file not in R2)
-        test_url = url_for(valid_photo.variant(resize_to_limit: [800, 600]))
-        show_image = true
-      rescue ActiveStorage::FileNotFoundError, NoMethodError
-        show_image = false
+        valid_photo_url = url_for(recipe.photos.first)
+        has_image = true
+      rescue => e
+        Rails.logger.error("Mobile first photo error for recipe #{recipe.id}: #{e.message}")
       end
     end
   %>
   
-  <% if show_image %>
+  <% if has_image && valid_photo_url %>
     <%= link_to recipe_path(recipe, locale: I18n.locale), class: "block relative group", data: { turbo: false } do %>
-      <%= image_tag url_for(valid_photo.variant(resize_to_limit: [800, 600])), 
+      <%= image_tag valid_photo_url, 
           class: "w-full h-56 object-cover transition-transform duration-500 group-active:scale-110",
-          loading: "lazy" %>
+          loading: "lazy",
+          style: "max-height: 14rem; object-fit: cover;" %>
       <!-- Gradient Overlay on tap -->
       <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-active:opacity-100 transition-opacity duration-300"></div>
     <% end %>
