@@ -215,16 +215,21 @@
               <% end %>
             </div>
 
-            <!-- Center: Unified Search Bar -->
+            <!-- Center: Unified Search Bar - Enhanced Design -->
             <div class="flex-1 flex justify-center max-w-2xl mx-auto">
               <div class="relative w-full">
-                <div class="relative">
-                  <input type="text" placeholder="<%= t('navigation.search_all') %>" class="w-full pl-12 pr-4 py-2.5 text-sm border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary bg-white/80 backdrop-blur transition-all duration-300 search-input shadow-sm hover:shadow-md" id="unified-search-input" data-locale="<%= I18n.locale %>">
-                  <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-primary search-icon pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                  </svg>
+                <div class="relative group">
+                  <input type="text" placeholder="<%= t('navigation.search_all') %>" 
+                    class="w-full pl-14 pr-6 py-3.5 text-base font-medium border-2 border-primary/20 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary bg-gradient-to-r from-white/95 to-gray-50/95 dark:from-gray-800/95 dark:to-gray-900/95 backdrop-blur-md transition-all duration-300 shadow-lg hover:shadow-xl hover:border-primary/40 placeholder-gray-400 dark:placeholder-gray-500" 
+                    id="unified-search-input" 
+                    data-locale="<%= I18n.locale %>">
+                  <div class="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-md group-focus-within:scale-110 transition-transform">
+                    <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                  </div>
                 </div>
-                <div id="unified-search-results" class="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl border-2 border-default z-50 hidden max-h-96 overflow-hidden"></div>
+                <div id="unified-search-results" class="absolute top-full left-0 right-0 mt-3 bg-card/95 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-primary/30 z-50 hidden max-h-96 overflow-hidden"></div>
               </div>
             </div>
 

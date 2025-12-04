@@ -2308,6 +2308,24 @@ a:hover {
   gap: 1rem;
 }
 
+/* Mobile chat - full width, no sidebars */
+@media (max-width: 1023px) {
+  .chat-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  
+  .chat-panel {
+    display: none !important;
+  }
+  
+  .chat-pane {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+  }
+}
+
 .chat-panel {
   background: color-mix(in srgb, var(--card-background) 98%, transparent);
   border: 1px solid color-mix(in srgb, var(--border-color) 60%, transparent);

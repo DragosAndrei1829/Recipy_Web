@@ -3,7 +3,7 @@
 
 <div class="chat-fullheight animate-fade-in">
   <div class="chat-grid">
-    <aside class="chat-panel chat-panel--emoji">
+    <aside class="chat-panel chat-panel--emoji <%= 'hidden lg:block' if mobile_device? %>">
       <div class="chat-panel__section">
         <p class="chat-panel__label"><%= t('messages.emoji_palette', default: 'Emoji flux') %></p>
         <div class="emoji-wall custom-scrollbar">
