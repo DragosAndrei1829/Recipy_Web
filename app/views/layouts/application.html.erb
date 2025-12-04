@@ -117,55 +117,50 @@
       <!-- Top Nav -->
       <nav class="app-nav glass-panel sticky top-4 z-40 animate-fade-in">
         <% if mobile_device? %>
-          <!-- MOBILE NAVBAR - Enhanced Design -->
-          <div class="flex h-16 items-center justify-between px-4 gap-3">
-            <!-- Left: Menu + Logo -->
-            <div class="flex items-center gap-3">
-              <button id="menu-btn" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary hover:from-primary/20 hover:to-primary/10 transition-all active:scale-95" aria-label="Open menu">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-              </button>
-              <%= link_to root_path, class: "select-none font-black text-xl bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent" do %>
-                Recipy
+          <!-- MOBILE NAVBAR - Modern Redesign -->
+          <div class="flex h-14 items-center justify-between px-3 gap-2 bg-gradient-to-r from-card/95 via-card to-card/95 backdrop-blur-xl">
+            <!-- Left: Logo only (clean) -->
+            <div class="flex items-center gap-2">
+              <%= link_to root_path, class: "select-none font-black text-lg flex items-center gap-2" do %>
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <span class="text-white text-sm font-black">R</span>
+                </div>
+                <span class="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">Recipy</span>
               <% end %>
             </div>
             
-            <!-- Right: Search + Notifications + Profile -->
-            <div class="flex items-center gap-2">
-              <!-- Search Icon (opens modal) - Enhanced -->
-              <button type="button" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-md active:scale-95 transition-all" onclick="document.getElementById('mobile-search-modal').classList.remove('hidden')">
-                <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <!-- Right: Action Icons - Minimal -->
+            <div class="flex items-center gap-1.5">
+              <!-- Search Icon -->
+              <button type="button" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-primary-content/70 hover:bg-primary/10 active:scale-95 transition-all" onclick="document.getElementById('mobile-search-modal').classList.remove('hidden')">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
               </button>
               
               <% if user_signed_in? %>
-                <!-- Notifications - Enhanced -->
-                <%= link_to notifications_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 border-2 border-rose-200/50 dark:border-rose-700/50 shadow-md active:scale-95 transition-all" do %>
-                  <svg class="h-5 w-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <!-- Add Recipe - Mobile FAB -->
+                <%= link_to new_recipe_path(locale: I18n.locale), class: "inline-flex items-center justify-center w-9 h-9 rounded-lg text-primary-content/70 hover:bg-primary/10 active:scale-95 transition-all" do %>
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                  </svg>
+                <% end %>
+                
+                <!-- Notifications - Minimal -->
+                <%= link_to notifications_path(locale: I18n.locale), class: "relative inline-flex items-center justify-center w-9 h-9 rounded-lg text-primary-content/70 hover:bg-primary/10 active:scale-95 transition-all" do %>
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                   </svg>
                   <% if current_user.unread_notifications.count > 0 %>
-                    <span class="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-full min-w-[18px] text-center shadow-lg">
-                      <%= current_user.unread_notifications.count > 9 ? '9+' : current_user.unread_notifications.count %>
+                    <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
+                      <%= current_user.unread_notifications.count > 9 ? '9' : current_user.unread_notifications.count %>
                     </span>
                   <% end %>
                 <% end %>
                 
-                <!-- Profile - Enhanced -->
-                <button type="button" id="profile-menu-button" class="inline-flex items-center active:scale-95 transition-transform">
-                  <% if current_user&.avatar&.attached? %>
-                    <% begin %>
-                      <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [40,40])), class: "w-10 h-10 rounded-full object-cover ring-4 ring-primary/30 shadow-lg" %>
-                    <% rescue ActiveStorage::FileNotFoundError %>
-                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center text-white font-bold shadow-lg ring-4 ring-primary/30">
-                        <%= (current_user.username&.first || 'U').upcase %>
-                      </div>
-                    <% end %>
-                  <% else %>
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center text-white font-bold shadow-lg ring-4 ring-primary/30">
-                      <%= (current_user.username&.first || 'U').upcase %>
-                    </div>
-                  <% end %>
+                <!-- Menu Button (opens sidebar) -->
+                <button id="menu-btn" class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-primary-content/70 hover:bg-primary/10 active:scale-95 transition-all" aria-label="Open menu">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
               <% else %>
                 <%= link_to new_user_session_path(locale: I18n.locale), class: "text-xs font-semibold text-primary-content px-3 py-1.5 rounded-lg bg-card border border-default" do %>
