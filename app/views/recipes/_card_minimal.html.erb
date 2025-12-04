@@ -1,21 +1,32 @@
 <% 
-  # Determine valid photo for display
+  # Determine valid photo for display - USE ORIGINAL IMAGE WITHOUT VARIANT
   valid_photo = nil
   valid_photo_url = nil
   
   begin
     if recipe.cover_photo&.attached?
       valid_photo = recipe.cover_photo
-      valid_photo_url = url_for(recipe.cover_photo.variant(resize_to_fill: [680, 400]))
+      # Try original image first, fallback to variant
+      begin
+        valid_photo_url = url_for(recipe.cover_photo)
+      rescue
+        valid_photo_url = url_for(recipe.cover_photo.variant(resize_to_fill: [680, 400]))
+      end
     elsif recipe.photos.attached? && recipe.photos.any?
       first_photo = recipe.photos.first
       if first_photo&.blob.present?
         valid_photo = first_photo
-        valid_photo_url = url_for(first_photo.variant(resize_to_fill: [680, 400]))
+        # Try original image first, fallback to variant
+        begin
+          valid_photo_url = url_for(first_photo)
+        rescue
+          valid_photo_url = url_for(first_photo.variant(resize_to_fill: [680, 400]))
+        end
       end
     end
   rescue => e
     # If any error occurs, just show placeholder
+    Rails.logger.error("Recipe image error: #{e.message}")
     valid_photo = nil
     valid_photo_url = nil
   end
