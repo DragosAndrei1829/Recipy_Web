@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Recipy</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <style>
+      :root {
+        --bg-light: #ffffff;
+        --text-light: #000000;
+        --bg-dark: #1f1f1f;
+        --text-dark: #f5f5dc;
+      }
+      
+      /* Light theme by default */
+      body {
+        background-color: var(--bg-light);
+        color: var(--text-light);
+      }
+      
+      /* Dark theme via system preference */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: var(--bg-dark);
+          color: var(--text-dark);
+        }
+      }
+    </style>
+    
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen">
+    <%= yield %>
+  </body>
+</html>
+

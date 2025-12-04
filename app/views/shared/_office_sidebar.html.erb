@@ -1,0 +1,660 @@
+<!-- Office.com Style Sidebar -->
+<aside id="office-sidebar" class="office-sidebar">
+  <!-- Logo -->
+  <div class="office-sidebar__logo">
+    <%= link_to root_path, class: "office-sidebar__logo-link" do %>
+      <div class="office-sidebar__logo-icon">
+        <span>R</span>
+      </div>
+      <span class="office-sidebar__logo-text">Recipy</span>
+    <% end %>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="office-sidebar__nav">
+    <%= link_to recipes_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'recipes' && action_name == 'index'}" do %>
+      <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+      <span><%= t('navigation.home', default: 'Home') %></span>
+    <% end %>
+
+    <%= link_to recipes_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'recipes'}" do %>
+      <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+      </svg>
+      <span><%= t('recipes.title', default: 'Recipes') %></span>
+    <% end %>
+
+    <% if user_signed_in? %>
+      <%= link_to favorites_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'favorites'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span><%= t('favorites.title', default: 'Favorites') %></span>
+      <% end %>
+
+      <%= link_to collections_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'collections'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <span><%= t('collections.title', default: 'Collections') %></span>
+      <% end %>
+
+      <%= link_to groups_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'groups'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <span><%= t('groups.title', default: 'Groups') %></span>
+      <% end %>
+
+      <%= link_to challenges_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'challenges'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+        <span><%= t('challenges.title', default: 'Challenges') %></span>
+      <% end %>
+
+      <%= link_to ai_assistant_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'ai_assistant'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        <span><%= t('ai_assistant.title', default: 'AI Chef') %></span>
+      <% end %>
+
+      <%= link_to meal_plans_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'meal_plans'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span><%= t('meal_plans.title', default: 'Meal Planner') %></span>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <!-- Profile Section (Bottom) -->
+  <% if user_signed_in? %>
+    <div class="office-sidebar__profile">
+      <button type="button" class="office-sidebar__profile-button" id="sidebar-profile-button">
+        <% if current_user&.avatar&.attached? %>
+          <% begin %>
+            <%= image_tag url_for(current_user.avatar.variant(resize_to_fill: [40,40])),
+                class: "office-sidebar__profile-avatar" %>
+          <% rescue ActiveStorage::FileNotFoundError %>
+            <div class="office-sidebar__profile-avatar office-sidebar__profile-avatar--fallback">
+              <%= (current_user.username&.first || 'U').upcase %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="office-sidebar__profile-avatar office-sidebar__profile-avatar--fallback">
+            <%= (current_user.username&.first || 'U').upcase %>
+          </div>
+        <% end %>
+        <div class="office-sidebar__profile-info">
+          <span class="office-sidebar__profile-name"><%= current_user.username %></span>
+          <span class="office-sidebar__profile-email"><%= truncate(current_user.email, length: 20) %></span>
+        </div>
+        <svg class="office-sidebar__profile-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      <!-- Profile Dropdown -->
+      <div id="sidebar-profile-dropdown" class="office-sidebar__profile-dropdown hidden">
+        <%= link_to user_path(current_user, locale: I18n.locale), class: "office-sidebar__profile-dropdown-item" do %>
+          <svg class="office-sidebar__profile-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <span><%= t('users.view_profile', default: 'View Profile') %></span>
+        <% end %>
+
+        <%= link_to edit_user_registration_path(locale: I18n.locale), class: "office-sidebar__profile-dropdown-item" do %>
+          <svg class="office-sidebar__profile-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span><%= t('navigation.edit_profile', default: 'Settings') %></span>
+        <% end %>
+
+        <div class="office-sidebar__profile-dropdown-divider"></div>
+
+        <!-- Theme Switcher -->
+        <div class="office-sidebar__theme-switcher">
+          <span class="office-sidebar__theme-label"><%= t('navigation.theme', default: 'Theme') %></span>
+          <div class="office-sidebar__theme-options">
+            <button type="button" class="office-sidebar__theme-option office-sidebar__theme-option--active" data-theme="light">
+              <svg class="office-sidebar__theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+              <span>Light</span>
+            </button>
+            <button type="button" class="office-sidebar__theme-option" data-theme="dark">
+              <svg class="office-sidebar__theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+              </svg>
+              <span>Dark</span>
+            </button>
+            <button type="button" class="office-sidebar__theme-option" data-theme="system">
+              <svg class="office-sidebar__theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>System</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="office-sidebar__profile-dropdown-divider"></div>
+
+        <%= button_to destroy_user_session_path(locale: I18n.locale), method: :delete, form: { "data-turbo": false }, class: "office-sidebar__profile-dropdown-item office-sidebar__profile-dropdown-item--danger" do %>
+          <svg class="office-sidebar__profile-dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span><%= t('navigation.logout', default: 'Logout') %></span>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="office-sidebar__profile">
+      <%= link_to new_user_session_path(locale: I18n.locale), class: "office-sidebar__login-button" do %>
+        <svg class="office-sidebar__login-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+        </svg>
+        <span><%= t('navigation.login', default: 'Login') %></span>
+      <% end %>
+    </div>
+  <% end %>
+</aside>
+
+<style>
+/* Office.com Style Sidebar */
+.office-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  background: var(--bg-light, #ffffff);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: all 200ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar {
+    background: var(--bg-dark, #1f1f1f);
+    border-right-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Logo */
+.office-sidebar__logo {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__logo {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.office-sidebar__logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.office-sidebar__logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-light, #000000);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__logo-text {
+    color: var(--text-dark, #f5f5dc);
+  }
+}
+
+/* Navigation */
+.office-sidebar__nav {
+  flex: 1;
+  padding: 1rem 0.5rem;
+  overflow-y: auto;
+}
+
+.office-sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  margin-bottom: 0.25rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text-light, #000000);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 150ms ease;
+  position: relative;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-item {
+    color: var(--text-dark, #f5f5dc);
+  }
+}
+
+.office-sidebar__nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms ease;
+}
+
+.office-sidebar__nav-item:hover::after {
+  transform: scaleX(1);
+}
+
+.office-sidebar__nav-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__nav-item--active {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__nav-item--active {
+    color: #34d399;
+  }
+}
+
+.office-sidebar__nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Profile Section */
+.office-sidebar__profile {
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile {
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__profile-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.office-sidebar__profile-button:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-button:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.office-sidebar__profile-avatar--fallback {
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.office-sidebar__profile-info {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.office-sidebar__profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-light, #000000);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-name {
+    color: var(--text-dark, #f5f5dc);
+  }
+}
+
+.office-sidebar__profile-email {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-email {
+    color: rgba(245, 245, 220, 0.6);
+  }
+}
+
+.office-sidebar__profile-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-chevron {
+    color: rgba(245, 245, 220, 0.4);
+  }
+}
+
+/* Profile Dropdown */
+.office-sidebar__profile-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0.5rem;
+  right: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-light, #ffffff);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-dropdown {
+    background: var(--bg-dark, #1f1f1f);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.office-sidebar__profile-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--text-light, #000000);
+  font-size: 0.875rem;
+  transition: background 150ms ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-dropdown-item {
+    color: var(--text-dark, #f5f5dc);
+  }
+}
+
+.office-sidebar__profile-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__profile-dropdown-item--danger {
+  color: #dc2626;
+}
+
+.office-sidebar__profile-dropdown-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.office-sidebar__profile-dropdown-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  margin: 0.5rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__profile-dropdown-divider {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Theme Switcher */
+.office-sidebar__theme-switcher {
+  padding: 0.75rem 1rem;
+}
+
+.office-sidebar__theme-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__theme-label {
+    color: rgba(245, 245, 220, 0.5);
+  }
+}
+
+.office-sidebar__theme-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.office-sidebar__theme-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-size: 0.75rem;
+  color: var(--text-light, #000000);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__theme-option {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-dark, #f5f5dc);
+  }
+}
+
+.office-sidebar__theme-option:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__theme-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.office-sidebar__theme-option--active {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+@media (prefers-color-scheme: dark) {
+  .office-sidebar__theme-option--active {
+    border-color: #34d399;
+    color: #34d399;
+  }
+}
+
+.office-sidebar__theme-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Login Button */
+.office-sidebar__login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: transform 150ms ease;
+}
+
+.office-sidebar__login-button:hover {
+  transform: translateY(-1px);
+}
+
+.office-sidebar__login-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile */
+@media (max-width: 1024px) {
+  .office-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .office-sidebar--open {
+    transform: translateX(0);
+  }
+}
+</style>
+
+<script>
+// Profile dropdown toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const profileButton = document.getElementById('sidebar-profile-button');
+  const profileDropdown = document.getElementById('sidebar-profile-dropdown');
+
+  if (profileButton && profileDropdown) {
+    profileButton.addEventListener('click', function(e) {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!profileButton.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.classList.add('hidden');
+      }
+    });
+  }
+
+  // Theme switcher
+  const themeButtons = document.querySelectorAll('.office-sidebar__theme-option');
+  const currentTheme = localStorage.getItem('theme') || 'system';
+
+  themeButtons.forEach(button => {
+    if (button.dataset.theme === currentTheme) {
+      button.classList.add('office-sidebar__theme-option--active');
+    }
+
+    button.addEventListener('click', function() {
+      const theme = this.dataset.theme;
+      localStorage.setItem('theme', theme);
+
+      themeButtons.forEach(btn => btn.classList.remove('office-sidebar__theme-option--active'));
+      this.classList.add('office-sidebar__theme-option--active');
+
+      applyTheme(theme);
+    });
+  });
+
+  function applyTheme(theme) {
+    if (theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }
+
+  // Apply theme on load
+  applyTheme(currentTheme);
+
+  // Listen for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+    if (localStorage.getItem('theme') === 'system') {
+      applyTheme('system');
+    }
+  });
+});
+</script>
+

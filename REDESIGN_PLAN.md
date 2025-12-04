@@ -1,196 +1,177 @@
-# 🎨 Recipy Redesign - Minimalist & Accessible
+# Recipy - Complete Redesign Plan
 
-## 🎯 Obiectiv:
-Redesign complet bazat pe template Subframe - **ultra minimalist, accesibil, simplu**.
+## Vision
+Simplificare totală a interfeței, inspirată de office.com, cu focus pe conținut și accesibilitate.
 
-## 📋 Feedback utilizatori:
-- ❌ **Prea complicat** - multe butoane, culori, gradients
-- ❌ **Greu de navigat** - navbar aglomerat
-- ✅ **Animațiile plac** - păstrăm hover/transition effects
-- ✅ **Chat-ul e bun** - promovăm mai mult
+## 1. Theme System - DOAR 3 Teme ✅
 
----
+### Light Theme
+- Background: `#ffffff` (alb pur)
+- Text: `#000000` (negru pur)
+- Accent: `#10b981` (emerald-500)
 
-## 🎨 Design System Nou (din template):
+### Dark Theme
+- Background: `#1f1f1f` (gri foarte închis)
+- Text: `#f5f5dc` (beige/cream)
+- Accent: `#34d399` (emerald-400)
 
-### **Colors - Neutral First:**
-- **Background**: `bg-default-background` (alb/gri deschis)
-- **Cards**: `bg-default-background` cu `border-neutral-300`
-- **Text**: `text-default-font` (negru/gri închis)
-- **Subtext**: `text-subtext-color` (gri mediu)
-- **Accent**: `text-brand-primary` (doar pe hover/active)
-- **Shadows**: `shadow-sm` (minimal, nu shadow-2xl)
+### System
+- Detectează automat preferința OS-ului
+- Folosește `prefers-color-scheme: dark`
 
-### **Typography:**
-- **Headings**: `text-heading-2` (24px), `text-heading-3` (20px)
-- **Body**: `text-body` (16px), `text-body-bold` (16px bold)
-- **Caption**: `text-caption` (14px)
-- **No excessive font weights** - doar normal și bold
+## 2. Layout Structure - Office.com Style
 
-### **Spacing:**
-- **Cards**: `px-6 py-6` (24px padding)
-- **Gaps**: `gap-4` (16px), `gap-6` (24px)
-- **Borders**: `border` (1px), `rounded-md` (6px)
-- **No excessive rounded-3xl** - doar rounded-md
-
-### **Components:**
-- **Avatar**: Circle, 40px pentru users
-- **Badges**: Neutral, `variant="neutral"` - simple pills
-- **Buttons**: Minimal, `variant="neutral-secondary"` pentru secondary
-- **Icons**: Feather icons (Heart, MessageCircle, Share2, Bookmark)
-- **Actions**: Icon + number, hover color change
-
----
-
-## 📱 Layout Changes:
-
-### **Homepage (Feed):**
-
-**Înainte:**
 ```
-[Sidebar] [Feed with filters/hero] [Sidebar]
+┌─────────────────────────────────────────────┐
+│  [Sidebar Stânga - 240px]  │  [Content]    │
+│                             │               │
+│  - Logo (top)              │  Feed/Content │
+│  - Navigation              │               │
+│  - Quick Actions           │               │
+│  - Profile (bottom)        │               │
+│                             │               │
+└─────────────────────────────────────────────┘
 ```
 
-**După (template):**
-```
-[Feed - Full Width]  [Trending Sidebar - Desktop Only]
-```
+### Sidebar Stânga (240px)
+- **Top**: Logo Recipy
+- **Middle**: 
+  - Home
+  - Recipes
+  - Favorites
+  - Collections
+  - Groups
+  - Challenges
+  - AI Chef
+  - Meal Planner
+- **Bottom**: 
+  - Profile Icon (ca Microsoft)
+  - Settings
+  - Theme Toggle (Light/Dark/System)
 
-**Features:**
-- ✅ Single column feed (no left sidebar)
-- ✅ Trending sidebar doar pe desktop
-- ✅ Cards simple (Avatar + Username + Text + Image + 3 Badges + Actions)
-- ✅ Actions: Heart, Comment, Share (no more complex buttons)
-- ✅ Bookmark icon (right side)
+## 3. Button Styles - Minimalist
 
-### **Navbar:**
+### Default State
+- Text simplu, fără background
+- Culoare: inherit from theme
 
-**Înainte:**
-```
-[Hamburger] [Logo] [Admin] [Search Bar........] [Notif] [Messages] [Add] [Profile] [Lang]
-```
+### Hover State
+- Linie subțire sub text
+- Culoare linie: alb (dark theme) sau negru (light theme)
+- Transition smooth (200ms)
 
-**După:**
-```
-[Logo "Recipy"]  ········  [Search] [Add] [Notif] [Profile]
-```
+```css
+.btn-minimal {
+  background: none;
+  border: none;
+  padding: 0.5rem 0;
+  position: relative;
+}
 
-**Mobile:**
-```
-[R Logo]  ········  [Search] [Add] [Menu]
-```
+.btn-minimal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 200ms ease;
+}
 
-### **Recipe Card:**
-
-**Înainte:**
-```
-╔═══════════════╗
-║ Avatar + User ║
-║ ━━━━━━━━━━━━━ ║
-║   IMAGE       ║
-║ ━━━━━━━━━━━━━ ║
-║ Title (bold)  ║
-║ Description   ║
-║ ━━━━━━━━━━━━━ ║
-║ Stats Bubbles ║
-║ ━━━━━━━━━━━━━ ║
-║ ❤️💬🔖 [Vezi]  ║
-╚═══════════════╝
-```
-
-**După (template):**
-```
-╔═══════════════╗
-║ 👤 Username   ║
-║    @handle·2h ║
-║ ━━━━━━━━━━━━━ ║
-║ Text content  ║
-║ ━━━━━━━━━━━━━ ║
-║   IMAGE       ║
-║ ━━━━━━━━━━━━━ ║
-║ [Tag] [Tag]   ║
-║ ━━━━━━━━━━━━━ ║
-║ ❤️234 💬45 🔗12║
-╚═══════════════╝
+.btn-minimal:hover::after {
+  width: 100%;
+}
 ```
 
-**Eliminat:**
-- ❌ Gradient backgrounds
-- ❌ Multiple shadows
-- ❌ "Vezi Rețeta" button (click pe card)
-- ❌ Stats bubbles (difficulty, time în card)
-- ❌ Complex badges
+## 4. Content Area - Posts Primary
 
-**Păstrat:**
-- ✅ Avatar + Username
-- ✅ Image (dacă există)
-- ✅ Simple actions (Heart, Comment, Share)
-- ✅ 2-3 tags (category, cuisine, time)
+### Feed Layout
+- **Single column** (max-width: 680px)
+- **Centered** on page
+- **No sidebars** by default
+- **Filters**: Collapsible panel (top-right icon)
+- **Top Recipes**: Small badge/indicator, not prominent
 
----
+### Recipe Card - Minimalist
+- White background (light) / Dark gray (dark)
+- Simple border: 1px solid
+- Clean spacing
+- No excessive shadows or gradients
+- Focus on image + title + quick stats
 
-## 🔄 Migration Plan:
+## 5. Auth Pages - No Top Bar ✅
 
-### **Phase 1: Cards & Feed** (Priority 1)
-- [ ] Create new `_card_minimal.html.erb`
-- [ ] Remove gradients, use neutral colors
-- [ ] Simple border (border-neutral-300)
-- [ ] Actions: Heart, Comment, Share icons only
-- [ ] 3 badges max (category, time, difficulty)
-- [ ] Single column layout
+- Login/Signup folosesc layout separat (`auth.html.erb`)
+- Fără navbar
+- Split screen design (imagine stânga, form dreapta)
+- Simplu și curat
 
-### **Phase 2: Navbar** (Priority 2)
-- [ ] Desktop: Logo + Search + Add + Notif + Profile (5 items)
-- [ ] Mobile: Logo + Search + Add + Menu (4 items)
-- [ ] Remove: Admin Hub, Messages, Language switcher (move to menu)
-- [ ] Clean background (no gradients)
+## 6. Mobile Responsive
 
-### **Phase 3: Login/Signup** (Priority 3)
-- [ ] Split-screen layout (Image left, Form right)
-- [ ] Google OAuth button prominent
-- [ ] Email/Password with divider ("OR")
-- [ ] Minimal styling (white cards, simple borders)
-- [ ] "Forgot password?" link
+### Mobile Sidebar
+- Hamburger menu (top-left)
+- Sidebar slide-in from left
+- Overlay dark pentru focus
+- Profile icon rămâne bottom-left în sidebar
 
-### **Phase 4: Trending Sidebar** (Priority 4)
-- [ ] "What's Cooking" - Top 3 recipes (small cards)
-- [ ] "Suggested Chefs" - Top 3 users to follow
-- [ ] Desktop only (hidden on mobile)
-- [ ] Chat promotion box (NEW!)
+## 7. Implementation Steps
 
-### **Phase 5: Chat Promotion** (Priority 5)
-- [ ] Add "Start a Conversation" card in sidebar
-- [ ] Sparkles icon + "Chat with chefs"
-- [ ] "View all chats" button
+### Phase 1: Theme Simplification ✅
+- [x] Create `auth.html.erb` layout
+- [x] Remove top bar from login/signup
+- [ ] Simplify Theme model (keep only Light, Dark)
+- [ ] Add System theme detection
+- [ ] Update CSS variables
 
-### **Phase 6: Other Pages** (Keep Simple)
-- [ ] View Recipe - keep animations, simplify colors
-- [ ] Profile - minimal cards
-- [ ] Groups - simple layout
-- [ ] Collections - grid minimal
+### Phase 2: Sidebar Layout
+- [ ] Create new sidebar component
+- [ ] Implement office.com style navigation
+- [ ] Move profile to bottom-left
+- [ ] Add theme switcher (3 options)
 
----
+### Phase 3: Button Redesign
+- [ ] Create `.btn-minimal` class
+- [ ] Update all buttons to use new style
+- [ ] Implement underline hover effect
 
-## ⏱️ Timeline:
+### Phase 4: Content Simplification
+- [ ] Remove excessive sidebars from feed
+- [ ] Make posts primary focus
+- [ ] Simplify filters (collapsible)
+- [ ] Reduce prominence of "Top Recipes"
 
-**Session 1 (Acum - 1 oră):**
-- ✅ Cards redesign (minimal)
-- ✅ Feed layout (single column)
-- ✅ Fix mobile images
+### Phase 5: Color Scheme
+- [ ] Update Light theme colors
+- [ ] Update Dark theme colors
+- [ ] Remove all custom themes
+- [ ] Test contrast ratios (WCAG AA)
 
-**Session 2 (Next):**
-- Navbar redesign
-- Login/Signup pages
-- Trending sidebar
+### Phase 6: Testing
+- [ ] Test all pages with new layout
+- [ ] Test mobile responsiveness
+- [ ] Test theme switching
+- [ ] Test accessibility
 
-**Session 3 (Final):**
-- Chat promotion
-- Polish & test
-- Deploy
+## 8. Design Principles
 
----
+1. **Simplicity First**: Dacă nu e necesar, nu-l include
+2. **Content is King**: Posturile sunt prioritatea #1
+3. **Accessibility**: Toate funcțiile trebuie accesibile, dar nu în față
+4. **Consistency**: Același design pattern peste tot
+5. **Performance**: Minimalist = mai rapid
 
-## 🚀 Starting now!
+## 9. Inspiration
 
-Implementez redesign-ul pe etape. Fiecare commit = 1 feature gata!
+- **office.com**: Sidebar navigation, profile bottom-left
+- **Linear.app**: Minimalist buttons, clean spacing
+- **Notion**: Simple, content-focused
+- **GitHub**: Dark/Light themes done right
 
+## 10. Next Steps
+
+1. Finish theme simplification
+2. Create sidebar component
+3. Update button styles
+4. Simplify feed layout
+5. Test & iterate

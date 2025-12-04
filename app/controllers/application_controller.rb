@@ -6,6 +6,8 @@ class ApplicationController < ActionController::Base
 
   before_action :set_locale, unless: :admin_route?
   around_action :tag_request_log
+  
+  layout :layout_by_resource
 
   rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   rescue_from ActionController::RoutingError, with: :handle_not_found
@@ -105,5 +107,15 @@ class ApplicationController < ActionController::Base
   def log_error(error, error_id)
     Rails.logger.error("[#{error_id}] #{error.class}: #{error.message}")
     Rails.logger.error(error.backtrace.first(15).join("\n")) if error.backtrace.present?
+  end
+  
+  private
+  
+  def layout_by_resource
+    if devise_controller?
+      "auth"
+    else
+      "application"
+    end
   end
 end
