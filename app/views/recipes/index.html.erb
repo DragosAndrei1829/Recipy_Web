@@ -3,47 +3,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <% end %>
 
-<!-- Feed Header -->
-<div class="feed-hero animate-slide-in <%= 'px-3 py-4' if mobile_device? %>">
-  <p class="feed-hero__eyebrow"><%= t('recipes.title') %> · <%= number_with_delimiter(@feed_stats[:total_recipes]) %>+</p>
-  <h1>
-    <%= t('recipes.index.title') %>
-  </h1>
-  <p class="feed-hero__description"><%= t('recipes.index.description') %></p>
-  <% if user_signed_in? && @showing_recommended %>
-    <p class="feed-hero__badge">
-      <%= t('recipes.index.showing_recommended') %>
-    </p>
-  <% end %>
-  <div class="feed-hero__presets">
-    <div>
-      <p class="feed-hero__section-label"><%= t('filters.quick_title') %></p>
-      <div class="feed-hero__pills">
-        <% (@quick_filters || available_quick_filters).first(4).each do |preset| %>
-          <button type="button" class="quick-chip" data-quick-search="<%= preset[:slug] %>">
-            #<%= preset[:slug] %>
-          </button>
-        <% end %>
-      </div>
-    </div>
-    <div>
-      <p class="feed-hero__section-label"><%= t('filters.all_categories') %></p>
-      <div class="feed-hero__pills">
-        <% @categories.first(4).each do |category| %>
-          <span><%= category.display_name %></span>
-        <% end %>
-      </div>
-    </div>
+<!-- Minimalist Feed Container -->
+<div class="feed-container">
+  <!-- Simple Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2"><%= t('recipes.index.title', default: 'Discover Recipes') %></h1>
+    <p class="text-sm opacity-70"><%= number_with_delimiter(@feed_stats[:total_recipes]) %>+ <%= t('recipes.title', default: 'recipes') %></p>
   </div>
-</div>
 
-<!-- Recipes Grid with unique layout -->
-<div class="space-y-4 sm:space-y-6">
-  <% @recipes.each_with_index do |recipe, index| %>
-    <turbo-frame id="<%= dom_id(recipe) %>" class="stagger-item" style="animation-delay: <%= index * 0.1 %>s">
-      <%= render "recipes/card", recipe: recipe %>
-    </turbo-frame>
-  <% end %>
+  <!-- Recipes List - Single Column -->
+  <div class="space-y-6">
+    <% @recipes.each_with_index do |recipe, index| %>
+      <turbo-frame id="<%= dom_id(recipe) %>" class="stagger-item" style="animation-delay: <%= index * 0.05 %>s">
+        <%= render "recipes/card_minimal", recipe: recipe %>
+      </turbo-frame>
+    <% end %>
+  </div>
 </div>
 
 <% if @recipes.empty? %>

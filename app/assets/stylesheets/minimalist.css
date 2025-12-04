@@ -1,0 +1,393 @@
+/* Minimalist Design System - Recipy */
+
+/* ============================================
+   1. THEME VARIABLES
+   ============================================ */
+
+:root {
+  /* Light Theme (Default) */
+  --bg-light: #ffffff;
+  --text-light: #000000;
+  --accent-light: #10b981;
+  --border-light: rgba(0, 0, 0, 0.1);
+  --hover-light: rgba(0, 0, 0, 0.03);
+  
+  /* Dark Theme */
+  --bg-dark: #1f1f1f;
+  --text-dark: #f5f5dc;
+  --accent-dark: #34d399;
+  --border-dark: rgba(255, 255, 255, 0.1);
+  --hover-dark: rgba(255, 255, 255, 0.05);
+  
+  /* Active Theme */
+  --bg: var(--bg-light);
+  --text: var(--text-light);
+  --accent: var(--accent-light);
+  --border: var(--border-light);
+  --hover: var(--hover-light);
+}
+
+/* Dark Theme via System Preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--bg-dark);
+    --text: var(--text-dark);
+    --accent: var(--accent-dark);
+    --border: var(--border-dark);
+    --hover: var(--hover-dark);
+  }
+}
+
+/* Dark Theme via Manual Selection */
+[data-theme="dark"] {
+  --bg: var(--bg-dark);
+  --text: var(--text-dark);
+  --accent: var(--accent-dark);
+  --border: var(--border-dark);
+  --hover: var(--hover-dark);
+}
+
+/* Light Theme via Manual Selection */
+[data-theme="light"] {
+  --bg: var(--bg-light);
+  --text: var(--text-light);
+  --accent: var(--accent-light);
+  --border: var(--border-light);
+  --hover: var(--hover-light);
+}
+
+/* ============================================
+   2. GLOBAL STYLES
+   ============================================ */
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* ============================================
+   3. BUTTON STYLES - Minimalist with Underline
+   ============================================ */
+
+.btn-minimal {
+  background: none;
+  border: none;
+  padding: 0.5rem 0;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color 200ms ease;
+}
+
+.btn-minimal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 200ms ease;
+}
+
+.btn-minimal:hover::after {
+  width: 100%;
+}
+
+.btn-minimal:hover {
+  color: var(--accent);
+}
+
+/* Primary Button (with background) */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Secondary Button (outline) */
+.btn-secondary {
+  background: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.btn-secondary:hover {
+  background: var(--hover);
+  border-color: var(--accent);
+}
+
+/* Icon Button */
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 150ms ease, color 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background: var(--hover);
+  color: var(--accent);
+}
+
+/* ============================================
+   4. CARD STYLES - Minimalist
+   ============================================ */
+
+.card-minimal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.card-minimal:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   5. INPUT STYLES - Minimalist
+   ============================================ */
+
+.input-minimal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  width: 100%;
+}
+
+.input-minimal:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input-minimal::placeholder {
+  color: rgba(var(--text), 0.5);
+}
+
+/* ============================================
+   6. LAYOUT - Content First
+   ============================================ */
+
+.main-content-wrapper {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    padding: 1rem;
+  }
+}
+
+/* Feed Layout - Single Column, Centered */
+.feed-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   7. RECIPE CARD - Minimalist
+   ============================================ */
+
+.recipe-card-minimal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.recipe-card-minimal:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.recipe-card-minimal__image {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+}
+
+.recipe-card-minimal__content {
+  padding: 1.25rem;
+}
+
+.recipe-card-minimal__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.recipe-card-minimal__description {
+  font-size: 0.875rem;
+  color: var(--text);
+  opacity: 0.7;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recipe-card-minimal__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.recipe-card-minimal__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================
+   8. UTILITIES
+   ============================================ */
+
+.text-accent {
+  color: var(--accent);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.border-accent {
+  border-color: var(--accent);
+}
+
+.hover-underline {
+  position: relative;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 200ms ease;
+}
+
+.hover-underline:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+   9. ANIMATIONS
+   ============================================ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 300ms ease;
+}
+
+/* ============================================
+   10. RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    padding: 1rem;
+  }
+
+  .recipe-card-minimal__image {
+    height: 200px;
+  }
+
+  .recipe-card-minimal__content {
+    padding: 1rem;
+  }
+}
+
+/* ============================================
+   11. ACCESSIBILITY
+   ============================================ */
+
+.btn-minimal:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-icon:focus-visible,
+.input-minimal:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   12. PRINT STYLES
+   ============================================ */
+
+@media print {
+  .office-sidebar,
+  .btn-minimal,
+  .btn-primary,
+  .btn-secondary,
+  .btn-icon {
+    display: none;
+  }
+
+  .main-content-wrapper {
+    margin-left: 0 !important;
+  }
+}
+
