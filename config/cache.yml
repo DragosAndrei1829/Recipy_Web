@@ -12,5 +12,5 @@ test:
   <<: *default
 
 production:
-  database: cache
+  # Railway uses single database, not separate cache db
   <<: *default
