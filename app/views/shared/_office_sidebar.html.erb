@@ -1,3 +1,13 @@
+<!-- Mobile Hamburger Menu Button -->
+<button id="mobile-menu-toggle" class="mobile-menu-toggle" onclick="toggleMobileSidebar()">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
+<!-- Mobile Overlay -->
+<div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" onclick="closeMobileSidebar()"></div>
+
 <!-- Office.com Style Sidebar -->
 <aside id="office-sidebar" class="office-sidebar">
   <!-- Logo -->
@@ -838,6 +848,42 @@ document.addEventListener('turbo:submit-end', function(event) {
   if (button) {
     button.disabled = false;
     button.style.opacity = '1';
+  }
+});
+
+// Mobile Sidebar Toggle Functions
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById('office-sidebar');
+  const overlay = document.getElementById('mobile-sidebar-overlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('mobile-sidebar-open');
+    overlay.classList.toggle('mobile-sidebar-overlay-visible');
+    
+    // Prevent body scroll when sidebar is open
+    if (sidebar.classList.contains('mobile-sidebar-open')) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+}
+
+function closeMobileSidebar() {
+  const sidebar = document.getElementById('office-sidebar');
+  const overlay = document.getElementById('mobile-sidebar-overlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.remove('mobile-sidebar-open');
+    overlay.classList.remove('mobile-sidebar-overlay-visible');
+    document.body.style.overflow = '';
+  }
+}
+
+// Close sidebar when clicking on a nav link (on mobile)
+document.addEventListener('click', function(e) {
+  if (window.innerWidth < 1024 && e.target.closest('.office-sidebar__nav-item')) {
+    closeMobileSidebar();
   }
 });
 </script>

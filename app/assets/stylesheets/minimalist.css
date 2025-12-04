@@ -1841,6 +1841,92 @@ body {
 }
 
 /* ============================================
+   10.5 MOBILE SIDEBAR & HAMBURGER MENU
+   ============================================ */
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg, #ffffff);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu-toggle:hover {
+  background: var(--hover, #f3f4f6);
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.mobile-menu-toggle svg {
+  color: var(--text, #1f2937);
+}
+
+.mobile-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-sidebar-overlay-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mobile Sidebar Behavior */
+@media (max-width: 1023px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .office-sidebar {
+    transform: translateX(-100%);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+  
+  .office-sidebar.mobile-sidebar-open {
+    transform: translateX(0);
+  }
+  
+  /* Adjust main content on mobile */
+  .main-content-wrapper {
+    margin-left: 0 !important;
+    padding-top: 80px;
+  }
+}
+
+/* Theme support for mobile menu */
+[data-theme="dark"] .mobile-menu-toggle {
+  background: var(--bg-dark);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .mobile-menu-toggle:hover {
+  background: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .mobile-menu-toggle svg {
+  color: var(--text-dark);
+}
+
+/* ============================================
    11. ACCESSIBILITY
    ============================================ */
 
