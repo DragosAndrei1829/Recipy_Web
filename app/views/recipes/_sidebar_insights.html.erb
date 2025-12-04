@@ -19,7 +19,12 @@
             <% next if recipe.nil? || recipe.id.nil? %>
             <%= link_to recipe_path(recipe, locale: I18n.locale), class: "flex items-center gap-3 hover:bg-primary/5 p-2 rounded-lg transition-all" do %>
               <% if recipe.photos.attached? && recipe.photos.first.present? %>
-                <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
+                <% begin %>
+                  <%= image_tag url_for(recipe.photos.first.variant(resize_to_fill: [32,32])), class: "h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" %>
+                  <div class="h-8 w-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 grid place-items-center">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  </div>
+                <% end %>
               <% else %>
                 <div class="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 grid place-items-center text-xs font-bold text-white">
                   <%= recipe.title&.first&.upcase || 'R' %>

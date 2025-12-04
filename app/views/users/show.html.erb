@@ -18,8 +18,10 @@
       <div class="px-4 pb-4 -mt-10">
         <!-- Avatar -->
         <% if @user.avatar.attached? %>
-          <%= image_tag url_for(@user.avatar.variant(resize_to_fill: [80,80])), 
-              class: "w-20 h-20 rounded-full object-cover ring-4 ring-white dark:ring-gray-900 shadow-lg" %>
+          <% begin %>
+            <%= image_tag url_for(@user.avatar.variant(resize_to_fill: [80,80])), 
+                class: "w-20 h-20 rounded-full object-cover ring-4 ring-white dark:ring-gray-900 shadow-lg" %>
+          <% rescue ActiveStorage::FileNotFoundError %>
         <% else %>
           <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center ring-4 ring-white dark:ring-gray-900 shadow-lg">
             <span class="text-2xl font-black text-white"><%= @user.username&.first&.upcase || 'U' %></span>
@@ -164,11 +166,23 @@
               <div class="sm:w-48 md:w-56 flex-shrink-0">
                 <div class="aspect-[4/3] sm:aspect-square relative overflow-hidden">
                   <% if has_cover %>
-                    <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [300,300])), 
-                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                    <% begin %>
+                      <%= image_tag url_for(recipe.cover_photo.variant(resize_to_fill: [300,300])), 
+                          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                    <% rescue ActiveStorage::FileNotFoundError %>
+                      <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      </div>
+                    <% end %>
                   <% elsif has_photos && first_valid_photo %>
-                    <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [300,300])), 
-                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                    <% begin %>
+                      <%= image_tag url_for(first_valid_photo.variant(resize_to_fill: [300,300])), 
+                          class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" %>
+                    <% rescue ActiveStorage::FileNotFoundError %>
+                      <div class="w-full h-full bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      </div>
+                    <% end %>
                   <% end %>
                   
                   <%# Category badge %>
