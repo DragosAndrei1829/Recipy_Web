@@ -1,5 +1,8 @@
 class ApplicationController < ActionController::Base
   allow_browser versions: :modern
+  
+  include DeviceHelper
+  helper_method :mobile_device?, :tablet_device?, :desktop_device?
 
   before_action :set_locale, unless: :admin_route?
   around_action :tag_request_log
