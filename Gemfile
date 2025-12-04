@@ -99,3 +99,4 @@ gem "ruby-openai"
 
 
 gem 'stripe'
+gem "dockerfile-rails", ">= 1.7", :group => :development
