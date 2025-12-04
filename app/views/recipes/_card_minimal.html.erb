@@ -97,9 +97,9 @@
     <% end %>
   </div>
 
-  <!-- Actions - Simple Icons -->
+  <!-- Actions - Simple Icons + View Recipe Button -->
   <div class="flex w-full items-center justify-between border-t border-neutral-border dark:border-gray-700 pt-4">
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-4">
       <!-- Like -->
       <%= button_to recipe_like_path(recipe, locale: I18n.locale),
           method: :post,
@@ -123,29 +123,15 @@
         <span class="text-sm font-medium"><%= recipe.comments_count %></span>
       <% end %>
 
-      <!-- Share -->
-      <button type="button" class="flex items-center gap-2 text-secondary-content hover:text-primary transition-colors duration-200 cursor-pointer"
-              onclick="navigator.share({title: '<%= recipe.title.gsub("'", "\\\\'") %>', url: '<%= recipe_url(recipe, locale: I18n.locale) %>'}).catch(() => {})">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-        </svg>
-        <span class="text-sm font-medium">Share</span>
-      </button>
     </div>
 
-    <!-- Bookmark -->
-    <% if user_signed_in? %>
-      <%= button_to recipe_favorite_path(recipe, locale: I18n.locale),
-          method: :post,
-          class: "w-8 h-8 flex items-center justify-center rounded-md text-secondary-content hover:text-amber-500 hover:bg-neutral-100 dark:hover:bg-gray-800 transition-colors border-0 bg-transparent",
-          data: { turbo: false },
-          form: { style: "display: inline;" } do %>
-        <svg class="w-5 h-5 <%= 'text-amber-500 fill-amber-500' if recipe.favorites.exists?(user: current_user) %>" 
-             fill="<%= recipe.favorites.exists?(user: current_user) ? 'currentColor' : 'none' %>" 
-             stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-        </svg>
-      <% end %>
+    <!-- View Recipe Button -->
+    <%= link_to recipe_path(recipe, locale: I18n.locale), 
+        class: "inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors" do %>
+      <span><%= t('recipes.view_recipe', default: 'View Recipe') %></span>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
     <% end %>
   </div>
 </article>
