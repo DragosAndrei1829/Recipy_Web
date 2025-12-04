@@ -48,7 +48,7 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Replace the default in-process memory cache store with a durable alternative.
-  # Use Redis if available (Railway), otherwise use solid_cache_store
+  # Use Redis if available (Railway), otherwise memory store
   if ENV["REDIS_URL"].present?
     config.cache_store = :redis_cache_store, { 
       url: ENV["REDIS_URL"],
@@ -56,12 +56,12 @@ Rails.application.configure do
       expires_in: 2.hours,
       reconnect_attempts: 3
     }
-    config.active_job.queue_adapter = :solid_queue
-    config.solid_queue.connects_to = { database: { writing: :queue } }
+    # Use async adapter for simplicity on Railway (single database)
+    config.active_job.queue_adapter = :async
   else
-    config.cache_store = :solid_cache_store
-    config.active_job.queue_adapter = :solid_queue
-    config.solid_queue.connects_to = { database: { writing: :queue } }
+    # Use memory store and async adapter for simple deployments
+    config.cache_store = :memory_store
+    config.active_job.queue_adapter = :async
   end
 
   # Ignore bad email addresses and do not raise email delivery errors.
