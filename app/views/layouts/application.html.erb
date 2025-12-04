@@ -561,9 +561,11 @@
         }
 
 
-      // Unified search - reinitialize
+      // Unified search - reinitialize (Desktop + Mobile)
       const unifiedSearchInput = document.getElementById('unified-search-input');
       const unifiedSearchResults = document.getElementById('unified-search-results');
+      const mobileSearchInput = document.getElementById('mobile-search-input');
+      const mobileSearchResults = document.getElementById('mobile-search-results');
       let unifiedSearchTimeout;
       
       if (unifiedSearchInput && unifiedSearchResults) {
@@ -641,6 +643,51 @@
             };
             document.addEventListener('click', window.unifiedSearchResultsHandler);
           }
+        }
+      }
+      
+      // Mobile search functionality
+      if (mobileSearchInput && mobileSearchResults) {
+        const newMobileInput = mobileSearchInput.cloneNode(true);
+        mobileSearchInput.parentNode.replaceChild(newMobileInput, mobileSearchInput);
+        const freshMobileInput = document.getElementById('mobile-search-input');
+        
+        if (freshMobileInput) {
+          const localeFromInput = freshMobileInput.dataset.locale || currentLocale;
+          
+          freshMobileInput.addEventListener('input', (e) => {
+            clearTimeout(unifiedSearchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+              mobileSearchResults.innerHTML = '';
+              return;
+            }
+            
+            unifiedSearchTimeout = setTimeout(() => {
+              const locale = localeFromInput || window.location.pathname.split('/')[1] || 'en';
+              fetch(`/${locale}/search?q=${encodeURIComponent(query)}`, {
+                headers: {
+                  'Accept': 'text/html',
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              })
+              .then(response => response.text())
+              .then(html => {
+                mobileSearchResults.innerHTML = html;
+              })
+              .catch(() => {
+                mobileSearchResults.innerHTML = '<p class="text-sm text-secondary-content p-4">Error loading results</p>';
+              });
+            }, 300);
+          });
+          
+          freshMobileInput.addEventListener('keydown', (e) => {
+            const value = freshMobileInput.value.trim();
+            if (e.key === 'Enter' && value.length >= 2) {
+              window.location.href = `/${localeFromInput}/recipes?search=${encodeURIComponent(value)}`;
+            }
+          });
         }
       }
 
