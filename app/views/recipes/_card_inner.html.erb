@@ -1,7 +1,7 @@
 <% rating_scope = recipe.comments.where.not(rating: nil) %>
 <% avg_rating = rating_scope.any? ? rating_scope.average(:rating).to_f.round(1) : nil %>
 
-<article id="<%= dom_id(recipe, :inner) %>" class="feed-card relative">
+<article id="<%= dom_id(recipe, :inner) %>" class="feed-card relative mx-2 sm:mx-0">
   <%# Top Ranking Badge - Top Left Corner (only on top recipes page) %>
   <% if defined?(index) && index.present? %>
     <div class="absolute top-3 left-3 z-20">
