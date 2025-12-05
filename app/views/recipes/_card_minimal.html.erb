@@ -59,9 +59,10 @@
       <%= link_to user_path(recipe.user, locale: I18n.locale), class: "flex items-center gap-2.5 group", data: { turbo: false } do %>
         <% if recipe.user&.avatar&.attached? %>
           <% begin %>
-            <%= image_tag url_for(recipe.user.avatar.variant(resize_to_fill: [40,40])),
-                class: "w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all" %>
-          <% rescue ActiveStorage::FileNotFoundError %>
+            <%= image_tag url_for(recipe.user.avatar),
+                class: "w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all",
+                style: "width: 40px; height: 40px; object-fit: cover;" %>
+          <% rescue => e %>
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
               <%= (recipe.user.username&.first || 'U').upcase %>
             </div>

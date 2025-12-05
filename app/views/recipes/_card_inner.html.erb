@@ -64,7 +64,9 @@
     <% if recipe.user %>
       <%= link_to user_path(recipe.user), data: { turbo_frame: "_top" }, class: "feed-card__author" do %>
         <% if recipe.user.avatar&.attached? %>
-          <%= image_tag url_for(recipe.user.avatar.variant(resize_to_fill: [44,44])), class: "feed-card__avatar" %>
+          <%= image_tag url_for(recipe.user.avatar), 
+              class: "feed-card__avatar",
+              style: "width: 44px; height: 44px; object-fit: cover;" %>
         <% else %>
           <div class="feed-card__avatar placeholder">
             <svg class="h-5 w-5 text-secondary-content" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>

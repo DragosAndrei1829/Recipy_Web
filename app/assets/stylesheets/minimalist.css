@@ -1908,10 +1908,19 @@ body {
     transform: translateX(-100%);
     box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
+    pointer-events: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .office-sidebar.mobile-sidebar-open {
     transform: translateX(0);
+    pointer-events: auto;
+  }
+  
+  /* Make all sidebar children clickable */
+  .office-sidebar * {
+    pointer-events: auto;
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.1);
   }
   
   /* Adjust main content on mobile */
