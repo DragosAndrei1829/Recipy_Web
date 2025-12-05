@@ -2149,10 +2149,199 @@ body::after {
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Autocomplete Dropdown */
+.global-search-input-wrapper {
+  position: relative;
+}
+
+.global-search-autocomplete {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--card-bg, #ffffff);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+[data-theme="dark"] .global-search-autocomplete {
+  background: var(--card-dark, #1e293b);
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-autocomplete-dropdown {
+  padding: 0.5rem;
+}
+
+.search-autocomplete-section {
+  margin-bottom: 0.5rem;
+}
+
+.search-autocomplete-section:last-child {
+  margin-bottom: 0;
+}
+
+.search-autocomplete-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.search-autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.search-autocomplete-item:hover {
+  background: rgba(16, 185, 129, 0.1);
+  transform: translateX(4px);
+}
+
+[data-theme="dark"] .search-autocomplete-item:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.search-autocomplete-avatar,
+.search-autocomplete-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-image {
+  border-radius: 8px;
+}
+
+.search-autocomplete-avatar-fallback,
+.search-autocomplete-image-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-image-fallback {
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+  color: #64748b;
+}
+
+[data-theme="dark"] .search-autocomplete-image-fallback {
+  background: linear-gradient(135deg, #334155, #475569);
+  color: #94a3b8;
+}
+
+.search-autocomplete-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-autocomplete-item-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text);
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-autocomplete-item-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-autocomplete-footer {
+  border-top: 1px solid rgba(16, 185, 129, 0.1);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+[data-theme="dark"] .search-autocomplete-footer {
+  border-top-color: rgba(59, 130, 246, 0.2);
+}
+
+.search-autocomplete-view-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.search-autocomplete-view-all:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--accent-hover);
+}
+
+[data-theme="dark"] .search-autocomplete-view-all:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.search-autocomplete-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
 @media (max-width: 1023px) {
   .global-search-bar {
     left: 0;
     padding: 0 1rem;
+  }
+
+  .global-search-autocomplete {
+    max-height: 300px;
   }
 }
 
