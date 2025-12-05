@@ -38,8 +38,14 @@
     <!-- Video (if exists) - ALWAYS SHOW FIRST -->
     <% if @recipe.video&.attached? %>
       <% begin %>
-        <% video_url = url_for(@recipe.video) rescue nil %>
-        <% if video_url && @recipe.video.blob.present? %>
+        <% video_url = nil %>
+        <% begin %>
+          <% video_url = url_for(@recipe.video) %>
+        rescue => e
+          <% Rails.logger.error("Error generating video URL in view: #{e.message}") %>
+          <% video_url = nil %>
+        <% end %>
+        <% if video_url.present? && @recipe.video.blob.present? %>
           <div class="recipe-image-compact bg-black rounded-2xl overflow-hidden mb-6">
             <video controls playsinline preload="metadata" class="w-full" style="max-height: 500px; object-fit: contain;" onerror="this.onerror=null; this.parentElement.innerHTML='<p class=\\'text-white p-4\\'>Video nu este disponibil momentan.</p>';">
               <source src="<%= video_url %>" type="<%= @recipe.video.content_type %>">
@@ -94,8 +100,14 @@
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             <% @recipe.photos.each do |photo| %>
               <% begin %>
-                <% photo_url = url_for(photo) rescue nil %>
-                <% if photo_url && photo.blob.present? %>
+                <% photo_url = nil %>
+                <% begin %>
+                  <% photo_url = url_for(photo) %>
+                rescue => e
+                  <% Rails.logger.error("Error generating photo URL in view: #{e.message}, photo_id=#{photo.id rescue 'unknown'}") %>
+                  <% photo_url = nil %>
+                <% end %>
+                <% if photo_url.present? && photo.blob.present? %>
                   <div class="recipe-image-compact rounded-xl overflow-hidden">
                     <%= image_tag photo_url, 
                         alt: @recipe.title,

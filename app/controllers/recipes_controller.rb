@@ -287,7 +287,46 @@ class RecipesController < ApplicationController
     end
   end
 
-  def show; end
+  def show
+    # Ensure recipe is loaded with all necessary associations
+    @recipe = Recipe.includes(:user, :category, :cuisine, :food_type, comments: :user, video_timestamps: [])
+                    .find_by(slug: params[:id]) || Recipe.find(params[:id])
+    
+    # Log attachments for debugging
+    Rails.logger.info "Recipe show - ID: #{@recipe.id}, Photos: #{@recipe.photos.attached? ? @recipe.photos.count : 0}, Video: #{@recipe.video.attached?}"
+    
+    # Pre-generate URLs to catch errors early
+    begin
+      if @recipe.photos.attached?
+        @recipe.photos.each_with_index do |photo, index|
+          begin
+            url_for(photo)
+            Rails.logger.debug "Photo #{index + 1} URL generated successfully"
+          rescue => e
+            Rails.logger.error "Error generating URL for photo #{index + 1}: #{e.message}"
+            Rails.logger.error e.backtrace.first(3).join("\n")
+          end
+        end
+      end
+      
+      if @recipe.video.attached?
+        begin
+          url_for(@recipe.video)
+          Rails.logger.debug "Video URL generated successfully"
+        rescue => e
+          Rails.logger.error "Error generating URL for video: #{e.message}"
+          Rails.logger.error e.backtrace.first(3).join("\n")
+        end
+      end
+    rescue => e
+      Rails.logger.error "Error in recipe show action: #{e.message}"
+      Rails.logger.error e.backtrace.first(5).join("\n")
+    end
+  rescue => e
+    Rails.logger.error "Fatal error loading recipe: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    redirect_to recipes_path(locale: I18n.locale), alert: "Rețeta nu a putut fi încărcată."
+  end
   def new
     @recipe = Recipe.new
   end
