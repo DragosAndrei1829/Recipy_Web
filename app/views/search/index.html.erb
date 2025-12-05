@@ -1,0 +1,85 @@
+<% content_for :title, t('search.title', default: 'Căutare') %>
+
+<div class="modern-page-container">
+  <div class="modern-page-header">
+    <h1 class="text-3xl font-black mb-2 flex items-center gap-3">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <%= t('search.title', default: 'Căutare') %>
+    </h1>
+    <% if @query.present? %>
+      <p class="text-lg opacity-80">Rezultate pentru: "<strong><%= @query %></strong>"</p>
+    <% else %>
+      <p class="text-lg opacity-80"><%= t('search.placeholder', default: 'Caută rețete, utilizatori...') %></p>
+    <% end %>
+  </div>
+
+  <% if @query.present? %>
+    <!-- Users Results -->
+    <% if @users.any? %>
+      <div class="modern-card mb-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          Utilizatori (<%= @users.count %>)
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @users.each do |user| %>
+            <%= link_to user_path(user, locale: I18n.locale), class: "flex items-center gap-3 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all" do %>
+              <% if user.avatar&.attached? %>
+                <%= image_tag url_for(user.avatar), class: "w-12 h-12 rounded-full object-cover" %>
+              <% else %>
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                  <%= user.username&.first&.upcase || 'U' %>
+                </div>
+              <% end %>
+              <div>
+                <p class="font-bold text-primary-content"><%= user.username %></p>
+                <p class="text-sm text-secondary-content"><%= user.email %></p>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Recipes Results -->
+    <% if @recipes.any? %>
+      <div class="modern-card">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+          </svg>
+          Rețete (<%= @recipes.count %>)
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @recipes.each do |recipe| %>
+            <%= render 'recipes/card_minimal', recipe: recipe %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- No Results -->
+    <% if @users.empty? && @recipes.empty? %>
+      <div class="modern-empty-state">
+        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <h3 class="text-xl font-bold mb-2">Nu am găsit rezultate</h3>
+        <p class="text-secondary-content">Încearcă cu alt termen de căutare.</p>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="modern-empty-state">
+      <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <h3 class="text-xl font-bold mb-2">Caută rețete sau utilizatori</h3>
+      <p class="text-secondary-content">Folosește bara de căutare de sus pentru a găsi ce cauți.</p>
+    </div>
+  <% end %>
+</div>
+
