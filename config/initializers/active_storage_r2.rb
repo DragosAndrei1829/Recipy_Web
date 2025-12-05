@@ -1,24 +1,33 @@
 # Active Storage R2 Configuration
-# This ensures R2 URLs are generated correctly with proper signed URLs
+# This ensures R2 URLs are generated correctly
+# With Public Access enabled, we can use public URLs directly (faster and simpler)
 
 Rails.application.config.after_initialize do
   if Rails.env.production? && defined?(ActiveStorage::Service::S3Service)
     # Log R2 configuration
     if ENV['AWS_ENDPOINT'].present?
       Rails.logger.info "R2 Configuration: Endpoint=#{ENV['AWS_ENDPOINT']}, Bucket=#{ENV['AWS_S3_BUCKET']}"
+      Rails.logger.info "R2 Public Domain: https://pub-74a98915f906497b8868c50e202895bc.r2.dev"
     end
 
-    # Ensure signed URLs work correctly for R2
+    # Use public URLs if public access is enabled, otherwise use signed URLs
     begin
       ActiveStorage::Service::S3Service.class_eval do
         def url(key, expires_in:, filename:, disposition:, content_type:)
           begin
-            # For R2, we need to use presigned URLs
+            # Check if we should use public URLs (if R2_PUBLIC_DOMAIN is set)
+            public_domain = ENV['R2_PUBLIC_DOMAIN']
+            
+            if public_domain.present?
+              # Use public URL directly (faster, no expiration)
+              public_url = "#{public_domain}/#{key}"
+              Rails.logger.debug "Using R2 public URL for #{key}"
+              return public_url
+            end
+
+            # Otherwise, use presigned URLs (for private buckets)
             object = object_for(key)
             
-            # Check if object exists (skip check for R2 as it may be slow)
-            # R2 will return 404 if object doesn't exist, which is fine
-
             # Generate presigned URL with proper expiration (default 1 hour)
             presigned_url = object.presigned_url(
               :get,
@@ -33,7 +42,7 @@ Rails.application.config.after_initialize do
             Rails.logger.error "R2 object not found: #{key} - #{e.message}"
             nil
           rescue => e
-            Rails.logger.error "Error generating R2 signed URL for key #{key}: #{e.message}"
+            Rails.logger.error "Error generating R2 URL for key #{key}: #{e.message}"
             Rails.logger.error e.backtrace.first(5).join("\n")
             nil
           end

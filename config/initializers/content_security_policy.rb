@@ -11,6 +11,8 @@ Rails.application.configure do
     policy.img_src     :self, :https, :data, :blob,
                        "https://*.blob.core.windows.net",  # Azure Storage
                        "https://*.amazonaws.com",          # AWS S3
+                       "https://*.r2.dev",                 # Cloudflare R2 Public Domain
+                       "https://*.r2.cloudflarestorage.com", # Cloudflare R2 S3 API
                        "https://lh3.googleusercontent.com", # Google profile images
                        "https://avatars.githubusercontent.com"
     policy.object_src  :none
@@ -19,7 +21,9 @@ Rails.application.configure do
     policy.connect_src :self, :https,
                        "wss://#{Rails.application.config.action_cable.url || 'localhost:3000'}",  # ActionCable WebSocket
                        "https://*.blob.core.windows.net",
-                       "https://*.amazonaws.com"
+                       "https://*.amazonaws.com",
+                       "https://*.r2.dev",                 # Cloudflare R2 Public Domain
+                       "https://*.r2.cloudflarestorage.com" # Cloudflare R2 S3 API
     policy.frame_ancestors :self
     policy.base_uri    :self
     policy.form_action :self, :https,
