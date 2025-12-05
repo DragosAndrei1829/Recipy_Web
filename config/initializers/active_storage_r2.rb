@@ -30,10 +30,11 @@ Rails.application.config.after_initialize do
               Rails.logger.warn "R2_PUBLIC_DOMAIN is set but using signed URLs for reliability"
             end
 
-            # Otherwise, use presigned URLs (for private buckets)
+            # Use presigned URLs (for private buckets or when public domain not working)
             object = object_for(key)
             
             # Generate presigned URL with proper expiration (default 1 hour)
+            # Remove checksum parameters to avoid conflicts with R2
             presigned_url = object.presigned_url(
               :get,
               expires_in: expires_in || 3600,
@@ -41,7 +42,7 @@ Rails.application.config.after_initialize do
               response_content_type: content_type
             )
 
-            Rails.logger.debug "Generated R2 signed URL for #{key}"
+            Rails.logger.debug "Generated R2 signed URL for #{key[0..50]}..."
             presigned_url
           rescue Aws::S3::Errors::NoSuchKey => e
             Rails.logger.error "R2 object not found: #{key} - #{e.message}"

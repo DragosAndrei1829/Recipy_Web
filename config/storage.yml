@@ -17,8 +17,8 @@ amazon:
   endpoint: <%= ENV.fetch("AWS_ENDPOINT", nil) %>
   force_path_style: <%= ENV.fetch("AWS_FORCE_PATH_STYLE", "true") == "true" %>
   public: <%= ENV.fetch("AWS_PUBLIC", "false") == "true" %>
-  upload:
-    server_side_encryption: "AES256"
+  # Removed server_side_encryption to avoid checksum conflicts with R2
+  # R2 handles encryption automatically
   http_open_timeout: 10
   http_read_timeout: 30
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
