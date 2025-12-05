@@ -308,7 +308,39 @@ class RecipesController < ApplicationController
 
       map_free_text_taxonomies!(@recipe)
       
+      # Log attachments before save
+      Rails.logger.info "Recipe before save - Photos count: #{@recipe.photos.attached? ? @recipe.photos.count : 0}"
+      Rails.logger.info "Recipe before save - Video attached: #{@recipe.video.attached?}"
+      Rails.logger.info "Recipe before save - Cover photo attached: #{@recipe.cover_photo.attached?}"
+      
       if @recipe.save
+        # Log attachments after save
+        Rails.logger.info "Recipe saved successfully - ID: #{@recipe.id}"
+        Rails.logger.info "Recipe after save - Photos count: #{@recipe.photos.attached? ? @recipe.photos.count : 0}"
+        Rails.logger.info "Recipe after save - Video attached: #{@recipe.video.attached?}"
+        Rails.logger.info "Recipe after save - Cover photo attached: #{@recipe.cover_photo.attached?}"
+        
+        # Log photo URLs if available
+        if @recipe.photos.attached?
+          @recipe.photos.each_with_index do |photo, index|
+            begin
+              photo_url = url_for(photo) rescue nil
+              Rails.logger.info "Photo #{index + 1} URL: #{photo_url}"
+            rescue => e
+              Rails.logger.error "Error generating URL for photo #{index + 1}: #{e.message}"
+            end
+          end
+        end
+        
+        # Log video URL if available
+        if @recipe.video.attached?
+          begin
+            video_url = url_for(@recipe.video) rescue nil
+            Rails.logger.info "Video URL: #{video_url}"
+          rescue => e
+            Rails.logger.error "Error generating URL for video: #{e.message}"
+          end
+        end
         # Create video timestamps if provided
         if params[:recipe].present? && params[:recipe][:video_timestamps_json].present?
           begin

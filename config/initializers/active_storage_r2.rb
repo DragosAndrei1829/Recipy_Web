@@ -20,8 +20,10 @@ Rails.application.config.after_initialize do
             
             if public_domain.present?
               # Use public URL directly (faster, no expiration)
-              public_url = "#{public_domain}/#{key}"
-              Rails.logger.debug "Using R2 public URL for #{key}"
+              # R2 public domain format: https://pub-xxx.r2.dev/bucket-name/key
+              bucket_name = ENV['AWS_S3_BUCKET'] || 'recipy-production'
+              public_url = "#{public_domain}/#{bucket_name}/#{key}"
+              Rails.logger.info "Using R2 public URL: #{public_url}"
               return public_url
             end
 
