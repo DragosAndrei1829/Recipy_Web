@@ -32,6 +32,12 @@ class AiAssistantController < ApplicationController
       end
       return
     end
+    
+    # If Llama selected but not available, fallback to local
+    if provider == AiRecipeAssistant::PROVIDER_LLAMA && !AiRecipeAssistant.ollama_available?
+      provider = AiRecipeAssistant::PROVIDER_LOCAL
+      session[:ai_provider] = provider
+    end
 
     # Check subscription for OpenAI
     if provider == AiRecipeAssistant::PROVIDER_OPENAI && !current_user.has_active_ai_chat_subscription?

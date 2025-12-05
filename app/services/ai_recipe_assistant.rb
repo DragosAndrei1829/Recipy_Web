@@ -107,9 +107,13 @@ class AiRecipeAssistant
   def self.ollama_available?
     require "net/http"
     uri = URI(ENV.fetch("OLLAMA_URL", "http://localhost:11434") + "/api/tags")
-    response = Net::HTTP.get_response(uri)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 2
+    http.read_timeout = 2
+    response = http.get(uri.path)
     response.is_a?(Net::HTTPSuccess)
-  rescue StandardError
+  rescue StandardError => e
+    Rails.logger.info "Ollama not available: #{e.message}"
     false
   end
 
