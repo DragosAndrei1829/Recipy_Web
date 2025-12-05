@@ -324,7 +324,15 @@ class RecipesController < ApplicationController
           end
         end
         
-        redirect_to recipes_path(locale: I18n.locale), notice: t('recipes.created_successfully', default: "Rețeta a fost publicată cu succes!")
+        # Immediate redirect to home page
+        respond_to do |format|
+          format.html { 
+            redirect_to recipes_path(locale: I18n.locale), 
+            notice: t('recipes.created_successfully', default: "Rețeta a fost publicată cu succes! Poate dura câteva secunde până apare în feed."),
+            status: :see_other
+          }
+          format.json { render json: { success: true, recipe_id: @recipe.id }, status: :created }
+        end
     else
         # Preserve step if there are errors
         @current_step = params[:current_step].to_i || 1

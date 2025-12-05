@@ -178,16 +178,19 @@
               </span>
             </label>
             <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-8 text-center hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors cursor-pointer group" id="photo-drop-zone">
-              <%= form.file_field :photos, multiple: true, accept: "image/*", id: "photo-upload", class: "hidden", 
+              <%= form.file_field :photos, multiple: true, accept: "image/*,image/jpeg,image/jpg,image/png,image/webp", 
+                  capture: "environment",
+                  id: "photo-upload", class: "hidden", 
                   data: { nsfw_detector_target: "input", action: "change->nsfw-detector#checkFiles" } %>
               <label for="photo-upload" class="cursor-pointer block">
                 <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30 transition-colors">
                   <svg class="w-8 h-8 text-gray-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
                 </div>
-                <p class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1"><%= t('recipes.form.help_photos_click', default: 'Click pentru a adăuga fotografii') %></p>
-                <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.help_photos_drag', default: 'sau trage și plasează aici') %></p>
+                <p class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1"><%= t('recipes.form.help_photos_click', default: 'Adaugă fotografii') %></p>
+                <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('recipes.form.help_photos_mobile', default: 'Click pentru a folosi camera sau galeria') %></p>
               </label>
             </div>
             <!-- NSFW Warning (hidden by default) -->
@@ -518,16 +521,39 @@ function initRecipeWizard() {
   
   if (photoUpload) {
     photoUpload.addEventListener('change', function(e) {
+      if (!photoPreview) return;
+      
       photoPreview.innerHTML = '';
-      Array.from(e.target.files).forEach((file, index) => {
+      const files = Array.from(e.target.files);
+      
+      if (files.length === 0) {
+        photoPreview.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Nicio imagine selectată</p>';
+        return;
+      }
+      
+      files.forEach((file, index) => {
+        // Check if it's an image
+        if (!file.type.startsWith('image/')) {
+          console.warn('Skipping non-image file:', file.name);
+          return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
           const div = document.createElement('div');
-          div.className = 'relative rounded-xl overflow-hidden';
+          div.className = 'relative rounded-xl overflow-hidden shadow-md';
           div.innerHTML = `
-            <img src="${e.target.result}" class="w-full h-20 object-cover" />
-            ${index === 0 ? '<div class="absolute top-1 left-1 bg-emerald-500 text-white text-[8px] px-1.5 py-0.5 rounded font-bold">Cover</div>' : ''}
+            <img src="${e.target.result}" class="w-full h-24 object-cover" alt="Preview ${index + 1}" />
+            ${index === 0 ? '<div class="absolute top-1 left-1 bg-emerald-500 text-white text-[10px] px-2 py-1 rounded font-bold shadow">Cover</div>' : ''}
+            <div class="absolute bottom-1 right-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded">${(file.size / (1024 * 1024)).toFixed(1)} MB</div>
           `;
+          photoPreview.appendChild(div);
+        };
+        reader.onerror = function(e) {
+          console.error('Error reading file:', file.name, e);
+          const div = document.createElement('div');
+          div.className = 'p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs text-red-600';
+          div.textContent = 'Eroare la încărcare: ' + file.name;
           photoPreview.appendChild(div);
         };
         reader.readAsDataURL(file);

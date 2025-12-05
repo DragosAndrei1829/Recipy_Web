@@ -20,8 +20,40 @@
       <% end %>
     </div>
 
-    <!-- Image -->
-    <% if @recipe.photos.attached? && @recipe.photos.first.present? %>
+    <!-- Media (Image or Video) -->
+    <% if @recipe.video&.attached? %>
+      <% begin %>
+        <div class="recipe-image-compact bg-black rounded-2xl overflow-hidden">
+          <video controls playsinline preload="metadata" class="w-full" style="max-height: 500px; object-fit: contain;">
+            <source src="<%= url_for(@recipe.video) %>" type="<%= @recipe.video.content_type %>">
+            <p class="text-white p-4">Your browser does not support the video tag.</p>
+          </video>
+          
+          <!-- Video Timestamps (if any) -->
+          <% if @recipe.video_timestamps.any? %>
+            <div class="bg-gray-900 p-4">
+              <h4 class="text-white font-semibold mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Timestamps:
+              </h4>
+              <div class="space-y-2">
+                <% @recipe.video_timestamps.order(:timestamp_seconds).each do |ts| %>
+                  <button type="button" onclick="document.querySelector('video').currentTime = <%= ts.timestamp_seconds %>"
+                          class="w-full text-left px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm text-white transition-colors flex items-center gap-2">
+                    <span class="text-emerald-400 font-mono text-xs"><%= Time.at(ts.timestamp_seconds).utc.strftime("%M:%S") %></span>
+                    <span class="flex-1"><%= ts.title %></span>
+                  </button>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% rescue => e %>
+        <% Rails.logger.error("Recipe video error: #{e.message}") %>
+      <% end %>
+    <% elsif @recipe.photos.attached? && @recipe.photos.any? %>
       <% begin %>
         <div class="recipe-image-compact">
           <%= image_tag url_for(@recipe.photos.first), 
