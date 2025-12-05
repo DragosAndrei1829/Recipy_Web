@@ -358,7 +358,7 @@ class RecipesController < ApplicationController
       Rails.logger.info "Recipe before save - Preparation length: #{@recipe.preparation&.length || 0}"
       Rails.logger.info "Recipe before save - Photos count: #{@recipe.photos.attached? ? @recipe.photos.count : 0}"
       Rails.logger.info "Recipe before save - Video attached: #{@recipe.video.attached?}"
-      Rails.logger.info "Recipe before save - Cover photo attached: #{@recipe.cover_photo.attached?}"
+      Rails.logger.info "Recipe before save - Cover photo present: #{@recipe.cover_photo.present?}"
       
       # Validate before save
       unless @recipe.valid?
@@ -370,7 +370,7 @@ class RecipesController < ApplicationController
         Rails.logger.info "Recipe saved successfully - ID: #{@recipe.id}"
         Rails.logger.info "Recipe after save - Photos count: #{@recipe.photos.attached? ? @recipe.photos.count : 0}"
         Rails.logger.info "Recipe after save - Video attached: #{@recipe.video.attached?}"
-        Rails.logger.info "Recipe after save - Cover photo attached: #{@recipe.cover_photo.attached?}"
+        Rails.logger.info "Recipe after save - Cover photo present: #{@recipe.cover_photo.present?}"
         
         # Log photo URLs if available
         if @recipe.photos.attached?
