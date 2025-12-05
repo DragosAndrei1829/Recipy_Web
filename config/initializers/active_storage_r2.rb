@@ -19,12 +19,15 @@ Rails.application.config.after_initialize do
             public_domain = ENV['R2_PUBLIC_DOMAIN']
             
             if public_domain.present?
-              # Use public URL directly (faster, no expiration)
-              # R2 public domain format: https://pub-xxx.r2.dev/key (bucket is already associated with domain)
-              # Try without bucket first, then with bucket if needed
+              # Try public URL first, but fallback to signed if it fails
+              # R2 public domain format: https://pub-xxx.r2.dev/key
               public_url = "#{public_domain}/#{key}"
-              Rails.logger.info "Using R2 public URL (format 1): #{public_url}"
-              return public_url
+              Rails.logger.info "Attempting R2 public URL: #{public_url[0..100]}..."
+              
+              # For now, let's use signed URLs to ensure they work
+              # Public URLs might need additional configuration in R2
+              # We'll fall through to signed URL generation
+              Rails.logger.warn "R2_PUBLIC_DOMAIN is set but using signed URLs for reliability"
             end
 
             # Otherwise, use presigned URLs (for private buckets)

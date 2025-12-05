@@ -332,6 +332,11 @@ class RecipesController < ApplicationController
   end
   def create
     begin
+      Rails.logger.info "=== Recipe Creation Started ==="
+      Rails.logger.info "Params keys: #{params[:recipe]&.keys&.inspect}"
+      Rails.logger.info "Photos in params: #{params[:recipe][:photos].present? rescue false}"
+      Rails.logger.info "Video in params: #{params[:recipe][:video].present? rescue false}"
+      
       @recipe = Recipe.new(recipe_params)
       @recipe.user = current_user
 
@@ -348,9 +353,17 @@ class RecipesController < ApplicationController
       map_free_text_taxonomies!(@recipe)
       
       # Log attachments before save
+      Rails.logger.info "Recipe before save - Title: #{@recipe.title}"
+      Rails.logger.info "Recipe before save - Ingredients length: #{@recipe.ingredients&.length || 0}"
+      Rails.logger.info "Recipe before save - Preparation length: #{@recipe.preparation&.length || 0}"
       Rails.logger.info "Recipe before save - Photos count: #{@recipe.photos.attached? ? @recipe.photos.count : 0}"
       Rails.logger.info "Recipe before save - Video attached: #{@recipe.video.attached?}"
       Rails.logger.info "Recipe before save - Cover photo attached: #{@recipe.cover_photo.attached?}"
+      
+      # Validate before save
+      unless @recipe.valid?
+        Rails.logger.error "Recipe invalid before save: #{@recipe.errors.full_messages.join(', ')}"
+      end
       
       if @recipe.save
         # Log attachments after save
@@ -418,6 +431,11 @@ class RecipesController < ApplicationController
         # Preserve step if there are errors
         @current_step = params[:current_step].to_i || 1
         Rails.logger.error "Recipe validation errors: #{@recipe.errors.full_messages.join(', ')}"
+        Rails.logger.error "Recipe attributes: title=#{@recipe.title.present?}, ingredients=#{@recipe.ingredients&.length || 0}, preparation=#{@recipe.preparation&.length || 0}"
+        Rails.logger.error "Attachments: photos=#{@recipe.photos.attached? ? @recipe.photos.count : 0}, video=#{@recipe.video.attached?}"
+        @recipe.errors.each do |error|
+          Rails.logger.error "  - #{error.attribute}: #{error.message}"
+        end
         render :new, status: :unprocessable_entity
       end
     rescue => e
