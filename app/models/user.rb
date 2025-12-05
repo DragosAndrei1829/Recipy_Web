@@ -114,7 +114,7 @@ class User < ApplicationRecord
   # Check if user has PRO subscription (simplified to one plan)
   def has_pro_subscription?
     # PRO plan includes: AI Chat + Meal Planning
-    subscriptions.active.where(plan: ['ai_chat', 'pro', 'premium']).exists?
+    subscriptions.active.where(plan_type: ['ai_chat', 'pro', 'premium']).exists?
   end
   
   # Legacy method - redirect to has_pro_subscription
@@ -124,7 +124,7 @@ class User < ApplicationRecord
 
   # Get active PRO subscription
   def active_pro_subscription
-    subscriptions.active.where(plan: ['ai_chat', 'pro', 'premium']).first
+    subscriptions.active.where(plan_type: ['ai_chat', 'pro', 'premium']).first
   end
   
   # Legacy method
