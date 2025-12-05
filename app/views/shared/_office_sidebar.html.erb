@@ -53,6 +53,14 @@
         <span><%= t('favorites.title', default: 'Favorite') %></span>
       <% end %>
 
+      <%= link_to top_recipes_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if action_name == 'top_recipes'}" do %>
+        <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+        </svg>
+        <span><%= t('top_recipes.title', default: 'Top Rețete') %></span>
+        <span class="ml-auto text-xs font-bold text-yellow-500">👑</span>
+      <% end %>
+
       <%= link_to collections_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'collections'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>

@@ -68,7 +68,7 @@
     <% end %>
 
     <!-- Form Card -->
-    <%= form_with model: @recipe, multipart: true, id: "recipe-form", class: "bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden" do |form| %>
+    <%= form_with model: @recipe, multipart: true, id: "recipe-form", class: "bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden", data: { turbo: false } do |form| %>
       
       <!-- Step 1: Basic Info -->
       <div class="step-content p-8" data-step="1">
