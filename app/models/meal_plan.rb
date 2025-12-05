@@ -21,3 +21,6 @@ class MealPlan < ApplicationRecord
   end
 end
 
+
+
+

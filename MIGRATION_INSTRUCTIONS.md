@@ -59,3 +59,6 @@ postgresql://postgres:KpSJwdYhVbOkxObPIBoYLOBEJAAJycQx@postgres.railway.internal
 
 **Paste-uiește DATABASE_URL aici când îl ai!** 🚀
 
+
+
+

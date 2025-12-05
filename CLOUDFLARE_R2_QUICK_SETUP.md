@@ -177,3 +177,6 @@ După redeploy, verifică:
 
 **După ce finalizezi, spune-mi și verific logs-urile Railway pentru erori!** 🚀
 
+
+
+

@@ -1000,3 +1000,6 @@ După deployment, poți:
 
 Succes la deployment! 🚀 Când ai toate key-urile, revino și facem migrarea împreună!
 
+
+
+

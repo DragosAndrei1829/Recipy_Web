@@ -237,3 +237,6 @@ Pentru ca totul să funcționeze perfect, **autentifică-te în browser** și te
 *Total linii de cod: ~1500 linii modificate/adăugate*
 *Timp lucru: ~2 ore*
 
+
+
+

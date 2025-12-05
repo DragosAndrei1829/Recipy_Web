@@ -200,3 +200,6 @@ Profil (Avatar + Username)
 **Data completare:** 4 Decembrie 2024
 **Status:** ✅ COMPLET
 
+
+
+

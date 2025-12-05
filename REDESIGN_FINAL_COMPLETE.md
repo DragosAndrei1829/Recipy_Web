@@ -271,3 +271,6 @@ Sidebar: #1f1f1f
 *Status: ✅ COMPLET & FUNCȚIONAL*  
 *Refactoring: MAJOR*
 
+
+
+

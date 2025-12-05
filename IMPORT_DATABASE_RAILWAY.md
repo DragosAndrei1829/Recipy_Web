@@ -266,3 +266,6 @@ railway run rails runner "
 
 Spune-mi ce metodă preferi și continuăm! 🚀
 
+
+
+

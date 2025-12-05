@@ -22,3 +22,6 @@ class CollectionRecipe < ApplicationRecord
   end
 end
 
+
+
+

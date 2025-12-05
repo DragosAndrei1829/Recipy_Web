@@ -240,3 +240,6 @@ flyctl certs add recipy.ro
 
 **Spune-mi când ai terminat verificarea contului și pornesc deployment-ul automat!** ⚡
 
+
+
+

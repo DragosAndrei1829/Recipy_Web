@@ -512,3 +512,6 @@ flyctl open
 
 **Spune-mi când ești gata să faci primul deploy pe Fly.io! Pot să te ajut la fiecare pas.** 🚀
 
+
+
+

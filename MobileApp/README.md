@@ -154,3 +154,6 @@ For API questions or issues:
 - Check the full documentation: `../WebApp/documentation/API_DOCUMENTATION.md`
 - Backend repository: https://github.com/DragosAndrei1829/Recipy_Web
 
+
+
+

@@ -126,3 +126,6 @@ Rails.cache.clear  # Șterge tot cache-ul
 - Migrează la Redis doar când deplii în producție cu trafic real
 - Tranziția este foarte simplă (doar configurare, fără cod nou)
 
+
+
+

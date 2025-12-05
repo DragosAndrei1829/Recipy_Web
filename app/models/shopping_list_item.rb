@@ -29,3 +29,6 @@ class ShoppingListItem < ApplicationRecord
   end
 end
 
+
+
+

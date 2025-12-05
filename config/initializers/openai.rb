@@ -6,3 +6,6 @@ OpenAI.configure do |config|
   config.log_errors = Rails.env.development?
 end
 
+
+
+
