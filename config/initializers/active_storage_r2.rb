@@ -28,12 +28,14 @@ Rails.application.config.after_initialize do
             Rails.logger.debug "Generated R2 signed URL for #{key[0..50]}..."
             presigned_url
           rescue Aws::S3::Errors::NoSuchKey => e
-            Rails.logger.error "R2 object not found: #{key} - #{e.message}"
-            nil
+            Rails.logger.error "R2 object not found: #{key[0..50]}... - #{e.message}"
+            # Raise exception instead of returning nil - Active Storage will handle it
+            raise ActiveStorage::FileNotFoundError, "R2 object not found: #{key}"
           rescue => e
-            Rails.logger.error "Error generating R2 URL for key #{key}: #{e.message}"
+            Rails.logger.error "Error generating R2 URL for key #{key[0..50]}...: #{e.message}"
             Rails.logger.error e.backtrace.first(5).join("\n")
-            nil
+            # Raise exception - Active Storage will handle it gracefully
+            raise ActiveStorage::FileNotFoundError, "Error generating R2 URL: #{e.message}"
           end
         end
       end

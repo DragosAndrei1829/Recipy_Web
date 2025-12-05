@@ -108,11 +108,15 @@
             <% @recipe.photos.each do |photo| %>
               <% begin %>
                 <% photo_url = nil %>
-                <% begin %>
-                  <% photo_url = url_for(photo) %>
-                rescue => e
-                  <% Rails.logger.error("Error generating photo URL in view: #{e.message}, photo_id=#{photo.id rescue 'unknown'}") %>
-                  <% photo_url = nil %>
+                <% if photo.blob.present? %>
+                  <% begin %>
+                    <% photo_url = url_for(photo) %>
+                  <% rescue => e %>
+                    <% Rails.logger.error("Error generating photo URL in view: #{e.message}, photo_id=#{photo.id rescue 'unknown'}") %>
+                    <% photo_url = nil %>
+                  <% end %>
+                <% else %>
+                  <% Rails.logger.warn("Photo blob missing: photo_id=#{photo.id rescue 'unknown'}") %>
                 <% end %>
                 <% if photo_url.present? %>
                   <div class="recipe-image-compact rounded-xl overflow-hidden">
@@ -143,10 +147,18 @@
       <!-- Author & Stats -->
       <div class="flex items-center justify-between flex-wrap gap-4 mt-4">
         <%= link_to user_path(@recipe.user, locale: I18n.locale), class: "flex items-center gap-3 group" do %>
-          <% if @recipe.user&.avatar&.attached? %>
-            <%= image_tag url_for(@recipe.user.avatar), 
-                class: "w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all",
-                style: "width: 40px; height: 40px; object-fit: cover;" %>
+          <% if @recipe.user&.avatar&.attached? && @recipe.user.avatar.blob.present? %>
+            <% begin %>
+              <%= image_tag url_for(@recipe.user.avatar), 
+                  class: "w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all",
+                  style: "width: 40px; height: 40px; object-fit: cover;",
+                  onerror: "this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold\\'>#{@recipe.user.username&.first&.upcase || 'U'}</div>';" %>
+            <% rescue => e %>
+              <% Rails.logger.error("Error loading avatar for user #{@recipe.user.id}: #{e.message}") %>
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
+                <%= @recipe.user.username&.first&.upcase || 'U' %>
+              </div>
+            <% end %>
           <% else %>
             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-bold">
               <%= @recipe.user.username&.first&.upcase || 'U' %>
