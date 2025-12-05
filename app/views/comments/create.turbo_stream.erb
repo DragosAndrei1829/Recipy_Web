@@ -35,8 +35,35 @@
               </span>
             <% end %>
           </div>
-          <span class="text-xs opacity-60">acum</span>
+          <span class="text-xs opacity-60"><%= time_ago_in_words(@comment.created_at) %> <%= t('time.ago', default: 'ago') %></span>
         </div>
+        
+        <!-- Advanced Feedback Display -->
+        <% if @comment.has_advanced_ratings? %>
+          <div class="flex flex-wrap gap-2 mb-2 text-xs">
+            <% if @comment.taste_rating %>
+              <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full">
+                👅 Gust: <%= @comment.taste_rating %>/5
+              </span>
+            <% end %>
+            <% if @comment.cost_rating %>
+              <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
+                💰 Preț: <%= @comment.cost_rating %>/5
+              </span>
+            <% end %>
+            <% if @comment.difficulty_rating %>
+              <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                ⚙️ Dificultate: <%= @comment.difficulty_rating %>/5
+              </span>
+            <% end %>
+            <% if @comment.time_rating %>
+              <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
+                ⏱️ Timp: <%= @comment.time_rating %>/5
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+        
         <p class="text-sm text-secondary-content"><%= @comment.body %></p>
         
         <div class="mt-2">

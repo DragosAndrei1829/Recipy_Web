@@ -23,11 +23,13 @@
     <!-- Video (if exists) - ALWAYS SHOW FIRST -->
     <% if @recipe.video&.attached? %>
       <% begin %>
-        <div class="recipe-image-compact bg-black rounded-2xl overflow-hidden mb-6">
-          <video controls playsinline preload="metadata" class="w-full" style="max-height: 500px; object-fit: contain;">
-            <source src="<%= url_for(@recipe.video) %>" type="<%= @recipe.video.content_type %>">
-            <p class="text-white p-4">Your browser does not support the video tag.</p>
-          </video>
+        <% video_url = url_for(@recipe.video) rescue nil %>
+        <% if video_url && @recipe.video.blob.present? %>
+          <div class="recipe-image-compact bg-black rounded-2xl overflow-hidden mb-6">
+            <video controls playsinline preload="metadata" class="w-full" style="max-height: 500px; object-fit: contain;" onerror="this.onerror=null; this.parentElement.innerHTML='<p class=\\'text-white p-4\\'>Video nu este disponibil momentan.</p>';">
+              <source src="<%= video_url %>" type="<%= @recipe.video.content_type %>">
+              <p class="text-white p-4">Your browser does not support the video tag.</p>
+            </video>
           
           <!-- Video Timestamps (if any) -->
           <% if @recipe.video_timestamps.any? %>
@@ -49,9 +51,18 @@
               </div>
             </div>
           <% end %>
-        </div>
+          </div>
+        <% else %>
+          <% Rails.logger.warn("Recipe video missing blob or URL: recipe_id=#{@recipe.id}, video_id=#{@recipe.video.id rescue 'unknown'}") %>
+          <div class="recipe-image-compact bg-gray-800 rounded-2xl overflow-hidden mb-6 p-8 text-center">
+            <p class="text-gray-400">Video nu este disponibil momentan.</p>
+          </div>
+        <% end %>
       <% rescue => e %>
-        <% Rails.logger.error("Recipe video error: #{e.message}") %>
+        <% Rails.logger.error("Recipe video error: #{e.message}, recipe_id=#{@recipe.id}") %>
+        <div class="recipe-image-compact bg-gray-800 rounded-2xl overflow-hidden mb-6 p-8 text-center">
+          <p class="text-gray-400">Eroare la încărcarea video-ului.</p>
+        </div>
       <% end %>
     <% end %>
 
