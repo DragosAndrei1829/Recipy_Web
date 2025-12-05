@@ -1,34 +1,20 @@
 # Active Storage R2 Configuration
 # This ensures R2 URLs are generated correctly
-# With Public Access enabled, we can use public URLs directly (faster and simpler)
+# Using signed URLs since public URLs return 404
 
 Rails.application.config.after_initialize do
   if Rails.env.production? && defined?(ActiveStorage::Service::S3Service)
     # Log R2 configuration
     if ENV['AWS_ENDPOINT'].present?
       Rails.logger.info "R2 Configuration: Endpoint=#{ENV['AWS_ENDPOINT']}, Bucket=#{ENV['AWS_S3_BUCKET']}"
-      Rails.logger.info "R2 Public Domain: https://pub-74a98915f906497b8868c50e202895bc.r2.dev"
     end
 
-    # Use public URLs if public access is enabled, otherwise use signed URLs
+    # Use signed URLs (public URLs don't work - return 404)
     begin
       ActiveStorage::Service::S3Service.class_eval do
         def url(key, expires_in:, filename:, disposition:, content_type:)
           begin
-            # Check if we should use public URLs (if R2_PUBLIC_DOMAIN is set)
-            public_domain = ENV['R2_PUBLIC_DOMAIN']
-            
-            if public_domain.present?
-              # Use public URL directly (faster, no expiration, no signing needed)
-              # R2 public domain format: https://pub-xxx.r2.dev/key
-              # Ensure public_domain doesn't end with /
-              public_domain_clean = public_domain.to_s.chomp('/')
-              public_url = "#{public_domain_clean}/#{key}"
-              Rails.logger.info "Using R2 public URL: #{public_url[0..100]}..."
-              return public_url
-            end
-
-            # Fallback to presigned URLs if public domain not set (for private buckets)
+            # Always use presigned URLs for R2 (public URLs return 404)
             object = object_for(key)
             
             # Generate presigned URL with proper expiration (default 1 hour)

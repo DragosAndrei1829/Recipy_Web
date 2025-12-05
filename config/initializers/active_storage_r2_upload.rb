@@ -18,10 +18,6 @@ Rails.application.config.after_initialize do
             clean_options.delete(:content_md5_base64)
             clean_options.delete(:metadata)
             
-            # Also disable checksum calculation in AWS SDK client
-            # by removing checksum from client config if present
-            client_config = @client.config if defined?(@client)
-            
             # Upload without checksum
             result = original_upload(key, io, checksum: nil, **clean_options)
             Rails.logger.debug "R2 upload successful for key: #{key[0..50]}..."
