@@ -111,14 +111,25 @@ class User < ApplicationRecord
     provider.present?
   end
 
-  # Check if user has active subscription for AI chat
+  # Check if user has PRO subscription (simplified to one plan)
+  def has_pro_subscription?
+    # PRO plan includes: AI Chat + Meal Planning
+    subscriptions.active.where(plan: ['ai_chat', 'pro', 'premium']).exists?
+  end
+  
+  # Legacy method - redirect to has_pro_subscription
   def has_active_ai_chat_subscription?
-    subscriptions.active.for_plan(Subscription::PLAN_AI_CHAT).exists?
+    has_pro_subscription?
   end
 
-  # Get active AI chat subscription
+  # Get active PRO subscription
+  def active_pro_subscription
+    subscriptions.active.where(plan: ['ai_chat', 'pro', 'premium']).first
+  end
+  
+  # Legacy method
   def active_ai_chat_subscription
-    subscriptions.active.for_plan(Subscription::PLAN_AI_CHAT).first
+    active_pro_subscription
   end
 
   def admin?

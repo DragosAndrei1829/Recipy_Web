@@ -81,18 +81,24 @@
         <span><%= t('conversations.title', default: 'Mesaje') %></span>
       <% end %>
 
-      <%= link_to ai_assistant_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'ai_assistant'}" do %>
+      <%= link_to ai_assistant_path(locale: I18n.locale), class: "office-sidebar__nav-item office-sidebar__nav-item--pro #{'office-sidebar__nav-item--active' if controller_name == 'ai_assistant'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
         </svg>
         <span><%= t('ai_assistant.title', default: 'AI Chef') %></span>
+        <% unless current_user&.has_pro_subscription? %>
+          <span class="office-sidebar__pro-badge">PRO</span>
+        <% end %>
       <% end %>
 
-      <%= link_to meal_plans_path(locale: I18n.locale), class: "office-sidebar__nav-item #{'office-sidebar__nav-item--active' if controller_name == 'meal_plans'}" do %>
+      <%= link_to meal_plans_path(locale: I18n.locale), class: "office-sidebar__nav-item office-sidebar__nav-item--pro #{'office-sidebar__nav-item--active' if controller_name == 'meal_plans'}" do %>
         <svg class="office-sidebar__nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
         <span><%= t('meal_plans.title', default: 'Meal Planner') %></span>
+        <% unless current_user&.has_pro_subscription? %>
+          <span class="office-sidebar__pro-badge">PRO</span>
+        <% end %>
       <% end %>
 
     <!-- Admin Link (if admin) -->

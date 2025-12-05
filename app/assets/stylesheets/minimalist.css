@@ -6,26 +6,41 @@
    ============================================ */
 
 :root {
-  /* Light Theme (Default) */
-  --bg-light: #ffffff;
-  --text-light: #000000;
+  /* Light Theme - Enhanced */
+  --bg-light: #fafafa;
+  --bg-light-secondary: #f5f5f5;
+  --text-light: #1a1a1a;
+  --text-light-secondary: #4a5568;
   --accent-light: #10b981;
-  --border-light: rgba(0, 0, 0, 0.1);
-  --hover-light: rgba(0, 0, 0, 0.03);
+  --accent-light-hover: #059669;
+  --border-light: rgba(16, 185, 129, 0.12);
+  --hover-light: rgba(16, 185, 129, 0.06);
+  --card-light: #ffffff;
+  --shadow-light: rgba(0, 0, 0, 0.08);
   
-  /* Dark Theme */
-  --bg-dark: #1f1f1f;
-  --text-dark: #f5f5dc;
+  /* Dark Theme - Enhanced */
+  --bg-dark: #0f172a;
+  --bg-dark-secondary: #1e293b;
+  --text-dark: #f1f5f9;
+  --text-dark-secondary: #94a3b8;
   --accent-dark: #34d399;
-  --border-dark: rgba(255, 255, 255, 0.1);
-  --hover-dark: rgba(255, 255, 255, 0.05);
+  --accent-dark-hover: #10b981;
+  --border-dark: rgba(52, 211, 153, 0.15);
+  --hover-dark: rgba(52, 211, 153, 0.08);
+  --card-dark: #1e293b;
+  --shadow-dark: rgba(0, 0, 0, 0.3);
   
   /* Active Theme */
   --bg: var(--bg-light);
+  --bg-secondary: var(--bg-light-secondary);
   --text: var(--text-light);
+  --text-secondary: var(--text-light-secondary);
   --accent: var(--accent-light);
+  --accent-hover: var(--accent-light-hover);
   --border: var(--border-light);
   --hover: var(--hover-light);
+  --card-bg: var(--card-light);
+  --shadow: var(--shadow-light);
 }
 
 /* Dark Theme via System Preference */
@@ -1884,6 +1899,39 @@ body {
     justify-content: center;
     width: 100%;
   }
+}
+
+/* ============================================
+   10.3 PRO BADGES & PREMIUM FEATURES
+   ============================================ */
+
+.office-sidebar__pro-badge {
+  display: inline-block;
+  margin-left: auto;
+  padding: 0.125rem 0.5rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border-radius: 0.375rem;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  animation: pulse-glow-gold 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-gold {
+  0%, 100% { box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 4px 16px rgba(251, 191, 36, 0.6); }
+}
+
+.office-sidebar__nav-item--pro {
+  position: relative;
+}
+
+.office-sidebar__nav-item--pro:not(.office-sidebar__nav-item--active):hover .office-sidebar__pro-badge {
+  transform: scale(1.1);
+  transition: transform 0.2s;
 }
 
 /* ============================================

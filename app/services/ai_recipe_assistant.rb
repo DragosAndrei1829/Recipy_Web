@@ -9,9 +9,8 @@ class AiRecipeAssistant
   MIN_INGREDIENT_MATCH_PERCENTAGE = 0.4 # 40% match threshold
 
   # AI Provider options
-  PROVIDER_LOCAL = "local"      # No AI, just search
-  PROVIDER_LLAMA = "llama"      # Free Ollama/Llama
-  PROVIDER_OPENAI = "openai"    # Paid OpenAI
+  PROVIDER_LOCAL = "local"      # Free: Smart search in existing recipes
+  PROVIDER_OPENAI = "openai"    # PRO: ChatGPT powered recipe generation
 
   # Common Romanian ingredients dictionary for parsing
   INGREDIENT_KEYWORDS = %w[
@@ -59,31 +58,40 @@ class AiRecipeAssistant
     @ollama_url = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
   end
 
-  # Main entry point - process user message and return response
+  # Main entry point - SMART: Local first, then ChatGPT if available
   def chat(message, conversation_history: [], force_provider: nil)
-    provider = force_provider || @provider
-
-    # Step 1: Parse ingredients locally (FREE - no AI needed)
+    # ALWAYS try local search first (FREE & FAST)
     parsed_request = parse_user_request_locally(message)
-
-    # Step 2: Search existing recipes (FREE - no AI needed)
     matching_recipes = find_matching_recipes(parsed_request)
 
-    # Step 3: Generate response based on results
+    # Step 1: Found recipes? Return them! (FREE)
     if matching_recipes.any?
-      # Found matches - return them with local formatting (FREE)
-      generate_local_recommendation_response(parsed_request, matching_recipes)
-    else
-      # No matches - use AI to generate recipe
-      case provider
-      when PROVIDER_OPENAI
-        generate_recipe_with_openai(parsed_request)
-      when PROVIDER_LLAMA
-        generate_recipe_with_llama(parsed_request)
+      return generate_local_recommendation_response(parsed_request, matching_recipes)
+    end
+
+    # Step 2: No matches - try ChatGPT if user has PRO or if API key exists
+    if ENV["OPENAI_API_KEY"].present?
+      # Check if user has PRO subscription
+      if @user&.has_pro_subscription?
+        return generate_recipe_with_openai(parsed_request, conversation_history)
       else
-        # Local only - suggest what to do
-        generate_no_match_local_response(parsed_request)
+        # User doesn't have PRO - offer upgrade
+        return {
+          "message" => "🌟 Pentru a genera rețete personalizate cu ChatGPT, ai nevoie de **Planul PRO**!\n\n✨ **Planul PRO include:**\n• Chat AI cu ChatGPT\n• Planificare mese pe zile\n• Rețete personalizate infinite\n• Prioritate la suport\n\n💎 Doar 15 RON/lună",
+          "type" => "upgrade_required",
+          "upgrade_url" => "/subscriptions/new",
+          "ai_provider" => "local"
+        }
       end
+    else
+      # No API key configured - implementation pending
+      return {
+        "message" => "🚧 **ChatGPT va fi disponibil curând!**\n\nÎn acest moment lucr
+
+ăm la integrarea completă cu OpenAI pentru a-ți oferi rețete personalizate generate de AI.\n\n📋 Între timp, pot să-ți recomand rețete din comunitate bazate pe ingredientele tale!",
+        "type" => "feature_pending",
+        "ai_provider" => "local"
+      }
     end
   end
 
@@ -91,12 +99,7 @@ class AiRecipeAssistant
   def self.available_providers
     providers = [PROVIDER_LOCAL] # Always available
 
-    # Check Ollama
-    if ollama_available?
-      providers << PROVIDER_LLAMA
-    end
-
-    # Check OpenAI
+    # Check OpenAI (PRO feature)
     if ENV["OPENAI_API_KEY"].present?
       providers << PROVIDER_OPENAI
     end
@@ -104,17 +107,8 @@ class AiRecipeAssistant
     providers
   end
 
-  def self.ollama_available?
-    require "net/http"
-    uri = URI(ENV.fetch("OLLAMA_URL", "http://localhost:11434") + "/api/tags")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 2
-    http.read_timeout = 2
-    response = http.get(uri.path)
-    response.is_a?(Net::HTTPSuccess)
-  rescue StandardError => e
-    Rails.logger.info "Ollama not available: #{e.message}"
-    false
+  def self.openai_configured?
+    ENV["OPENAI_API_KEY"].present?
   end
 
   private
@@ -546,70 +540,10 @@ class AiRecipeAssistant
   end
 
   # ============================================
-  # TIER 2: LLAMA/OLLAMA (FREE)
+  # TIER 2: OPENAI / ChatGPT (PRO FEATURE)
   # ============================================
 
-  def generate_recipe_with_llama(parsed_request)
-    ingredients = parsed_request["ingredients"]
-    preferences = parsed_request["preferences"] || {}
-
-    if ingredients.length < 3
-      return generate_no_match_local_response(parsed_request)
-    end
-
-    prompt = build_recipe_generation_prompt(ingredients, preferences)
-
-    begin
-      response = call_ollama(prompt)
-      parse_ai_recipe_response(response, "llama")
-    rescue StandardError => e
-      Rails.logger.error "Llama generation failed: #{e.message}"
-      {
-        "message" => "⚠️ Serviciul AI local (Llama) nu este disponibil momentan. Verifică că Ollama rulează pe #{@ollama_url}",
-        "type" => "error",
-        "ai_provider" => "llama",
-        "error" => e.message
-      }
-    end
-  end
-
-  def call_ollama(prompt)
-    require "net/http"
-    require "json"
-
-    uri = URI("#{@ollama_url}/api/generate")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 30  # Time to establish connection
-    http.read_timeout = 180 # 3 minutes for generation (Llama can be slow)
-
-    request = Net::HTTP::Post.new(uri)
-    request["Content-Type"] = "application/json"
-    request.body = {
-      model: ENV.fetch("OLLAMA_MODEL", "llama3.1:8b"),
-      prompt: prompt,
-      stream: false,
-      options: {
-        temperature: 0.7,
-        num_predict: 800,  # Reduced for faster responses (was 1500)
-        top_p: 0.9,
-        top_k: 40
-      }
-    }.to_json
-
-    response = http.request(request)
-
-    unless response.is_a?(Net::HTTPSuccess)
-      raise "Ollama returned #{response.code}: #{response.body}"
-    end
-
-    JSON.parse(response.body)["response"]
-  end
-
-  # ============================================
-  # TIER 3: OPENAI (PAID - OPTIONAL)
-  # ============================================
-
-  def generate_recipe_with_openai(parsed_request)
+  def generate_recipe_with_openai(parsed_request, conversation_history = [])
     ingredients = parsed_request["ingredients"]
     preferences = parsed_request["preferences"] || {}
 

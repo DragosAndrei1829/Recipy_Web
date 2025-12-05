@@ -33,26 +33,9 @@ class AiAssistantController < ApplicationController
       return
     end
     
-    # If Llama selected but not available, fallback to local
-    if provider == AiRecipeAssistant::PROVIDER_LLAMA && !AiRecipeAssistant.ollama_available?
-      provider = AiRecipeAssistant::PROVIDER_LOCAL
-      session[:ai_provider] = provider
-    end
-
-    # Check subscription for OpenAI
-    if provider == AiRecipeAssistant::PROVIDER_OPENAI && !current_user.has_active_ai_chat_subscription?
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.append("ai-messages", partial: "ai_assistant/subscription_required",
-            locals: { message: "Pentru a folosi OpenAI, ai nevoie de un abonament activ. Preț: 15 RON/lună." })
-        end
-        format.json { render json: { error: "Subscription required for OpenAI" }, status: :payment_required }
-      end
-      return
-    end
-
-    # Store provider preference
-    session[:ai_provider] = provider
+    # AI Chat is now SMART - always uses LOCAL first
+    # Provider doesn't matter, service auto-selects best option
+    provider = AiRecipeAssistant::PROVIDER_LOCAL
 
     # Get or create current conversation
     conversation = current_user.ai_conversations.recent.first
