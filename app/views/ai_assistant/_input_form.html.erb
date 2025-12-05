@@ -32,11 +32,11 @@
     <p class="text-xs text-gray-500 dark:text-gray-400">
       💡 Exemplu: "Am pui, roșii și usturoi. Vreau ceva sănătos la cuptor în 30 de minute"
     </p>
-    <span class="text-xs px-2 py-1 rounded-full <%= current_provider == 'local' ? 'bg-green-100 text-green-700' : current_provider == 'llama' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' %>">
+    <span class="text-xs px-2 py-1 rounded-full <%= current_provider == 'local' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' %>">
       <%= case current_provider
           when 'local' then '🔍 Local'
-          when 'llama' then '🦙 Llama'
           when 'openai' then '✨ OpenAI'
+          else '🔍 Local'
           end %>
     </span>
   </div>

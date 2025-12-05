@@ -25,12 +25,6 @@
                     title="Căutare în rețete existente (gratuit)">
               🔍 Local
             </button>
-            <button type="button" 
-                    class="provider-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all <%= @current_provider == 'llama' ? 'bg-white text-emerald-600' : 'text-white/80 hover:bg-white/20' %>"
-                    data-provider="llama"
-                    title="Generare cu Llama 3.1 (gratuit)">
-              🦙 Llama
-            </button>
             <% if ENV['OPENAI_API_KEY'].blank? || !current_user.has_active_ai_chat_subscription? %>
               <button type="button" 
                       class="provider-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all opacity-50 cursor-not-allowed"
@@ -54,7 +48,6 @@
     <!-- Info badges -->
     <div class="mt-4 flex flex-wrap gap-2 items-center">
       <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">🆓 Căutare locală gratuită</span>
-      <span class="px-3 py-1 bg-white/20 rounded-full text-sm backdrop-blur-sm">🦙 Llama 3.1 gratuit</span>
       <% if current_user.has_active_ai_chat_subscription? %>
         <span class="px-3 py-1 bg-green-500/30 rounded-full text-sm backdrop-blur-sm border border-green-400/50">✨ OpenAI Activ</span>
       <% else %>
@@ -73,7 +66,6 @@
     <div class="sm:hidden mt-4">
       <select id="ai-provider-mobile" class="w-full px-3 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm border border-white/30">
         <option value="local" <%= 'selected' if @current_provider == 'local' %>>🔍 Local (gratuit)</option>
-        <option value="llama" <%= 'selected' if @current_provider == 'llama' %>>🦙 Llama (gratuit)</option>
         <option value="openai" <%= 'selected' if @current_provider == 'openai' %> <%= 'disabled' if ENV['OPENAI_API_KEY'].blank? || !current_user.has_active_ai_chat_subscription? %> onclick="<%= 'createCheckoutSession()' unless current_user.has_active_ai_chat_subscription? %>">✨ OpenAI (premium - 15 RON/lună)</option>
       </select>
     </div>
@@ -84,8 +76,7 @@
     <h3 class="font-semibold text-blue-800 dark:text-blue-300 mb-2">🔄 Cum funcționează:</h3>
     <ol class="text-sm text-blue-700 dark:text-blue-400 space-y-1">
       <li><strong>1. Local (gratuit):</strong> Căutăm în rețetele existente din comunitate</li>
-      <li><strong>2. Llama (gratuit):</strong> Dacă nu găsim, generăm cu AI local (necesită Ollama)</li>
-      <li><strong>3. OpenAI (opțional):</strong> Generare premium cu GPT-4 (necesită abonament - 15 RON/lună)</li>
+      <li><strong>2. OpenAI (premium):</strong> Generare cu GPT-4 (necesită abonament PRO - 15 RON/lună)</li>
     </ol>
   </div>
 
@@ -110,8 +101,8 @@
             <span class="font-medium text-emerald-600 dark:text-emerald-400" id="current-provider-display">
               <%= case @current_provider
                   when 'local' then '🔍 Local (gratuit)'
-                  when 'llama' then '🦙 Llama (gratuit)'
                   when 'openai' then '✨ OpenAI (premium)'
+                  else '🔍 Local (gratuit)'
                   end %>
             </span>
           </div>
@@ -159,7 +150,7 @@
     <% end %>
     
     <p class="text-xs text-gray-400">
-      🆓 Căutare locală gratuită • 🦙 Llama gratuit • ✨ OpenAI 15 RON/lună
+      🆓 Căutare locală gratuită • ✨ OpenAI 15 RON/lună (PRO)
     </p>
   </div>
   </div>
@@ -230,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (display) {
       const labels = {
         'local': '🔍 Local (gratuit)',
-        'llama': '🦙 Llama (gratuit)',
         'openai': '✨ OpenAI (premium)'
       };
       display.textContent = labels[provider] || provider;
@@ -293,10 +283,9 @@ document.addEventListener('DOMContentLoaded', function() {
     messagesContainer.insertAdjacentHTML('beforeend', userMessageHTML);
     
     // Add loading indicator
-    const providerLabel = provider === 'llama' ? '🦙 Llama generează rețeta...' : 
-                         provider === 'openai' ? '✨ OpenAI generează rețeta...' : 
+    const providerLabel = provider === 'openai' ? '✨ OpenAI generează rețeta...' : 
                          '🔍 Caut în rețete...';
-    const timeEstimate = (provider === 'llama' || provider === 'openai') ? 
+    const timeEstimate = provider === 'openai' ? 
                         'Poate dura 10-30 secunde' : 'Un moment...';
     
     const loadingHTML = `

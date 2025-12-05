@@ -6,11 +6,11 @@
         <!-- Provider Badge -->
         <% if response["ai_provider"] %>
           <div class="flex items-center gap-2">
-            <span class="text-xs px-2 py-0.5 rounded-full <%= response['ai_provider'] == 'local' ? 'bg-green-100 text-green-700' : response['ai_provider'] == 'llama' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' %>">
+            <span class="text-xs px-2 py-0.5 rounded-full <%= response['ai_provider'] == 'local' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' %>">
               <%= case response["ai_provider"]
                   when 'local' then '🔍 Căutare locală'
-                  when 'llama' then '🦙 Generat cu Llama'
                   when 'openai' then '✨ Generat cu OpenAI'
+                  else '🔍 Căutare locală'
                   end %>
             </span>
           </div>
@@ -72,22 +72,25 @@
         <% when "no_match" %>
           <!-- No matches found - offer AI generation -->
           <% if response["can_generate"] %>
-            <div class="mt-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
-              <p class="text-sm font-medium text-purple-800 dark:text-purple-300 mb-3">🤖 Vrei să generez o rețetă cu AI?</p>
+            <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+              <p class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-3">🤖 Vrei să generez o rețetă cu ChatGPT?</p>
               <div class="flex flex-wrap gap-2">
-                <button type="button" 
-                        class="generate-ai-btn px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-                        data-provider="llama"
-                        data-ingredients='<%= response["ingredients"].to_json %>'>
-                  🦙 Generează cu Llama (gratuit)
-                </button>
-                <% if ENV["OPENAI_API_KEY"].present? %>
+                <% if current_user&.has_pro_subscription? && ENV["OPENAI_API_KEY"].present? %>
                   <button type="button" 
                           class="generate-ai-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                           data-provider="openai"
                           data-ingredients='<%= response["ingredients"].to_json %>'>
-                    ✨ Generează cu OpenAI
+                    ✨ Generează cu ChatGPT (PRO)
                   </button>
+                <% elsif !current_user&.has_pro_subscription? %>
+                  <p class="text-xs text-blue-600 dark:text-blue-400 mb-2">💎 Necesită abonament PRO (15 RON/lună)</p>
+                  <button type="button" 
+                          onclick="createCheckoutSession(event)"
+                          class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    🎯 Abonează-te acum
+                  </button>
+                <% else %>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">🚧 ChatGPT este în curs de implementare!</p>
                 <% end %>
               </div>
             </div>

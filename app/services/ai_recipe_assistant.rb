@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# AI Recipe Assistant Service - 3-Tier System
+# AI Recipe Assistant Service - 2-Tier System
 # Tier 1: Local search (FREE) - Search existing recipes without AI
-# Tier 2: Llama/Ollama (FREE) - Generate recipes with local AI
-# Tier 3: OpenAI (PAID) - Premium AI generation (optional)
+# Tier 2: OpenAI (PAID) - Premium AI generation (PRO subscription required)
 class AiRecipeAssistant
   MAX_RECIPE_MATCHES = 5
   MIN_INGREDIENT_MATCH_PERCENTAGE = 0.4 # 40% match threshold
@@ -55,7 +54,6 @@ class AiRecipeAssistant
   def initialize(user: nil, provider: PROVIDER_LOCAL)
     @user = user
     @provider = provider
-    @ollama_url = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
   end
 
   # Main entry point - SMART: Local first, then ChatGPT if available
@@ -69,29 +67,29 @@ class AiRecipeAssistant
       return generate_local_recommendation_response(parsed_request, matching_recipes)
     end
 
-    # Step 2: No matches - try ChatGPT if user has PRO or if API key exists
-    if ENV["OPENAI_API_KEY"].present?
-      # Check if user has PRO subscription
-      if @user&.has_pro_subscription?
-        return generate_recipe_with_openai(parsed_request, conversation_history)
-      else
-        # User doesn't have PRO - offer upgrade
-        return {
-          "message" => "🌟 Pentru a genera rețete personalizate cu ChatGPT, ai nevoie de **Planul PRO**!\n\n✨ **Planul PRO include:**\n• Chat AI cu ChatGPT\n• Planificare mese pe zile\n• Rețete personalizate infinite\n• Prioritate la suport\n\n💎 Doar 15 RON/lună",
-          "type" => "upgrade_required",
-          "upgrade_url" => "/subscriptions/new",
-          "ai_provider" => "local"
-        }
-      end
-    else
-      # No API key configured - implementation pending
+    # Step 2: No matches - try ChatGPT if user has PRO
+    provider = force_provider || @provider
+    
+    if provider == PROVIDER_OPENAI && @user&.has_pro_subscription? && ENV["OPENAI_API_KEY"].present?
+      return generate_recipe_with_openai(parsed_request, conversation_history)
+    elsif provider == PROVIDER_OPENAI && !@user&.has_pro_subscription?
+      # User wants ChatGPT but doesn't have PRO - show upgrade message
       return {
-        "message" => "🚧 **ChatGPT va fi disponibil curând!**\n\nÎn acest moment lucr
-
-ăm la integrarea completă cu OpenAI pentru a-ți oferi rețete personalizate generate de AI.\n\n📋 Între timp, pot să-ți recomand rețete din comunitate bazate pe ingredientele tale!",
-        "type" => "feature_pending",
+        "message" => "🌟 Pentru a genera rețete personalizate cu ChatGPT, ai nevoie de **Planul PRO**!\n\n✨ **Planul PRO include:**\n• Chat AI cu ChatGPT\n• Planificare mese pe zile\n• Rețete personalizate infinite\n• Prioritate la suport\n\n💎 Doar 15 RON/lună",
+        "type" => "upgrade_required",
+        "upgrade_url" => "/subscriptions/new",
         "ai_provider" => "local"
       }
+    elsif provider == PROVIDER_OPENAI && ENV["OPENAI_API_KEY"].blank?
+      # User wants ChatGPT but API key not configured - implementing
+      return {
+        "message" => "🚧 **ChatGPT este în curs de implementare!**\n\nÎn acest moment lucrăm la integrarea completă cu OpenAI.\n\n📋 Între timp, pot să-ți recomand rețete din comunitate bazate pe ingredientele tale!",
+        "type" => "implementing",
+        "ai_provider" => "local"
+      }
+    else
+      # No matches found - suggest local recipes or upgrade
+      return generate_no_match_local_response(parsed_request)
     end
   end
 
@@ -408,7 +406,7 @@ class AiRecipeAssistant
       }
     else
       {
-        "message" => "😕 Nu am găsit rețete în baza noastră de date care să se potrivească cu: #{ingredients.join(', ')}.\n\n🤖 **Vrei să generez o rețetă nouă?** Activează AI-ul (Llama gratuit sau OpenAI premium) pentru a crea o rețetă personalizată.",
+        "message" => "😕 Nu am găsit rețete în baza noastră de date care să se potrivească cu: #{ingredients.join(', ')}.\n\n🤖 **Vrei să generez o rețetă nouă?** Activează ChatGPT (premium - 15 RON/lună) pentru a crea o rețetă personalizată.",
         "type" => "no_match",
         "ingredients" => ingredients,
         "can_generate" => true,
@@ -549,9 +547,9 @@ class AiRecipeAssistant
 
     unless ENV["OPENAI_API_KEY"].present?
       return {
-        "message" => "⚠️ OpenAI nu este configurat. Adaugă OPENAI_API_KEY în setări sau folosește Llama (gratuit).",
-        "type" => "error",
-        "ai_provider" => "openai"
+        "message" => "🚧 **ChatGPT este în curs de implementare!**\n\nÎn acest moment lucrăm la integrarea completă cu OpenAI.\n\n📋 Între timp, pot să-ți recomand rețete din comunitate bazate pe ingredientele tale!",
+        "type" => "implementing",
+        "ai_provider" => "local"
       }
     end
 

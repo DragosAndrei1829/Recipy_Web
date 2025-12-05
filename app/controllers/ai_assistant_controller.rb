@@ -99,7 +99,7 @@ class AiAssistantController < ApplicationController
   # Generate recipe with AI (when user clicks "Generate with AI")
   def generate
     ingredients = params[:ingredients] || []
-    provider = params[:provider] || AiRecipeAssistant::PROVIDER_LLAMA
+    provider = params[:provider] || AiRecipeAssistant::PROVIDER_LOCAL
 
     if ingredients.empty?
       return render json: { error: "Ingredients required" }, status: :unprocessable_entity
@@ -114,10 +114,9 @@ class AiAssistantController < ApplicationController
     response = case provider
     when AiRecipeAssistant::PROVIDER_OPENAI
       assistant.send(:generate_recipe_with_openai, parsed_request)
-    when AiRecipeAssistant::PROVIDER_LLAMA
-      assistant.send(:generate_recipe_with_llama, parsed_request)
     else
-      { "message" => "Provider invalid", "type" => "error" }
+      # Only local search available for free
+      assistant.chat(ingredients.join(', '), conversation_history: [])
     end
 
     render json: response
@@ -147,7 +146,7 @@ class AiAssistantController < ApplicationController
 
   def set_provider
     provider = params[:provider]
-    if [AiRecipeAssistant::PROVIDER_LOCAL, AiRecipeAssistant::PROVIDER_LLAMA, AiRecipeAssistant::PROVIDER_OPENAI].include?(provider)
+    if [AiRecipeAssistant::PROVIDER_LOCAL, AiRecipeAssistant::PROVIDER_OPENAI].include?(provider)
       session[:ai_provider] = provider
       render json: { success: true, provider: provider }
     else
