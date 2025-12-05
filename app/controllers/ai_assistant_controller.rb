@@ -79,9 +79,15 @@ class AiAssistantController < ApplicationController
     # Get AI response with conversation context
     ai_response = assistant.chat(message, conversation_history: context_messages)
 
-    # Store both messages in database with full response
+    # Store both messages in database
     conversation.add_message("user", message)
-    conversation.add_message("assistant", ai_response["message"] || ai_response.to_s, ai_response)
+    # Extract just the message text for storage
+    assistant_message = if ai_response.is_a?(Hash)
+      ai_response["message"] || ai_response.to_s
+    else
+      ai_response.to_s
+    end
+    conversation.add_message("assistant", assistant_message)
     conversation.update(provider: provider, title: message.truncate(50))
 
     respond_to do |format|

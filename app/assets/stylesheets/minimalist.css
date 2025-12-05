@@ -1996,9 +1996,63 @@ body {
     justify-content: center !important;
   }
   
-  /* Conversation/Chat pages */
+  /* Conversations list page */
+  .conversations-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
   .conversation-card-modern {
     padding: 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  .conversation-card-modern__link {
+    display: flex !important;
+    gap: 0.75rem !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  .conversation-card-modern__avatar {
+    flex-shrink: 0 !important;
+  }
+  
+  .conversation-card-modern__content {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  .conversation-card-modern__header {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .conversation-card-modern__title {
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  
+  .conversation-card-modern__time {
+    flex-shrink: 0 !important;
+  }
+  
+  .conversation-card-modern__preview {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100% !important;
   }
   
   .conversation-list-modern {
