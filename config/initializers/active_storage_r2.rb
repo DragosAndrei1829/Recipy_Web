@@ -21,7 +21,9 @@ Rails.application.config.after_initialize do
             if public_domain.present?
               # Use public URL directly (faster, no expiration, no signing needed)
               # R2 public domain format: https://pub-xxx.r2.dev/key
-              public_url = "#{public_domain}/#{key}"
+              # Ensure public_domain doesn't end with /
+              public_domain_clean = public_domain.to_s.chomp('/')
+              public_url = "#{public_domain_clean}/#{key}"
               Rails.logger.info "Using R2 public URL: #{public_url[0..100]}..."
               return public_url
             end
