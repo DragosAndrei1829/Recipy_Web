@@ -39,11 +39,17 @@
     <% if @recipe.video&.attached? %>
       <% begin %>
         <% video_url = nil %>
-        <% begin %>
-          <% video_url = url_for(@recipe.video) %>
-        rescue => e
-          <% Rails.logger.error("Error generating video URL in view: #{e.message}") %>
-          <% video_url = nil %>
+        <% if @recipe.video.blob.present? %>
+          <% begin %>
+            <% video_url = url_for(@recipe.video) %>
+            <% Rails.logger.debug("Recipe #{@recipe.id}: Generated video URL: #{video_url[0..100]}...") %>
+          rescue => e
+            <% Rails.logger.error("Error generating video URL in view for recipe #{@recipe.id}: #{e.message}") %>
+            <% Rails.logger.error(e.backtrace.first(3).join("\n")) %>
+            <% video_url = nil %>
+          <% end %>
+        <% else %>
+          <% Rails.logger.warn("Recipe #{@recipe.id}: video attachment exists but blob is missing") %>
         <% end %>
         <% if video_url.present? %>
           <div class="recipe-image-compact bg-black rounded-2xl overflow-hidden mb-6">
