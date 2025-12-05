@@ -1887,7 +1887,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 998;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -1908,19 +1908,25 @@ body {
     transform: translateX(-100%);
     box-shadow: 2px 0 16px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
-    pointer-events: auto;
+    pointer-events: auto !important;
     -webkit-overflow-scrolling: touch;
+    z-index: 999 !important;
   }
   
   .office-sidebar.mobile-sidebar-open {
     transform: translateX(0);
-    pointer-events: auto;
+    pointer-events: auto !important;
   }
   
-  /* Make all sidebar children clickable */
-  .office-sidebar * {
-    pointer-events: auto;
+  /* Make all sidebar children clickable - CRITICAL */
+  .office-sidebar *,
+  .office-sidebar a,
+  .office-sidebar button,
+  .office-sidebar__nav-item,
+  .office-sidebar__profile-button {
+    pointer-events: auto !important;
     -webkit-tap-highlight-color: rgba(16, 185, 129, 0.1);
+    cursor: pointer;
   }
   
   /* Adjust main content on mobile */
