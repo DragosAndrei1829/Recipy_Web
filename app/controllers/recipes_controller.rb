@@ -292,35 +292,45 @@ class RecipesController < ApplicationController
     @recipe = Recipe.new
   end
   def create
-    @recipe = Recipe.new(recipe_params)
-    @recipe.user = current_user
+    begin
+      @recipe = Recipe.new(recipe_params)
+      @recipe.user = current_user
 
-    # Convert empty strings to nil for optional fields
-    @recipe.category_id = nil if @recipe.category_id.blank?
-    @recipe.cuisine_id = nil if @recipe.cuisine_id.blank?
-    @recipe.food_type_id = nil if @recipe.food_type_id.blank?
+      # Convert empty strings to nil for optional fields
+      @recipe.category_id = nil if @recipe.category_id.blank?
+      @recipe.cuisine_id = nil if @recipe.cuisine_id.blank?
+      @recipe.food_type_id = nil if @recipe.food_type_id.blank?
 
-    # Set default values for rating fields if not provided
-    @recipe.difficulty = 0 if @recipe.difficulty.blank?
-    @recipe.time_to_make = 0 if @recipe.time_to_make.blank?
-    @recipe.healthiness = 0 if @recipe.healthiness.blank?
+      # Set default values for rating fields if not provided
+      @recipe.difficulty = 0 if @recipe.difficulty.blank?
+      @recipe.time_to_make = 0 if @recipe.time_to_make.blank?
+      @recipe.healthiness = 0 if @recipe.healthiness.blank?
 
-    map_free_text_taxonomies!(@recipe)
-    if @recipe.save
+      map_free_text_taxonomies!(@recipe)
+      
+      if @recipe.save
         # Create video timestamps if provided
-        if params[:recipe][:video_timestamps_json].present?
+        if params[:recipe].present? && params[:recipe][:video_timestamps_json].present?
           begin
             timestamps_data = JSON.parse(params[:recipe][:video_timestamps_json])
-            timestamps_data.each do |ts_data|
-              @recipe.video_timestamps.create!(
-                step_number: ts_data['step_number'],
-                timestamp_seconds: ts_data['timestamp_seconds'],
-                title: ts_data['title'],
-                description: ts_data['description'] || ''
-              )
+            if timestamps_data.is_a?(Array)
+              timestamps_data.each do |ts_data|
+                next unless ts_data.is_a?(Hash) && ts_data['timestamp_seconds'].present?
+                
+                @recipe.video_timestamps.create!(
+                  step_number: ts_data['step_number'] || 0,
+                  timestamp_seconds: ts_data['timestamp_seconds'].to_i,
+                  title: ts_data['title'] || '',
+                  description: ts_data['description'] || ''
+                )
+              end
             end
           rescue JSON::ParserError => e
             Rails.logger.error "Failed to parse video timestamps: #{e.message}"
+            Rails.logger.error e.backtrace.join("\n")
+          rescue => e
+            Rails.logger.error "Error creating video timestamps: #{e.message}"
+            Rails.logger.error e.backtrace.join("\n")
           end
         end
         
@@ -333,10 +343,25 @@ class RecipesController < ApplicationController
           }
           format.json { render json: { success: true, recipe_id: @recipe.id }, status: :created }
         end
-    else
+      else
         # Preserve step if there are errors
         @current_step = params[:current_step].to_i || 1
+        Rails.logger.error "Recipe validation errors: #{@recipe.errors.full_messages.join(', ')}"
         render :new, status: :unprocessable_entity
+      end
+    rescue => e
+      Rails.logger.error "Error creating recipe: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      
+      # Preserve step and show error
+      @current_step = params[:current_step].to_i || 1
+      @recipe ||= Recipe.new(recipe_params)
+      @recipe.errors.add(:base, t('recipes.create_error', default: "A apărut o eroare la crearea rețetei. Te rugăm să încerci din nou."))
+      
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @recipe.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -362,8 +387,16 @@ class RecipesController < ApplicationController
     end
   end
   def destroy
+    # Only allow owner or admin to delete
+    unless @recipe.user == current_user || current_user&.admin?
+      redirect_to recipe_path(@recipe, locale: I18n.locale), alert: "Nu ai permisiunea să ștergi această rețetă."
+      return
+    end
+
     @recipe.destroy
-    redirect_to recipes_path, notice: "Rețeta a fost ștearsă."
+    redirect_to recipes_path(locale: I18n.locale), 
+                notice: t('recipes.deleted_successfully', default: "Rețeta a fost ștearsă cu succes."),
+                status: :see_other
   end
 
   private
