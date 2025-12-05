@@ -17,6 +17,9 @@ Rails.application.config.after_initialize do
             # Always use presigned URLs for R2 (public URLs return 404)
             object = object_for(key)
             
+            # Try to check if object exists (optional - presigned_url will fail if not exists)
+            # We'll catch the error below
+            
             # Generate presigned URL with proper expiration (default 1 hour)
             presigned_url = object.presigned_url(
               :get,
@@ -28,14 +31,18 @@ Rails.application.config.after_initialize do
             Rails.logger.debug "Generated R2 signed URL for #{key[0..50]}..."
             presigned_url
           rescue Aws::S3::Errors::NoSuchKey => e
-            Rails.logger.error "R2 object not found: #{key[0..50]}... - #{e.message}"
-            # Raise exception instead of returning nil - Active Storage will handle it
-            raise ActiveStorage::FileNotFoundError, "R2 object not found: #{key}"
+            Rails.logger.warn "R2 object not found: #{key[0..50]}... - #{e.message}"
+            # Return a placeholder URL that will fail gracefully instead of 500
+            # This allows the view to handle missing images with onerror handlers
+            nil
+          rescue Aws::S3::Errors::ServiceError => e
+            Rails.logger.error "R2 service error for key #{key[0..50]}...: #{e.message}"
+            Rails.logger.error e.backtrace.first(3).join("\n")
+            nil
           rescue => e
             Rails.logger.error "Error generating R2 URL for key #{key[0..50]}...: #{e.message}"
             Rails.logger.error e.backtrace.first(5).join("\n")
-            # Raise exception - Active Storage will handle it gracefully
-            raise ActiveStorage::FileNotFoundError, "Error generating R2 URL: #{e.message}"
+            nil
           end
         end
       end
