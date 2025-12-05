@@ -60,12 +60,21 @@ Rails.application.config.after_initialize do
             s3_client = bucket.client
             
             # Use Aws::S3::Presigner to generate presigned URL
+            # Convert expires_in to seconds if it's an ActiveSupport::Duration
+            expires_seconds = if expires_in.respond_to?(:to_i)
+              expires_in.to_i
+            elsif expires_in.is_a?(Numeric)
+              expires_in.to_i
+            else
+              3600 # Default to 1 hour
+            end
+            
             signer = Aws::S3::Presigner.new(client: s3_client)
             presigned_url = signer.presigned_url(
               :get_object,
               bucket: bucket.name,
               key: key,
-              expires_in: expires_in || 3600
+              expires_in: expires_seconds
             )
 
             Rails.logger.debug "Generated R2 signed URL for #{key[0..50]}... (using Presigner)"
