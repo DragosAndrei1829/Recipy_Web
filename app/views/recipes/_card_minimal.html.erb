@@ -6,21 +6,40 @@
   # Try cover_photo (which is an Attachment object or nil)
   if recipe.cover_photo.present?
     begin
-      valid_photo_url = url_for(recipe.cover_photo)
-      has_image = true
+      # Check if blob exists before generating URL
+      if recipe.cover_photo.blob.present?
+        valid_photo_url = url_for(recipe.cover_photo)
+        has_image = true
+        Rails.logger.debug("Recipe #{recipe.id}: Using cover_photo, URL: #{valid_photo_url[0..100]}...")
+      else
+        Rails.logger.warn("Recipe #{recipe.id}: cover_photo attachment exists but blob is missing")
+      end
     rescue => e
       Rails.logger.error("Cover photo error for recipe #{recipe.id}: #{e.message}")
+      Rails.logger.error(e.backtrace.first(3).join("\n"))
     end
   end
   
   # If no cover_photo, try first photo from photos collection
   if !has_image && recipe.photos.attached? && recipe.photos.any?
     begin
-      valid_photo_url = url_for(recipe.photos.first)
-      has_image = true
+      first_photo = recipe.photos.first
+      if first_photo.present? && first_photo.blob.present?
+        valid_photo_url = url_for(first_photo)
+        has_image = true
+        Rails.logger.debug("Recipe #{recipe.id}: Using first photo, URL: #{valid_photo_url[0..100]}...")
+      else
+        Rails.logger.warn("Recipe #{recipe.id}: photos attached but first photo blob is missing")
+      end
     rescue => e
       Rails.logger.error("First photo error for recipe #{recipe.id}: #{e.message}")
+      Rails.logger.error(e.backtrace.first(3).join("\n"))
     end
+  end
+  
+  # Log if no image found
+  unless has_image
+    Rails.logger.warn("Recipe #{recipe.id}: No image found - cover_photo: #{recipe.cover_photo.present?}, photos attached: #{recipe.photos.attached?}, photos count: #{recipe.photos.count}")
   end
 %>
 
