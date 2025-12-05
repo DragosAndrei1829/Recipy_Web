@@ -42,7 +42,9 @@
           <% end %>
           <div class="flex items-center gap-3">
             <% if @other_user.avatar&.attached? %>
-              <%= image_tag url_for(@other_user.avatar.variant(resize_to_fill: [58, 58])), class: "w-14 h-14 rounded-2xl object-cover ring-2 ring-primary/30" %>
+              <%= image_tag url_for(@other_user.avatar), 
+                  class: "w-14 h-14 rounded-2xl object-cover ring-2 ring-primary/30",
+                  style: "width: 56px; height: 56px; object-fit: cover;" %>
             <% else %>
               <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xl">
                 <%= @other_user.username&.first&.upcase || 'U' %>
