@@ -27,7 +27,8 @@ export default class extends Controller {
     
     try {
       // Dynamically import nsfwjs
-      const nsfwjs = await import('https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/+esm')
+      // Use CDN directly to avoid importmap issues
+      const nsfwjs = await import('https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/dist/nsfwjs.min.js')
       
       // Load the model (using the smaller MobileNetV2 model for faster loading)
       this.model = await nsfwjs.load('https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/model/', { size: 224 })
@@ -35,6 +36,7 @@ export default class extends Controller {
     } catch (error) {
       console.warn('Failed to load NSFW model:', error)
       // Don't block uploads if model fails to load
+      // This is non-critical functionality
     } finally {
       this.isLoading = false
     }

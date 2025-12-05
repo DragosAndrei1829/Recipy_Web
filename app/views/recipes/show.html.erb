@@ -87,8 +87,9 @@
         <% end %>
       <% rescue => e %>
         <% Rails.logger.error("Recipe video error: #{e.message}, recipe_id=#{@recipe.id}") %>
+        <% Rails.logger.error(e.backtrace.first(5).join("\n")) %>
         <div class="recipe-image-compact bg-gray-800 rounded-2xl overflow-hidden mb-6 p-8 text-center">
-          <p class="text-gray-400">Eroare la încărcarea video-ului.</p>
+          <p class="text-gray-400">Video nu este disponibil momentan.</p>
         </div>
       <% end %>
     <% end %>
