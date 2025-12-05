@@ -15,8 +15,8 @@ amazon:
   region: <%= ENV.fetch("AWS_REGION", "auto") %>
   bucket: <%= ENV.fetch("AWS_S3_BUCKET", nil) %>
   endpoint: <%= ENV.fetch("AWS_ENDPOINT", nil) %>
-  force_path_style: <%= ENV.fetch("AWS_FORCE_PATH_STYLE", "false") == "true" %>
-  public: false
+  force_path_style: <%= ENV.fetch("AWS_FORCE_PATH_STYLE", "true") == "true" %>
+  public: <%= ENV.fetch("AWS_PUBLIC", "false") == "true" %>
   upload:
     server_side_encryption: "AES256"
   http_open_timeout: 10
