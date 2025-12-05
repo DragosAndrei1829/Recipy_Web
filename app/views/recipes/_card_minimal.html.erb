@@ -1,9 +1,10 @@
 <% 
-  # Simple image logic - try cover_photo first, then first photo
+  # Simple image logic - cover_photo is has_one_attached, so it's already an Attachment or nil
   valid_photo_url = nil
   has_image = false
   
-  if recipe.cover_photo&.attached?
+  # Try cover_photo (which is an Attachment object or nil)
+  if recipe.cover_photo.present?
     begin
       valid_photo_url = url_for(recipe.cover_photo)
       has_image = true

@@ -1860,22 +1860,27 @@ body {
   justify-content: center;
   width: 48px;
   height: 48px;
-  background: var(--bg, #ffffff);
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: #10b981;
+  border: 2px solid #059669;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  pointer-events: auto;
+  opacity: 1;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.mobile-menu-toggle:hover {
-  background: var(--hover, #f3f4f6);
-  border-color: rgba(0, 0, 0, 0.2);
-  transform: scale(1.05);
+.mobile-menu-toggle:active {
+  background: #059669;
+  transform: scale(0.95);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
 }
 
 .mobile-menu-toggle svg {
-  color: var(--text, #1f2937);
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
 }
 
 .mobile-sidebar-overlay {
@@ -1916,19 +1921,18 @@ body {
   }
 }
 
-/* Theme support for mobile menu */
+/* Theme support for mobile menu - Always green for visibility */
 [data-theme="dark"] .mobile-menu-toggle {
-  background: var(--bg-dark);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #10b981;
+  border-color: #059669;
 }
 
-[data-theme="dark"] .mobile-menu-toggle:hover {
-  background: #2a2a2a;
-  border-color: rgba(255, 255, 255, 0.3);
+[data-theme="dark"] .mobile-menu-toggle:active {
+  background: #059669;
 }
 
 [data-theme="dark"] .mobile-menu-toggle svg {
-  color: var(--text-dark);
+  color: #ffffff;
 }
 
 /* ============================================

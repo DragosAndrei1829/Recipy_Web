@@ -33,11 +33,11 @@
 
   <!-- Mobile Image - Only show if exists and accessible -->
   <%
-    # Simple image logic - original image without variant
+    # Simple image logic - cover_photo is has_one_attached (Attachment or nil)
     valid_photo_url = nil
     has_image = false
     
-    if recipe.cover_photo&.attached?
+    if recipe.cover_photo.present?
       begin
         valid_photo_url = url_for(recipe.cover_photo)
         has_image = true
