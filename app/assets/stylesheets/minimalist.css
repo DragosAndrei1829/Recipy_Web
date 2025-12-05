@@ -337,12 +337,20 @@ body {
     margin-left: 0 !important;
     max-width: 100vw !important;
     width: 100vw;
+    overflow-x: hidden !important;
   }
   
   .main-content-wrapper .app-main {
     padding: 1rem 0.75rem;
     max-width: 100vw;
     width: 100%;
+    overflow-x: hidden !important;
+  }
+  
+  /* Force all direct children to fit */
+  .main-content-wrapper .app-main > * {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
   }
 }
 }
@@ -1889,23 +1897,54 @@ body {
     padding: 1rem 0.75rem !important;
     max-width: 100vw;
     overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .modern-page-container > * {
+    max-width: 100% !important;
   }
   
   .modern-page-header {
-    padding: 1.5rem 1rem !important;
-    margin: 0 -0.75rem 1.5rem !important;
+    padding: 1.5rem 0.75rem !important;
+    margin: 0 0 1.5rem !important;
     overflow-x: hidden;
+    max-width: 100% !important;
+  }
+  
+  .modern-page-header .flex {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+  
+  .modern-page-header h1 {
+    font-size: 1.75rem !important;
+    word-wrap: break-word !important;
   }
   
   .modern-grid {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
     padding: 0 !important;
+    max-width: 100% !important;
   }
   
   .modern-card {
     margin: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Force flex containers to wrap */
+  .flex {
+    flex-wrap: wrap !important;
+  }
+  
+  /* Force all buttons to fit */
+  button,
+  .btn,
+  .modern-btn-primary,
+  .modern-btn-secondary {
+    max-width: 100% !important;
   }
   
   /* Profile page */
@@ -1980,6 +2019,7 @@ body {
     min-height: calc(100vh - 80px) !important;
     overflow-x: hidden !important;
     max-width: 100vw !important;
+    width: 100vw !important;
   }
   
   .chat-grid {
@@ -1996,33 +2036,59 @@ body {
     width: 100% !important;
     max-width: 100vw !important;
     margin: 0 !important;
-    border-radius: 0 !important;
+    border-radius: 1rem !important;
     border-left: none !important;
     border-right: none !important;
   }
   
   .chat-pane__header {
-    padding: 1rem !important;
+    padding: 0.75rem !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 10 !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .chat-pane__header > div {
+    max-width: 100% !important;
   }
   
   .chat-pane__body {
-    padding: 1rem 0.75rem !important;
+    padding: 0.75rem !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
+    width: 100% !important;
   }
   
   .chat-pane__footer {
     padding: 0.75rem !important;
     max-width: 100vw !important;
+    width: 100% !important;
+  }
+  
+  .chat-pane__footer form,
+  .chat-pane__footer .flex {
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
   }
   
   .message-bubble {
-    max-width: 80% !important;
+    max-width: 75% !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+  
+  .message-bubble img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Message input */
+  .message-input,
+  .chat-input {
+    max-width: 100% !important;
+    width: 100% !important;
   }
   
   /* AI Chat specific */
@@ -2061,6 +2127,7 @@ body {
     max-width: 100vw !important;
     overflow-x: hidden !important;
     padding: 0 0.75rem !important;
+    width: 100% !important;
   }
   
   .group-sidebar {
@@ -2073,21 +2140,49 @@ body {
   }
   
   .group-header {
-    padding: 1rem !important;
-    margin: 0 -0.75rem 1rem !important;
+    padding: 0.75rem !important;
+    margin: 0 !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .group-header h1,
+  .group-header h2 {
+    font-size: 1.5rem !important;
+    word-wrap: break-word !important;
+  }
+  
+  .group-header .flex {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
   }
   
   .group-tabs {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    margin: 0 -0.75rem !important;
-    padding: 0 0.75rem !important;
+    margin: 0 !important;
+    padding: 0.5rem 0 !important;
+    display: flex !important;
+    gap: 0.5rem !important;
   }
   
   .group-tab {
     white-space: nowrap !important;
     font-size: 0.875rem !important;
     padding: 0.5rem 1rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .group-recipes-grid,
+  .group-members-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  .group-stat,
+  .group-info-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.75rem !important;
   }
   
   /* Recipe cards */
@@ -2117,23 +2212,48 @@ body {
   }
   
   .meal-planner-calendar {
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
-    margin: 0 -0.75rem !important;
-    padding: 0 0.75rem 1rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
   }
   
   .calendar-header {
-    padding: 1rem !important;
+    padding: 1rem 0.75rem !important;
+    max-width: 100% !important;
   }
   
   .calendar-grid {
-    min-width: 280px !important; /* Allow some horizontal scroll for calendar */
+    width: 100% !important;
+    max-width: 100% !important;
   }
   
   .meal-card {
     padding: 0.75rem !important;
     font-size: 0.875rem !important;
+    max-width: 100% !important;
+  }
+  
+  /* Week navigation - stack vertically on mobile */
+  .week-navigation {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+  
+  .week-navigation button,
+  .week-navigation .week-info {
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Day cards */
+  .day-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
   
   /* Admin pages */

@@ -65,16 +65,24 @@ class AiAssistantController < ApplicationController
     # Initialize AI assistant with selected provider
     assistant = AiRecipeAssistant.new(user: current_user, provider: provider)
 
-    # Get conversation history
+    # Get conversation history for context
     conversation_history = conversation.messages || []
+    
+    # Build context from previous messages (last 10 for performance)
+    context_messages = conversation_history.last(10).map do |msg|
+      {
+        "role" => msg["role"],
+        "content" => msg["content"] || msg["message"]
+      }
+    end
 
-    # Get AI response (this takes time but happens server-side)
-    ai_response = assistant.chat(message, conversation_history: conversation_history)
+    # Get AI response with conversation context
+    ai_response = assistant.chat(message, conversation_history: context_messages)
 
-    # Store in database
+    # Store both messages in database with full response
     conversation.add_message("user", message)
-    conversation.add_message("assistant", ai_response)
-    conversation.update(provider: provider)
+    conversation.add_message("assistant", ai_response["message"] || ai_response.to_s, ai_response)
+    conversation.update(provider: provider, title: message.truncate(50))
 
     respond_to do |format|
       format.turbo_stream do
