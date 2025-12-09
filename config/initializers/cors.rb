@@ -18,11 +18,20 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
               /http:\/\/127\.0\.0\.1:\d+/
     end
 
+    # API endpoints
     resource '/api/v1/*',
       headers: :any,
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
       credentials: false,
       expose: ['Authorization', 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+      max_age: 86400
+
+    # ⚠️ IMPORTANT: Active Storage pentru imagini
+    # Permite accesul la imaginile servite prin Active Storage
+    resource '/rails/active_storage/*',
+      headers: :any,
+      methods: [:get, :options, :head],
+      credentials: false,
       max_age: 86400
   end
 end

@@ -61,6 +61,15 @@ CORS-ul a fost configurat pentru a permite request-uri de la aplicația Flutter 
 - OPTIONS
 - HEAD
 
+### Active Storage (Imagini)
+- **Resource:** `/rails/active_storage/*`
+- **Metode:** GET, OPTIONS, HEAD
+- **Headers:** :any
+- **Credentials:** false
+- **Max Age:** 86400 secunde
+
+**⚠️ IMPORTANT:** Active Storage este configurat separat pentru a permite accesul la imaginile servite prin Rails Active Storage. Acest lucru este esențial pentru ca imaginile să se încarce corect în aplicația Flutter Web.
+
 ---
 
 ## 🧪 Testare
