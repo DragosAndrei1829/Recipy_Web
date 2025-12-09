@@ -39,6 +39,9 @@ gem "jwt"
 # Security - Rate limiting and brute force protection
 gem "rack-attack"
 
+# CORS support for API
+gem "rack-cors"
+
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false

@@ -225,6 +225,23 @@ All authenticated requests require:
 Authorization: Bearer <jwt_token>
 ```
 
+### CORS Configuration
+
+The backend is configured to handle CORS requests for Flutter Web and mobile apps. The CORS configuration:
+
+- **Development:** Allows all origins (`*`)
+- **Production:** Allows specific origins (recipy-web.fly.dev and localhost for testing)
+
+**Headers exposed:**
+- `Authorization` - For JWT tokens
+- `X-RateLimit-Limit` - Rate limit information
+- `X-RateLimit-Remaining` - Remaining requests
+- `X-RateLimit-Reset` - Rate limit reset time
+
+**Allowed methods:** GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD
+
+**Preflight requests:** The API automatically handles OPTIONS requests for CORS preflight checks.
+
 ### Authentication Flow
 
 1. **Login:**

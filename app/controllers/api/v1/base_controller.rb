@@ -3,6 +3,10 @@ module Api
     class BaseController < ActionController::API
       include ActionController::MimeResponds
 
+      # Handle CORS preflight requests
+      before_action :cors_preflight_check
+      after_action :cors_set_access_control_headers
+
       before_action :authenticate_api_user!
 
       rescue_from ActiveRecord::RecordNotFound, with: :not_found
@@ -11,6 +15,44 @@ module Api
       rescue_from JWT::ExpiredSignature, with: :token_expired
 
       private
+
+      def cors_preflight_check
+        if request.method == 'OPTIONS'
+          headers['Access-Control-Allow-Origin'] = cors_allowed_origin
+          headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, PATCH, DELETE, OPTIONS, HEAD'
+          headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version, Token, Authorization, Content-Type, Accept'
+          headers['Access-Control-Max-Age'] = '86400'
+          headers['Access-Control-Expose-Headers'] = 'Authorization, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset'
+          render plain: '', content_type: 'text/plain'
+        end
+      end
+
+      def cors_set_access_control_headers
+        headers['Access-Control-Allow-Origin'] = cors_allowed_origin
+        headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, PATCH, DELETE, OPTIONS, HEAD'
+        headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version, Token, Authorization, Content-Type, Accept'
+        headers['Access-Control-Expose-Headers'] = 'Authorization, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset'
+      end
+
+      def cors_allowed_origin
+        # In development, allow all origins
+        return '*' if Rails.env.development?
+
+        # In production, check against allowed origins
+        origin = request.headers['Origin']
+        allowed_origins = [
+          'https://recipy-web.fly.dev',
+          'https://www.recipy-web.fly.dev'
+        ]
+
+        # Allow localhost for testing
+        if origin&.match?(/^https?:\/\/(localhost|127\.0\.0\.1):\d+$/)
+          return origin
+        end
+
+        # Check if origin matches allowed list
+        allowed_origins.include?(origin) ? origin : allowed_origins.first
+      end
 
       def authenticate_api_user!
         @current_api_user = decode_token
