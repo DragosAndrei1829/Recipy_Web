@@ -1,19 +1,70 @@
-<div class="top-recipes-full-page">
+<div class="top-recipes-innovative-showcase">
   <!-- Header -->
-  <div class="top-recipes-header">
-    <h1 class="top-recipes-title flex items-center gap-2">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-      </svg>
-      <%= t('top_recipes.page_title') %>
-    </h1>
-    <p class="top-recipes-subtitle"><%= t('top_recipes.page_description') %></p>
+  <div class="top-recipes-innovative-hero">
+    <div class="top-recipes-innovative-hero-content">
+      <h1 class="top-recipes-innovative-title flex items-center justify-center gap-4">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+        </svg>
+        <%= t('top_recipes.page_title') %>
+      </h1>
+      <p class="text-xl text-white/90 mt-4"><%= t('top_recipes.page_description') %></p>
+    </div>
+  </div>
+
+  <!-- Period Selection Buttons - Large and Prominent -->
+  <% filters = params.to_unsafe_h.symbolize_keys.except(:period, :locale, :controller, :action) %>
+  <div class="top-recipes-period-buttons-container">
+    <div class="top-recipes-period-buttons">
+      <%= link_to top_recipes_path(locale: I18n.locale, period: 'day', **filters), 
+          class: "top-recipes-period-btn #{@current_period == 'day' ? 'active' : ''}" do %>
+        <div class="top-recipes-period-btn-icon">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <span class="top-recipes-period-btn-text"><%= t('top_recipes.today') %></span>
+      <% end %>
+
+      <%= link_to top_recipes_path(locale: I18n.locale, period: 'week', **filters), 
+          class: "top-recipes-period-btn #{@current_period == 'week' ? 'active' : ''}" do %>
+        <div class="top-recipes-period-btn-icon">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="top-recipes-period-btn-text"><%= t('top_recipes.week') %></span>
+      <% end %>
+
+      <%= link_to top_recipes_path(locale: I18n.locale, period: 'month', **filters), 
+          class: "top-recipes-period-btn #{@current_period == 'month' ? 'active' : ''}" do %>
+        <div class="top-recipes-period-btn-icon">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="top-recipes-period-btn-text"><%= t('top_recipes.month') %></span>
+      <% end %>
+
+      <%= link_to top_recipes_path(locale: I18n.locale, period: 'year', **filters), 
+          class: "top-recipes-period-btn #{@current_period == 'year' ? 'active' : ''}" do %>
+        <div class="top-recipes-period-btn-icon">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="top-recipes-period-btn-text"><%= t('top_recipes.year') %></span>
+      <% end %>
+    </div>
   </div>
 
   <!-- Main Layout -->
-  <div class="top-recipes-layout">
+  <div class="top-recipes-layout" style="grid-template-columns: 1fr;">
     <!-- Recipes Section -->
     <div class="top-recipes-content">
+      <!-- Marketplace Filters Bar -->
+      <%= render 'recipes/marketplace_filters' %>
+
       <% if @recipes.any? %>
         <div class="top-recipes-grid">
           <% @recipes.each_with_index do |recipe, index| %>
@@ -32,10 +83,5 @@
         </div>
       <% end %>
     </div>
-
-    <!-- Filters Sidebar -->
-    <aside class="top-recipes-sidebar">
-      <%= render 'recipes/top_recipes_filters' %>
-    </aside>
   </div>
 </div>
