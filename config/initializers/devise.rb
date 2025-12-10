@@ -277,6 +277,10 @@ Devise.setup do |config|
   # OAuth Configuration (only if credentials are provided)
   # Google OAuth - Set these in your environment variables
   if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
+    # Get the base URL from environment or use default
+    base_url = ENV["APP_HOST"] || "recipy-web.fly.dev"
+    protocol = Rails.env.production? ? "https" : "http"
+    
     config.omniauth :google_oauth2,
       ENV["GOOGLE_CLIENT_ID"],
       ENV["GOOGLE_CLIENT_SECRET"],
@@ -285,7 +289,8 @@ Devise.setup do |config|
         prompt: "select_account",
         image_aspect_ratio: "square",
         image_size: 50,
-        provider_ignores_state: true
+        provider_ignores_state: true,
+        redirect_uri: "#{protocol}://#{base_url}/users/auth/google_oauth2/callback"
       }
   end
 
