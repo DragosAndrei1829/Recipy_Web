@@ -14,7 +14,16 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def passthru
-    render status: 404, plain: "Not found. Authentication passthru."
+    # Handle locale parameter from query string or form data
+    if params[:locale].present?
+      session[:locale] = params[:locale]
+    end
+    
+    # Get the provider from the path (e.g., /users/auth/google_oauth2 -> google_oauth2)
+    provider = request.path.split('/').last
+    
+    # Redirect to the correct OAuth provider (OmniAuth will handle the rest)
+    redirect_to "/users/auth/#{provider}"
   end
 
   def failure
