@@ -22,8 +22,17 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     # Get the provider from the path (e.g., /users/auth/google_oauth2 -> google_oauth2)
     provider = request.path.split('/').last
     
-    # Redirect to the correct OAuth provider (OmniAuth will handle the rest)
-    redirect_to "/users/auth/#{provider}"
+    # Check if provider is configured
+    unless Devise.omniauth_configs[provider.to_sym]
+      locale = session[:locale] || I18n.default_locale
+      redirect_to "/#{locale}/users/sign_in", alert: "Provider de autentificare neconfigurat. Te rugăm să contactezi suportul."
+      return
+    end
+    
+    # If provider is configured, OmniAuth middleware should have handled this
+    # If we reach here, something went wrong - redirect back to sign in
+    locale = session[:locale] || I18n.default_locale
+    redirect_to "/#{locale}/users/sign_in", alert: "Eroare la inițierea autentificării. Te rugăm să încerci din nou."
   end
 
   def failure
