@@ -74,7 +74,7 @@
         <% end %>
         <div class="min-w-0">
           <p class="feed-card__timestamp"><%= time_ago_in_words(recipe.created_at) %> <%= t('time.ago') %></p>
-          <p class="feed-card__author-name truncate"><%= recipe.user.username || recipe.user.email || "Anonim" %></p>
+          <p class="feed-card__author-name truncate"><%= recipe.user.username || "Anonim" %></p>
         </div>
       <% end %>
     <% else %>

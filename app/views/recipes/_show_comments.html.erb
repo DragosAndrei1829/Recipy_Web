@@ -133,7 +133,7 @@
           <!-- Content -->
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-3 mb-3">
-              <strong class="text-base font-bold text-primary-content"><%= comment.user&.username || comment.user&.email || "Anonim" %></strong>
+              <strong class="text-base font-bold text-primary-content"><%= comment.user&.username || "Anonim" %></strong>
               <span class="text-sm text-secondary-content"><%= time_ago_in_words(comment.created_at) %> <%= t('time.ago') %></span>
               
               <!-- Overall Rating Badge -->
