@@ -151,14 +151,19 @@ module Api
         }
 
         if full
+          # Only include email if user is viewing their own profile
+          email_data = {}
+          if current_api_user && current_api_user.id == user.id
+            email_data[:email] = user.email
+          end
+          
           data.merge!({
-            email: user.email,
             first_name: user.first_name,
             last_name: user.last_name,
             created_at: user.created_at,
             is_following: current_api_user ? current_api_user.following.exists?(user.id) : false,
             is_followed_by: current_api_user ? current_api_user.followers.exists?(user.id) : false
-          })
+          }.merge(email_data))
         end
 
         data

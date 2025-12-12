@@ -30,7 +30,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       format.html { render partial: "users/search_results", locals: { users: @users, query: @query } }
-      format.json { render json: @users.map { |u| { id: u.id, username: u.username, email: u.email, avatar_url: u.avatar.attached? ? url_for(u.avatar.variant(resize_to_fill: [ 40, 40 ])) : nil } } }
+      format.json { render json: @users.map { |u| { id: u.id, username: u.username, avatar_url: u.avatar.attached? ? url_for(u.avatar.variant(resize_to_fill: [ 40, 40 ])) : nil } } }
     end
   rescue => e
     respond_to do |format|
