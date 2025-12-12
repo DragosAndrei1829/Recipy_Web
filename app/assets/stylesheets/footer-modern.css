@@ -1,0 +1,182 @@
+/* Modern Footer Design - Never Seen Before */
+.site-footer {
+  position: relative;
+  background: linear-gradient(180deg, 
+    rgba(15, 15, 25, 0.95) 0%,
+    rgba(20, 20, 30, 1) 100%);
+  border-top: 2px solid rgba(251, 146, 60, 0.2);
+  overflow: hidden;
+  width: 100%;
+  margin-left: 0;
+  clear: both;
+  z-index: 10;
+}
+
+/* Ensure footer doesn't get covered by sidebar on desktop */
+@media (min-width: 1024px) {
+  .main-content-wrapper .site-footer {
+    margin-left: 0;
+    padding-left: 0;
+  }
+}
+
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(251, 146, 60, 0.6) 50%,
+    transparent 100%);
+  animation: footerShimmer 3s ease-in-out infinite;
+}
+
+@keyframes footerShimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.site-footer::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(251, 146, 60, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.site-footer > div {
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer h3 {
+  position: relative;
+  display: inline-block;
+}
+
+.site-footer h3::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    rgba(251, 146, 60, 1) 0%,
+    rgba(249, 115, 22, 1) 100%);
+  border-radius: 2px;
+  animation: footerLineExpand 2s ease-in-out infinite;
+}
+
+@keyframes footerLineExpand {
+  0%, 100% { width: 50px; }
+  50% { width: 100px; }
+}
+
+.site-footer .bg-card {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.site-footer .bg-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(251, 146, 60, 0.1) 50%,
+    transparent 100%);
+  transition: left 0.5s ease;
+}
+
+.site-footer .bg-card:hover::before {
+  left: 100%;
+}
+
+.site-footer .bg-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 146, 60, 0.4);
+  box-shadow: 0 8px 24px rgba(251, 146, 60, 0.2);
+}
+
+.site-footer a {
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.site-footer a::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    rgba(251, 146, 60, 1) 0%,
+    rgba(249, 115, 22, 1) 100%);
+  transition: width 0.3s ease;
+}
+
+.site-footer a:hover::before {
+  width: 100%;
+}
+
+.site-footer a:hover {
+  transform: translateX(4px);
+}
+
+.site-footer .border-t {
+  position: relative;
+}
+
+.site-footer .border-t::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(251, 146, 60, 0.4) 50%,
+    transparent 100%);
+}
+
+/* Floating particles effect */
+.site-footer {
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(251, 146, 60, 0.03) 0%, transparent 2%),
+    radial-gradient(circle at 30% 40%, rgba(249, 115, 22, 0.02) 0%, transparent 2%),
+    radial-gradient(circle at 50% 60%, rgba(251, 146, 60, 0.03) 0%, transparent 2%),
+    radial-gradient(circle at 70% 80%, rgba(249, 115, 22, 0.02) 0%, transparent 2%),
+    radial-gradient(circle at 90% 30%, rgba(251, 146, 60, 0.03) 0%, transparent 2%);
+  background-size: 200% 200%;
+  animation: footerParticles 20s ease-in-out infinite;
+}
+
+@keyframes footerParticles {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+
+
+
