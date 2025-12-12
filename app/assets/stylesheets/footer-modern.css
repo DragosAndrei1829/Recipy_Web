@@ -1,15 +1,32 @@
-/* Modern Footer Design - Never Seen Before */
+/* Modern Footer Design - Minimal & Clean */
 .site-footer {
   position: relative;
   background: linear-gradient(180deg, 
     rgba(15, 15, 25, 0.95) 0%,
     rgba(20, 20, 30, 1) 100%);
-  border-top: 2px solid rgba(251, 146, 60, 0.2);
+  border-top: 1px solid rgba(251, 146, 60, 0.15);
   overflow: hidden;
   width: 100%;
   margin-left: 0;
   clear: both;
   z-index: 10;
+}
+
+/* Minimal footer links - text inline with arrow */
+.site-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.site-footer a svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.site-footer a:hover svg {
+  transform: translateX(2px);
 }
 
 /* Ensure footer doesn't get covered by sidebar on desktop */

@@ -23,18 +23,18 @@
         <ul class="space-y-2">
           <li>
             <%= link_to recipes_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-              <%= t('footer.links.recipes') %>
+              <span><%= t('footer.links.recipes') %></span>
             <% end %>
           </li>
           <li>
             <%= link_to contact_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-              <%= t('footer.links.contact') %>
+              <span><%= t('footer.links.contact') %></span>
             <% end %>
           </li>
           <% unless user_signed_in? %>
@@ -65,19 +65,21 @@
             <%= t('footer.contact.title') %>
           </span>
         </h3>
-        <div class="grid gap-4">
-          <div class="rounded-2xl bg-card p-4 border border-default/60">
-            <p class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.email_label') %></p>
-            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_email %></p>
-          </div>
-          <div class="rounded-2xl bg-card p-4 border border-default/60">
-            <p a class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.phone_label') %></p>
-            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_phone %></p>
-          </div>
-          <div class="rounded-2xl bg-card p-4 border border-default/60">
-            <p class="text-xs text-secondary-content uppercase font-semibold mb-1"><%= t('footer.contact.address_label') %></p>
-            <p class="text-sm text-primary-content font-semibold"><%= SiteSetting.instance.contact_address %></p>
-          </div>
+        <div class="space-y-2">
+          <%= link_to "mailto:#{SiteSetting.instance.contact_email}", class: "flex items-center gap-2 text-sm text-secondary-content hover:text-primary transition-colors duration-300" do %>
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            <%= SiteSetting.instance.contact_email %>
+          <% end %>
+          <% if SiteSetting.instance.contact_address.present? %>
+            <div class="flex items-center gap-2 text-sm text-secondary-content">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+              <%= SiteSetting.instance.contact_address %>
+            </div>
+          <% end %>
         </div>
         <div class="pt-2">
           <%= link_to contact_path, class: "inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-primary transition-colors duration-300" do %>
@@ -99,26 +101,26 @@
         <ul class="space-y-2">
           <li>
             <%= link_to privacy_policy_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-              <%= t('footer.legal.privacy') %>
+              <span><%= t('footer.legal.privacy') %></span>
             <% end %>
           </li>
           <li>
             <%= link_to terms_conditions_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-              <%= t('footer.legal.terms') %>
+              <span><%= t('footer.legal.terms') %></span>
             <% end %>
           </li>
           <li>
             <%= link_to cookie_policy_path, class: "text-sm text-secondary-content hover:text-primary transition-colors duration-300 flex items-center gap-2" do %>
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
               </svg>
-              <%= t('footer.legal.cookies') %>
+              <span><%= t('footer.legal.cookies') %></span>
             <% end %>
           </li>
         </ul>
